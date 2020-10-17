@@ -311,3 +311,15 @@ y_dat <- to_categorical(y_dat)
 y_dat <- y_dat[, -1]
 
 print("All names classified and encoded for training the model.")
+
+####################################
+######### SAVE THE DATA # ##########
+####################################
+
+write.csv(x = df_train, 
+          file = "/scicore/home/weder/nigmat01/Data_inventor_migration/df_train.csv",
+          row.names = FALSE)
+saveRDS(object = x_dat,
+        file = "/scicore/home/weder/nigmat01/Data_inventor_migration/x_dat.rds")
+saveRDS(object = y_dat,
+        file = "/scicore/home/weder/nigmat01/Data_inventor_migration/y_dat.rds")

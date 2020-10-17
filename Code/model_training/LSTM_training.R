@@ -20,6 +20,21 @@ library("reticulate")
 # directories  -----------------------------------------------------------------
 mainDir1 <- "/scicore/home/weder/GROUP/Innovation/01_patent_data"
 
+################################
+## Load the data for training ##
+################################
+
+df_train <- read.csv(file = "/scicore/home/weder/nigmat01/Data_inventor_migration/df_train.csv")
+x_dat <- readRDS(file = "/scicore/home/weder/nigmat01/Data_inventor_migration/x_dat.rds")
+y_dat <- readRDS(file = "/scicore/home/weder/nigmat01/Data_inventor_migration/y_dat.rds")
+
+y_classes <- data.frame(
+        levels = levels(as.factor(df_train$origin)),
+        numbers = seq(length(unique(df_train$origin)))
+        )
+
+print("Data for training the model successfully loaded.")
+
 ################################################
 ######### split to train and test set ##########
 ################################################
@@ -41,13 +56,13 @@ y_val <- y_dat[-train_idx, ]
 ## build and compile the model -------------------------------------------------
 model <- keras_model_sequential()
 model %>%
-        layer_lstm(units = 512, return_sequences = TRUE, # original: 512 hidden units
+        layer_lstm(units = 512, return_sequences = TRUE,
                    input_shape = c(ncol(x_train), dim(x_train)[3])) %>%
-        layer_dropout(rate = 0.33) %>% # original: 0.2
-        layer_lstm(units = 256, return_sequences = TRUE) %>% # original: 256 hidden units
-        layer_dropout(rate = 0.33) %>% # original: 0.2
-        layer_lstm(units = 64) %>% # original: 64 hidden units
-        layer_dropout(rate = 0.1) %>% # original: 0.1
+        layer_dropout(rate = 0.33) %>%
+        layer_lstm(units = 256, return_sequences = TRUE) %>%
+        layer_dropout(rate = 0.33) %>%
+        layer_lstm(units = 64) %>%
+        layer_dropout(rate = 0.1) %>%
         layer_dense(units = ncol(y_train), activation = "softmax")
 summary(model)
 
@@ -57,19 +72,15 @@ model %>% compile(
         metrics = c("accuracy"))
 
 ## class_weights: --------------------------------------------------------------
-y_classes$class_weights <- 1
-# y_classes$class_weights <- ifelse(
-#         y_classes$levels %in% c("Turkey", "Persion",
-#                                 "MiddleEast", "SouthEastAsia"),
-#         10, 1)
-y_classes[y_classes$levels == "AngloSaxon", "class_weights"] <- 10
+y_classes$class_weights <- ifelse(y_classes$levels  == "AngloSaxon", 10, 1)
 CLASS_WEIGHTS <- as.list(y_classes$class_weights)
 names(CLASS_WEIGHTS) <- y_classes$numbers
 
-## fit the model ---------------------------------------------------------------
+## training parameters--------------------------------------------------------
 EPOCHS <- 20
-BATCH_SIZE <- 256 # original = 128
+BATCH_SIZE <- 256
 
+## fit the model
 hist <- model %>% fit(
         x = x_train, y = y_train, 
         class_weights = CLASS_WEIGHTS,
@@ -83,10 +94,20 @@ hist <- model %>% fit(
 # The goal is to have maximum accuracy for the Anglo-Saxons and relatively equal f1 for all others
 
 ## RESULTS  ----------------------------------
-# (1)   weight AngloSaxon = 10, all separated except Russia/EastEurope no weights, BATCH = 256, EPOCH = 20
+# (1)   weight AngloSaxon = 10, all separated except Russia/EastEurope no weights, BATCH = 256, EPOCH = 20, DROPOUT = 0.33 / 0.1
 #       TOTAL_ACCURACY: 81.97%, TOTAL F1: 77.55%, 
 #       ANGLOSAXON_ACC: 64.73%, ANGLOSAXON_F1: 78.59%, ANGLOSAXON_PRECISION: 82.05% 
-#       REAMRKS: 
+#       REAMRKS: Model could further learn
+
+# (2)   weight AngloSaxon = 15, all separated except Russia/EastEurope no weights, BATCH = 256, EPOCH = 20, DROPOUT = 0.33 / 0.1
+#       TOTAL_ACCURACY: 80.84%, AVERAGE_F1: 76.10%, 
+#       ANGLOSAXON_ACC: 63.42%, ANGLOSAXON_F1: 77.62%, ANGLOSAXON_PRECISION: 84.01% 
+#       REAMRKS: Increasing weights did not help to raise accuracy
+
+# (3)   weight AngloSaxon = 5, all separated except Russia/EastEurope no weights, BATCH = 256, EPOCH = 20, DROPOUT = 0.33 / 0.1
+#       TOTAL_ACCURACY: 80.33%, AVERAGE_F1: 75.77%, 
+#       ANGLOSAXON_ACC: 62.61%, ANGLOSAXON_F1: 77.01%, ANGLOSAXON_PRECISION: 73.3%, ANGLOSAXON_RECALL: 81.1% 
+#       REAMRKS: lower accuracy. Somewhere between 5 and 15 seems to be optimal weight
 
 #########################################
 ############ evaluate the model #########
@@ -95,13 +116,14 @@ hist <- model %>% fit(
 # for precision, recall and f1 in multiclass problems:
 #https://towardsdatascience.com/multi-class-metrics-made-simple-part-ii-the-f1-score-ebe8b2c2ca1
 
+## predict classes on validation set:
 tmp <- df_train[-train_idx, ]
 tmp$pred <- as.numeric(model %>% predict_classes(x_val[, ,]))
 tmp$pred <- y_classes[tmp$pred + 1, "levels"]
 tmp$res <- tmp$origin == tmp$pred
 
-## overall accuracy: -----------------------------------------------------------
-table(tmp$res)/nrow(tmp)
+## overall accuracy of the model on evaluation set: -----------------------------------
+table(tmp$res) / nrow(tmp)
 
 # confusion matrix by origin -----------------------------------------------------------
 conf_matrix_fun <- function(region){
@@ -113,8 +135,9 @@ conf_matrix_fun <- function(region){
 }
 conf_matrix_fun("AngloSaxon")
 
-## precision by origin: --------------------------------------------------------
-# => i.e. "how many of the predicted class are indeed from this class?" (TP / TP + FP)
+## Precision by origin: --------------------------------------------------------
+# i.e. "how many of the predicted origin are indeed of this origin?" (TP / TP + FP)
+# "From all predicted AngloSaxons, how many are indeed AngloSaxons?"
 origin_precision <- tmp %>% group_by(pred) %>% summarise(n_obs = n(), 
                                                          origin_precision = sum(res == TRUE) / n()) %>%
         rename(region = pred) %>%
@@ -122,8 +145,9 @@ origin_precision <- tmp %>% group_by(pred) %>% summarise(n_obs = n(),
 origin_precision %>% arrange(origin_precision)
 mean(origin_precision$origin_precision)
 
-## recall by origin: -----------------------------------------------------------
-# "how many form one classes are also predicted in this class?" (TP / TP + FN)
+## Recall by origin: -----------------------------------------------------------
+# "how many form a given origin are also predicted to be of this origin?" (TP / TP + FN)
+# "how many AngloSaxons are indeed predicted as such?"
 origin_recall <- tmp %>% group_by(origin) %>% summarise(n_obs = n(), 
                                                         origin_recall = sum(res == TRUE) / n()) %>%
         rename(region = origin) %>%
@@ -139,7 +163,7 @@ origin_eval$f1 <- 2 * (origin_eval$origin_precision * origin_eval$origin_recall)
 origin_eval %>% arrange(f1)
 mean(origin_eval$f1)
 
-# accuracy of all origin classes ------------------------------------------
+# Accuracy by origin: ------------------------------------------
 acc_fun <- function(ctry){
         conf_matrix <- conf_matrix_fun(ctry)
         acc <- sum(diag(conf_matrix)) / sum(conf_matrix)
@@ -152,7 +176,14 @@ origin_eval %>% arrange(accuracy)
 sapply(origin_eval[,-1], median)
 sapply(origin_eval[,-1], range)
 
-# GET MORE SAMPLES FROM IRAN, SOUTH-EAST ASIA
+# GET MORE SAMPLES FROM IRAN & SOUTH-EAST ASIA
+
+####################################
+######### SAVE THE MODEL ###########
+####################################
+
+model %>% save_model_hdf5(file = "/scicore/home/weder/nigmat01/Data_inventor_migration/origin_class_model.h5")
+
 
 ## To-Do's----------------------------------------------
 ## 1) weight initialization
