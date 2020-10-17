@@ -11,7 +11,6 @@
 
 # packages for data processing: ------------------------------------------------
 library("tidyverse")
-library("stringi")
 
 # packages for training the network: -------------------------------------------
 library("tensorflow")
@@ -20,9 +19,6 @@ library("reticulate")
 
 # directories  -----------------------------------------------------------------
 mainDir1 <- "/scicore/home/weder/GROUP/Innovation/01_patent_data"
-if(substr(getwd(), nchar(getwd())-23, nchar(getwd())) != "/innoscape-data-creation"){
-        print("make sure your working directory is the GitHub repository. Please specify with setwd().")}else{
-                print("Directories are set and packages are loaded")}
 
 ################################################
 ######### split to train and test set ##########
@@ -62,11 +58,11 @@ model %>% compile(
 
 ## class_weights: --------------------------------------------------------------
 y_classes$class_weights <- 1
-y_classes$class_weights <- ifelse(y_classes$levels %in% c("Turkey", "Persion", "MiddleEast", "SouthEastAsia"),
-                                  10, 1)
-# y_classes$class_weights <- ifelse(y_classes$levels %in% c("AngloSaxon", "German"), 10, 1)
-y_classes[y_classes$levels == "AngloSaxon", "class_weights"] <- 5
-# y_classes[y_classes$levels == "German", "class_weights" ] <- 10
+# y_classes$class_weights <- ifelse(
+#         y_classes$levels %in% c("Turkey", "Persion",
+#                                 "MiddleEast", "SouthEastAsia"),
+#         10, 1)
+y_classes[y_classes$levels == "AngloSaxon", "class_weights"] <- 10
 CLASS_WEIGHTS <- as.list(y_classes$class_weights)
 names(CLASS_WEIGHTS) <- y_classes$numbers
 
@@ -83,48 +79,21 @@ hist <- model %>% fit(
                                                  restore_best_weights = TRUE)),
         epochs = EPOCHS, batch_size = BATCH_SIZE, verbose = 2)
 
-# Results: ---------------------------------------------------------------------
-# => 80.01% accuracy with 10 epochs (RUS/EE & China/SEA combined, maximum sample i.e. 32k)
-# => 79.23% accuracy with 10 epochs (RUS/EE & China/SEA combined, maximum sample i.e. 32k + class_weights = both 5)
-# => 83.33% accuracy with 10 epochs (RUS/EE & China/SEA combined, maximum sample i.e. 32k + class_weights = both 10) => overfitting and little learning
-# => 78.61% accuracy with 10 epochs (RUS/EE & China/SEA combined, maximum sample i.e. 32k + class_weights Germany only = 15 & reduced model complexity)
-# => 79.64% accuracy with 10 epochs (RUS/EE & China/SEA combined, maximum sample i.e. 32k + class_weights 7.5/15)
-# => 78.33% accuracy with 10 epochs (RUS/EE & China/SEA combined, maximum sample i.e. 32k + class_weights both 7.5)
-# => 82.93% accuracy with 10 epochs (RUS/EE & China/SEA combined, maximum sample i.e. 32k + class_weights Germany only = 10) => overfitting and some learning
-# => 75.13% accuracy with 10 epochs (RUS/EE & China/SEA combined, enhanced sample + class_weights Germany only = 10, BATCH_SIZE = 256)
-# => 81.60% accuracy with 10 epochs (RUS/EE & China/SEA combined, enhanced sample, no weights, BATCH_SIZE = 256)
-
-# => 81.87% accuracy with 20 epochs (RUS/EE & China/SEA combined, full sample, no weights, BATCH = 256): all classes with minimum recall/precision of 75% 
-# => 82.51% accuracy with 20 epochs (RUS/EE & China/SEA combined, full sample, no weights, BATCH = 256, dropout = 0.33): recall range is slightly larger than before
-
 ## IDEA
-# The goal is that recall/precision is similar for all classes. then we have no bias when calculating shares
-# => Thus, increase class weights for those classes where recall is lower than average
+# The goal is to have maximum accuracy for the Anglo-Saxons and relatively equal f1 for all others
 
-## EXTENSIONS  ----------------------------------
-
-## (1) results with China & SE-Asia separated:
-# => 81.70% accuracy with 20 epochs (full sample, no weights, BATCH = 256, dropout = 0.33(0.1 at last stage))
-#    Model would maybe even learn more with more than 20 eepochs
-#    China: 84.19% f1, SEAsia: 37.62% f1, JPN: 88.16% f1, KOR: 88.78% f1
-#    PERFORMANCES DO NOT DECREASE FOR OTHER ASIAN COUNTRIES BUT VERY LOW FOR SE-ASIA. This does not make sense
-
-## (2) results with Persia & Turkey separated:
-# => 80.99% accuracy with 20 epochs (full sample, BATCH = 256, dropout = 0.33(0.1 at last stage))
-#    MiddleEast: 64.8% f1, Turkey: 76.05% f1, Persia: 70.47% f1
-#    AngloSaxon: f1: 0.7867784 acc: 0.6485035
-
-## (3) results with all of them separated (weights = 10) AND weights for AngloSaxon (weight = 5)
-# => 80.62% accuracy with 20 epochs (full sample, weight = 5 for Turkey, MiddleEast, Persia & SEASia, 
-#                                     BATCH = 256, dropout = 0.33(0.1 at last stage))
-# => Model would maybe even learn more with more than 20 epochs
-#    China: xxxx acc, SEAsia: xxxx acc, JPN: xxxx acc, KOR: xxxx acc
-#    MiddleEast: xxxx acc, Turkey: xxxx acc, Persia: xxxx acc 
-#    AngloSaxon: f1: xxxx acc: xxxx
+## RESULTS  ----------------------------------
+# (1)   weight AngloSaxon = 10, all separated except Russia/EastEurope no weights, BATCH = 256, EPOCH = 20
+#       TOTAL_ACCURACY: 81.97%, TOTAL F1: 77.55%, 
+#       ANGLOSAXON_ACC: 64.73%, ANGLOSAXON_F1: 78.59%, ANGLOSAXON_PRECISION: 82.05% 
+#       REAMRKS: 
 
 #########################################
 ############ evaluate the model #########
 #########################################
+
+# for precision, recall and f1 in multiclass problems:
+#https://towardsdatascience.com/multi-class-metrics-made-simple-part-ii-the-f1-score-ebe8b2c2ca1
 
 tmp <- df_train[-train_idx, ]
 tmp$pred <- as.numeric(model %>% predict_classes(x_val[, ,]))
@@ -145,20 +114,22 @@ conf_matrix_fun <- function(region){
 conf_matrix_fun("AngloSaxon")
 
 ## precision by origin: --------------------------------------------------------
-# => i.e. "how many of the predicted class are also from this class?" (TP / TP + FP)
+# => i.e. "how many of the predicted class are indeed from this class?" (TP / TP + FP)
 origin_precision <- tmp %>% group_by(pred) %>% summarise(n_obs = n(), 
                                                          origin_precision = sum(res == TRUE) / n()) %>%
         rename(region = pred) %>%
         arrange(origin_precision)
 origin_precision %>% arrange(origin_precision)
+mean(origin_precision$origin_precision)
 
 ## recall by origin: -----------------------------------------------------------
-# "how many form one classes are predicted in this class?" (TP / TP + FN)
+# "how many form one classes are also predicted in this class?" (TP / TP + FN)
 origin_recall <- tmp %>% group_by(origin) %>% summarise(n_obs = n(), 
                                                         origin_recall = sum(res == TRUE) / n()) %>%
         rename(region = origin) %>%
         arrange(origin_recall)
 origin_recall %>% arrange(origin_recall)
+mean(origin_recall$origin_recall)
 
 ## F1 by origin ----------------------------------------------------------------
 origin_eval <- merge(origin_precision[, c("region", "origin_precision")],
@@ -166,6 +137,7 @@ origin_eval <- merge(origin_precision[, c("region", "origin_precision")],
 origin_eval$f1 <- 2 * (origin_eval$origin_precision * origin_eval$origin_recall) / 
         (origin_eval$origin_precision + origin_eval$origin_recall)
 origin_eval %>% arrange(f1)
+mean(origin_eval$f1)
 
 # accuracy of all origin classes ------------------------------------------
 acc_fun <- function(ctry){
@@ -180,11 +152,7 @@ origin_eval %>% arrange(accuracy)
 sapply(origin_eval[,-1], median)
 sapply(origin_eval[,-1], range)
 
-
-# Remarks -------------------------------------------
-# weighting seems to make things worse because it always makes precision increasing
-# => challenge is that German is relatively bad. This is a problem because of our focus on CH
-# => maybe also weight French
+# GET MORE SAMPLES FROM IRAN, SOUTH-EAST ASIA
 
 ## To-Do's----------------------------------------------
 ## 1) weight initialization

@@ -12,15 +12,13 @@
 # packages for data processing: ------------------------------------------------
 library("tidyverse")
 library("stringi")
+library("keras")
 
 # directories  -----------------------------------------------------------------
 mainDir1 <- "/scicore/home/weder/GROUP/Innovation/01_patent_data"
-if(substr(getwd(), nchar(getwd())-23, nchar(getwd())) != "/innoscape-data-creation"){
-        print("make sure your working directory is the GitHub repository. Please specify with setwd().")}else{
-                print("Directories are set and packages are loaded")}
 
 # function to encode names -----------------------------------------------------
-source(paste0(getwd(),"/inv_gender/names_encoding_function.R"))
+source(paste0(getwd(),"/Code/training_data/names_encoding_function.R"))
 print("Functions are loaded")
 
 ###################################
@@ -54,9 +52,9 @@ ref_list[grep("Celtic", ref_list$name_prism_origin),
          "origin_group"] <- "AngloSaxon"
 ref_list[grep("Nordic", ref_list$name_prism_origin), 
          "origin_group"] <- "Scandinavian"
+
 ref_list[grep("Muslim", ref_list$name_prism_origin), 
          "origin_group"] <- "MiddleEast"
-
 ref_list[grep("Persian", ref_list$name_prism_origin), 
          "origin_group"] <- "Persian"
 ref_list[grep("Turkey", ref_list$name_prism_origin), 
@@ -66,6 +64,7 @@ ref_list[grep("EastAsia", ref_list$name_prism_origin),
          "origin_group"] <- "SouthEastAsia"
 ref_list[grep("Chin", ref_list$name_prism_origin), 
          "origin_group"] <- "China"
+
 ref_list[grep("Jap", ref_list$name_prism_origin), 
          "origin_group"] <- "Japan"
 ref_list[grep("Kore", ref_list$name_prism_origin), 
@@ -119,24 +118,62 @@ df$max_pred <- sapply(seq(1, nrow(df)), function(i){
         return(max_pred)
 }
 )
+# start.time <- Sys.time()
+# max_name <- function(dat){
+#   tmp <- t(dat)[-1, ]
+#   tmp <- as.data.frame(tmp)
+#   tmp <- data.frame(sapply(tmp, as.numeric))
+#   max_pred <- sapply(tmp, function(x) max(x, na.rm = TRUE))
+#   dat$max_pred <- max_pred
+#   return(dat)
+# }
+# df <- max_name(df)
+# end.time <- Sys.time()
+# time.taken_transp <- end.time - start.time
+# time.taken_transp
+# => this would be much faster but it creates problems with rounded numerics
 
 ## calculate distance to the second highest prediction
-df$distance_2nd <- sapply(seq(1, nrow(df)), function(i){
-        distance_2nd <- as.numeric(df[i, 2:(ncol(df)-1)])
-        distance_2nd <- sort(distance_2nd, decreasing = TRUE)[1:2]
-        distance_2nd <- abs(diff(distance_2nd))
-        return(distance_2nd)
+# df$distance_2nd <- sapply(seq(1, nrow(df)), function(i){
+#         distance_2nd <- as.numeric(df[i, 2:(ncol(df)-1)])
+#         distance_2nd <- sort(distance_2nd, decreasing = TRUE)[1:2]
+#         distance_2nd <- abs(diff(distance_2nd))
+#         return(distance_2nd)
+# }
+# )
+dist_2nd <- function(dat){
+  tmp <- t(dat[, !colnames(dat) %in% c("full_name", "max_pred")])
+  tmp <- as.data.frame(tmp)
+  tmp <- data.frame(sapply(tmp, as.numeric))
+  tmp <- sapply(tmp, function(x) sort(x, decreasing = TRUE))
+  tmp <- as.data.frame(tmp[1:2, ])
+  distance_2nd <- sapply(tmp, function(x)abs(diff(x)))
+  dat$distance_2nd <- distance_2nd
+  return(dat)
 }
-)
+df <- dist_2nd(df)
 
 ## calculate entropy
-df$entropy <- sapply(seq(1, nrow(df)), function(i){
-        entropy <- as.numeric(df[i, 2:(ncol(df)-2)])
-        entropy <- entropy * log(entropy)
-        entropy <- -sum(entropy)
-        return(entropy)
+# df$entropy <- sapply(seq(1, nrow(df)), function(i){
+#         entropy <- as.numeric(df[i, 2:(ncol(df)-2)])
+#         entropy <- entropy * log(entropy)
+#         entropy <- -sum(entropy)
+#         return(entropy)
+# }
+# )
+entropy_fun <- function(dat){
+  tmp <- t(dat[, !colnames(dat) %in% c("full_name", "max_pred", "distance_2nd")])
+  tmp <- as.data.frame(tmp)
+  tmp <- data.frame(sapply(tmp, as.numeric))
+  entro <- sapply(tmp, function(x){
+    entro <- x * log(x)
+    entro <- - sum(entro)
+    return(entro)}
+    )
+  dat$entropy <- entro
+  return(dat)
 }
-)
+df <- entropy_fun(df)
 
 ## subset to clearly identified names: -----------------------------------------
 # HERE I COULD ALSO TRY OUT DIFFERENT COMBINATIONS OF PARAMETERS AND THEN ESTIMATE THE MODELS WITH
@@ -200,12 +237,13 @@ df_train <- rbind(df_train, tmp)
 tmp <- df %>% filter(origin == "Scandinavian")
 df_train <- rbind(df_train, tmp)
 
-# tmp <- df %>% filter(origin == "China&SouthEastAsia")# %>% sample_n(4000)
+# tmp <- df %>% filter(origin == "China&SouthEastAsia")
 # df_train <- rbind(df_train, tmp)
 tmp <- df %>% filter(origin == "China")
 df_train <- rbind(df_train, tmp)
 tmp <- df %>% filter(origin == "SouthEastAsia")
 df_train <- rbind(df_train, tmp)
+
 tmp <- df %>% filter(origin == "Russian&EastEurope")
 df_train <- rbind(df_train, tmp)
 
