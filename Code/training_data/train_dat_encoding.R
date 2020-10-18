@@ -317,9 +317,9 @@ print("All names classified and encoded for training the model.")
 ####################################
 
 write.csv(x = df_train, 
-          file = "/scicore/home/weder/nigmat01/Data_inventor_migration/df_train.csv",
+          file = paste0(getwd(), "/Data/training_data/df_train.csv"),
           row.names = FALSE)
 saveRDS(object = x_dat,
-        file = "/scicore/home/weder/nigmat01/Data_inventor_migration/x_dat.rds")
+        file = paste0(getwd(), "/Data/training_data/x_dat.rds"))
 saveRDS(object = y_dat,
-        file = "/scicore/home/weder/nigmat01/Data_inventor_migration/y_dat.rds")
+        file = paste0(getwd(), "/Data/training_data/y_dat.rds"))

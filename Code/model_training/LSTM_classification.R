@@ -19,11 +19,17 @@ library("reticulate")
 
 # directories  -----------------------------------------------------------------
 mainDir1 <- "/scicore/home/weder/GROUP/Innovation/01_patent_data"
+if(substr(x = getwd(), 
+          nchar(getwd())-17, nchar(getwd())) == "inventor_migration"){
+        print("Working directory corresponds to repository directory")}else{
+                print("Make sure your working directory is the repository directory.")}
+#setwd(...)
+
 
 # load the trained LSTM model
-origin_model <- load_model_hdf5("/scicore/home/weder/nigmat01/Data_inventor_migration/origin_class_model.h5")
-origin_model <- load_model_hdf5("/scicore/home/weder/nigmat01/Data_inventor_migration/origin_class_model.h5")
-origin_model <- load_model_hdf5("/scicore/home/weder/nigmat01/Data_inventor_migration/origin_class_model.h5")
+origin_model <- load_model_hdf5(paste0(getwd(), "/Data/classification_model/origin_class_model.h5"))
+origin_model <- load_model_hdf5(paste0(getwd(), "/Data/classification_model/origin_class_model.h5"))
+origin_model <- load_model_hdf5(paste0(getwd(), "/Data/classification_model/origin_class_model.h5"))
 if(is.null(origin_model) == FALSE){print("Classification model loaded")}else{"Model could not be loaded"}
 
 # function to encode names -----------------------------------------------------
@@ -155,5 +161,5 @@ paste0("Ethnical origin assigned to ", nrow(pred_dat), " inventors.")
 ##### Save the dataset #####
 ############################
 
-pred_dat %>% saveRDS("/scicore/home/weder/nigmat01/Data_inventor_migration/inventor_origin.rds")
+pred_dat %>% saveRDS(paste0(getwd(), "/Data/patent_data/inventor_origin.rds"))
 print("Dataset saved as 'inventor_origin.rds'.")

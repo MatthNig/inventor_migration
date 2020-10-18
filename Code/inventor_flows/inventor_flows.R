@@ -13,11 +13,15 @@
 library("tidyverse")
 
 # directories  -----------------------------------------------------------------
-#mainDir1 <- "/scicore/home/..."
+if(substr(x = getwd(), 
+          nchar(getwd())-17, nchar(getwd())) == "inventor_migration"){
+        print("Working directory corresponds to repository directory")}else{
+                print("Make sure your working directory is the repository directory.")}
+#setwd(...)
 
 # Load names of patents' inventors --------------------------------------------
 #inv_reg <- readRDS(paste0(mainDir1, "/..."))
-inv_dat <- readRDS("/scicore/home/weder/nigmat01/Data_inventor_migration/inventor_origin.rds")
+inv_dat <- readRDS(paste0(getwd(), "/Data/patent_data/inventor_origin.rds"))
 print("Data on patent inventors loaded")
 
 ####################################################

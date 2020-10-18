@@ -18,15 +18,19 @@ library("keras")
 library("reticulate")
 
 # directories  -----------------------------------------------------------------
-mainDir1 <- "/scicore/home/weder/GROUP/Innovation/01_patent_data"
+if(substr(x = getwd(), 
+          nchar(getwd())-17, nchar(getwd())) == "inventor_migration"){
+        print("Working directory corresponds to repository directory")}else{
+                print("Make sure your working directory is the repository directory.")}
+#setwd(...)
 
 ################################
 ## Load the data for training ##
 ################################
 
-df_train <- read.csv(file = "/scicore/home/weder/nigmat01/Data_inventor_migration/df_train.csv")
-x_dat <- readRDS(file = "/scicore/home/weder/nigmat01/Data_inventor_migration/x_dat.rds")
-y_dat <- readRDS(file = "/scicore/home/weder/nigmat01/Data_inventor_migration/y_dat.rds")
+df_train <- read.csv(file = paste0(getwd(), "/Data/training_data/df_train.csv"))
+x_dat <- readRDS(file = paste0(getwd(), "/Data/training_data/x_dat.rds"))
+y_dat <- readRDS(file = paste0(getwd(), "/Data/training_data/y_dat.rds"))
 
 y_classes <- data.frame(
         levels = levels(as.factor(df_train$origin)),
@@ -182,7 +186,7 @@ sapply(origin_eval[,-1], range)
 ######### SAVE THE MODEL ###########
 ####################################
 
-model %>% save_model_hdf5(file = "/scicore/home/weder/nigmat01/Data_inventor_migration/origin_class_model.h5")
+model %>% save_model_hdf5(file = paste0(getwd(), "/Data/classification_model/origin_class_model.h5"))
 
 
 ## To-Do's----------------------------------------------
