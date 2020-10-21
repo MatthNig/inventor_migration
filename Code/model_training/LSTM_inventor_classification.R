@@ -22,8 +22,7 @@ if(substr(x = getwd(),
           nchar(getwd())-17, nchar(getwd())) == "inventor_migration"){
         print("Working directory corresponds to repository directory")}else{
                 print("Make sure your working directory is the repository directory.")}
-#setwd(...)
-
+#setwd("/scicore/home/weder/nigmat01/inventor_migration")
 
 # load the trained LSTM model
 origin_model <- load_model_hdf5(paste0(getwd(), "/Data/classification_model/origin_class_model.h5"))
@@ -41,10 +40,14 @@ print("Encoded inventor data loaded.")
 #######################################
 
 # predict
+set.seed(250000)
+sample_idx <- sample(nrow(pred_dat), 250000, replace = FALSE)
+names_encoded <- names_encoded[sample_idx, , ]
+pred_dat <- pred_dat[sample_idx, ]
 pred_dat$origin <- as.numeric(origin_model %>% predict_classes(names_encoded[ , , ]))
 
 # get classes:
-df_train <- read.csv(file = "/scicore/home/weder/nigmat01/Data_inventor_migration/df_train.csv")
+df_train <- read.csv(file = paste0(getwd(), "/Data/training_data/df_train.csv"))
 y_classes <- data.frame(
         levels = levels(as.factor(df_train$origin)),
         numbers = seq(length(unique(df_train$origin)))

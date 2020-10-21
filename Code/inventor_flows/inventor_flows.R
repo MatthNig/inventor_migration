@@ -38,11 +38,18 @@ panel_dat <- filter(panel_dat, p_year <= 2015)
 
 # Domestic Share
 ggplot(filter(panel_dat, origin == c("German")), aes(x = p_year, y = share, color = origin))+
-        geom_line()
+        geom_line()+ylim(0,0.8)
 
 # Foreign Shares
 ggplot(#panel_dat, 
-       filter(panel_dat, !origin %in% c("German")), 
+       filter(panel_dat, origin %in% c("China", "India", "HispanicLatinAmerica",
+                                       "Korea", "Japan", "Italian")), 
        aes(x = p_year, y = share, color = origin))+
-        geom_line()
+        geom_line()+ ylim(0, 0.15)
+View(inv_dat %>% filter(Ctry_code == "CH" & origin == "HispanicLatinAmerica") %>% select(name, origin))
 
+
+# HispanicLatinAmerica seems to be badly identified with respect to Germans.
+# maybe I could do the following on my model: take the predited classes only if it is reasonably save
+# i.e. for example minimum probability & minimum distance to the second largest prediction.
+# if this is not fullfilled, assign NA
