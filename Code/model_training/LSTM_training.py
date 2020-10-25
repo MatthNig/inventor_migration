@@ -17,6 +17,7 @@ print("All packages loaded.")
 
 #### Set directory-------------------------------------------------------------
 path = "C:/Users/Matthias/Documents/GithubRepos/inventor_migration"
+#path = "/scicore/home/weder/nigmat01/inventor_migration"
 os.chdir(path)
 os.getcwd()
 print("Directories specified")
@@ -26,10 +27,6 @@ df_train = pd.read_csv("Data/training_data/df_train.csv")
 print("Data for training the model successfully loaded.")
 
 #### Encode data for training the model ---------------------------------------
-## Load the functions
-# os.chdir(path+"/Code/model_training")
-# from names_encoding_function import encode_chars
-# os.chdir(path)
 function_path = path+"/Code/model_training"
 if function_path not in sys.path:
     sys.path.append(function_path)
@@ -51,7 +48,6 @@ y_classes = {"regions": sorted(list(df_train["origin"].unique())),
 
 y_classes = pd.DataFrame(y_classes)
 print("Data for training the model successfully transformed.")
-
 
 
 #### Define train and test set ------------------------------------------------
