@@ -6,6 +6,7 @@
 ###################################
 
 import numpy as np
+import pandas as pd
 
 def encode_chars(names, seq_max, char_dict, n_chars):
 
