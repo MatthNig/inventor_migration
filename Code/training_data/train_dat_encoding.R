@@ -18,8 +18,8 @@ library("keras")
 mainDir1 <- "/scicore/home/weder/GROUP/Innovation/01_patent_data"
 
 # function to encode names -----------------------------------------------------
-source(paste0(getwd(),"/Code/training_data/names_encoding_function.R"))
-print("Functions are loaded")
+# source(paste0(getwd(),"/Code/training_data/names_encoding_function.R"))
+# print("Functions are loaded")
 
 ###################################
 ############ Load data ############
@@ -284,33 +284,8 @@ paste0("truncating ", length(tmp[tmp>seq_tresh]), " (", round(100-length(tmp[tmp
        "%) names to ", seq_tresh, " characters")
 max_char <- seq_tresh
 
-#######################################
-######### CHARACTER ENCODING ##########
-#######################################
-
-x_dat <- encode_chars(names = df_train$full_name, 
-                      seq_max = max_char,
-                      char_dict = char_dict,
-                      n_chars = n_chars)
-
-paste("names are one-hot-encoded with shape: ", 
-      paste0("(", paste(dim(x_dat), collapse = ", "), ")")
-)
-
-####################################
-######### ORIGIN ENCODING ##########
-####################################
-
-y_dat <- as.factor(df_train$origin)
-y_classes <- data.frame(levels = levels(y_dat), 
-                        numbers = seq(length(unique(y_dat)))
-)
-levels(y_dat) <- y_classes$numbers
-y_dat <- as.numeric(as.character(y_dat))
-y_dat <- to_categorical(y_dat)
-y_dat <- y_dat[, -1]
-
-print("All names classified and encoded for training the model.")
+PARAMS <- data.frame(SEQ_MAX = max_char, N_CHARS = n_chars)
+CHAR_DICT <- char_dict
 
 ####################################
 ######### SAVE THE DATA # ##########
@@ -319,7 +294,7 @@ print("All names classified and encoded for training the model.")
 write.csv(x = df_train, 
           file = paste0(getwd(), "/Data/training_data/df_train.csv"),
           row.names = FALSE)
-saveRDS(object = x_dat,
-        file = paste0(getwd(), "/Data/training_data/x_dat.rds"))
-saveRDS(object = y_dat,
-        file = paste0(getwd(), "/Data/training_data/y_dat.rds"))
+write.csv(x = char_dict, file = paste0(getwd(), "/Data/training_data/CHAR_DICT.csv"),
+          row.names = FALSE)
+write.csv(x = PARAMS, file = paste0(getwd(), "/Data/training_data/PARAMS.csv"),
+          row.names = FALSE)

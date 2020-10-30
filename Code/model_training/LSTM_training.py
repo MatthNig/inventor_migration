@@ -22,6 +22,7 @@ tf.random.set_seed(10082020)
 
 #### Set directory-------------------------------------------------------------
 path = "C:/Users/Matthias/Documents/GithubRepos/inventor_migration"
+#path = "/scicore/home/weder/nigmat01/inventor_migration"
 os.chdir(path)
 os.getcwd()
 print("Directories specified")
@@ -33,7 +34,6 @@ print("Data for training the model successfully loaded.")
 ############################################
 #### Encode data for training the model ####
 ############################################
-
 function_path = path+"/Code/model_training"
 if function_path not in sys.path:
     sys.path.append(function_path)

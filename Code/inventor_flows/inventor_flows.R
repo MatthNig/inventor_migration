@@ -21,7 +21,7 @@ if(substr(x = getwd(),
 
 # Load names of patents' inventors --------------------------------------------
 #inv_reg <- readRDS(paste0(mainDir1, "/..."))
-inv_dat <- readRDS(paste0(getwd(), "/Data/patent_data/inventor_origin.rds"))
+inv_dat <- readRDS(paste0(getwd(), "/Data/patent_data/inventor_origin.rds")) # random subset of 250k inventors
 print("Data on patent inventors loaded")
 
 ####################################################

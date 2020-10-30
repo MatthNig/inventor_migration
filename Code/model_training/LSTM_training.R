@@ -17,6 +17,15 @@ library("tensorflow")
 library("keras")
 library("reticulate")
 
+# load encoding function and function parameters--------------------------------
+source(file = paste0(getwd(), "/Code/model_training/names_encoding_function.R"))
+PARAMS <- read.csv(file = paste0(getwd(), "/Data/training_data/PARAMS.csv"))
+SEQ_MAX <- PARAMS$SEQ_MAX
+N_CHARS <- PARAMS$N_CHARS
+CHAR_DICT <- read.csv(file = paste0(getwd(), "/Data/training_data/CHAR_DICT.csv"))
+CHAR_DICT <- CHAR_DICT$x
+print("Function and function parameters loaded.")
+
 # directories  -----------------------------------------------------------------
 if(substr(x = getwd(), 
           nchar(getwd())-17, nchar(getwd())) == "inventor_migration"){
@@ -29,15 +38,33 @@ if(substr(x = getwd(),
 ################################
 
 df_train <- read.csv(file = paste0(getwd(), "/Data/training_data/df_train.csv"))
-x_dat <- readRDS(file = paste0(getwd(), "/Data/training_data/x_dat.rds"))
-y_dat <- readRDS(file = paste0(getwd(), "/Data/training_data/y_dat.rds"))
-
 y_classes <- data.frame(
         levels = levels(as.factor(df_train$origin)),
         numbers = seq(length(unique(df_train$origin)))
         )
-
 print("Data for training the model successfully loaded.")
+
+#####################################################
+######### encode the features and outcomes ##########
+#####################################################
+
+#### outcome: origin classes
+y_dat <- as.factor(df_train$origin)
+levels(y_dat) <- y_classes$numbers
+y_dat <- as.numeric(as.character(y_dat))
+y_dat <- to_categorical(y_dat)
+y_dat <- y_dat[, -1]
+print("All names classified and encoded for training the model.")
+
+#### features: names encoding
+x_dat <- encode_chars(names = df_train$full_name,
+                      seq_max = SEQ_MAX,
+                      char_dict = CHAR_DICT,
+                      n_chars = N_CHARS)
+
+paste("names are one-hot-encoded with shape: ", 
+      paste0("(", paste(dim(x_dat), collapse = ", "), ")")
+)
 
 ################################################
 ######### split to train and test set ##########
