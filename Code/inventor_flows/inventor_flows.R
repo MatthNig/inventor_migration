@@ -57,26 +57,103 @@ View(inv_dat %>% filter(Ctry_code == "CH" & origin == "HispanicLatinAmerica") %>
 ####################################################
 ## Create weighted sum for all origins #############
 ####################################################
-panel_dat <- filter(inv_dat, Ctry_code == "US")
-weighted_sums <- panel_dat %>% group_by(p_year) %>% select(contains("prob")) %>%
-        summarise_all(.funs = sum)
-total <- panel_dat %>% group_by(p_year) %>% summarise(total = n())
-US_origin_shares <- merge(weighted_sums, total, by = "p_year")
-US_origin_shares[, c(-1, -17)] <- US_origin_shares[, c(-1, -17)] / US_origin_shares$total
-US_origin_shares <- US_origin_shares[, -17]
-US_origin_shares <- filter(US_origin_shares, p_year %in% c(1990, 1995, 2000, 2005, 2010, 2015))
 
-# change wide to long format
-US_origin_shares <- gather(US_origin_shares, key = "origin", value = "share", -p_year)
-US_origin_shares$origin <- gsub("prob_", "", US_origin_shares$origin)
+inv_comp_ctry <- function(df, country){
+        
+        annual_total <- filter(df, Ctry_code == country) %>%
+                group_by(p_year) %>% summarise(total = n())
+        
+        tmp <- filter(df, Ctry_code == country) %>%
+                group_by(p_year) %>% select(contains("prob")) %>%
+                summarise_all(.funs = sum)
+        
+        tmp <- merge(tmp, annual_total, by = "p_year")
+        tmp[, c(-1, -17)] <- tmp[, c(-1, -17)] / tmp$total
+
+        tmp <- gather(tmp, key = "origin", value = "share", -p_year, -total)
+        tmp$origin <- gsub("prob_", "", tmp$origin)
+        tmp$country <- country
+
+        return(tmp)
+}
+
+countries <- c("US", "GB", "FR", "DE")
+inv_origin_shares <- lapply(countries, function(x) inv_comp_ctry(inv_dat, x))
+names(inv_origin_shares) <- countries
 
 # Domestic Share
-ggplot(US_origin_shares %>% filter(origin == "AngloSaxon"), aes(x = p_year, y = share))+
+ggplot(inv_origin_shares[["US"]] %>% filter(origin == "AngloSaxon"), aes(x = p_year, y = share))+
         geom_line()+ylim(0,0.8)
 
 # Foreign Shares
-ggplot(filter(US_origin_shares, origin %in% c("China", "India", "HispanicLatinAmerica",
-                                        "German", "Russian&EastEurope", "Scandinavian", "SouthEastAsia")),
+ggplot(filter(inv_origin_shares[["GB"]], origin %in% c("China", "India", "HispanicLatinAmerica",
+                                        "Italian", "Russian&EastEurope", "Scandinavian", "SouthEastAsia")),
         aes(x = p_year, y = share, color = origin))+
         geom_line()+ ylim(0, 0.12)
+
+# Foreign Shares
+ggplot(filter(inv_origin_shares[["US"]], origin %in% c("Turkey")),
+       aes(x = p_year, y = share, color = origin))+
+        geom_line()+ ylim(0, 0.12)
+
+
+#### compare different countries with respect to their origin composition
+domestic_origin <- c("AngloSaxon", "AngloSaxon", "French", "German")
+country_diff <- data.frame()
+for(i in 1:length(inv_origin_shares)){
+        tmp <- filter(inv_origin_shares[[i]], origin == domestic_origin[i])
+        tmp <- tmp %>% mutate(foreign_share = 1 - share) %>% 
+                select(p_year, foreign_share, country) %>%
+                filter(p_year <= 2015)
+        country_diff <- rbind(country_diff, tmp)
+        }
+
+# plot:
+ggplot(country_diff, aes(x = p_year, y = foreign_share, color = country))+
+        geom_line()
+
+#### relative to the U.S.
+countries <- c("US", "GB", "FR", "DE", "IT", "KR", "JP")
+domestic_origin <- c("AngloSaxon", "AngloSaxon", "French", "German", "Italian",
+                     "Korea", "Japan")
+inv_origin_shares <- lapply(countries, function(x) inv_comp_ctry(inv_dat, x))
+names(inv_origin_shares) <- countries
+country_diff <- data.frame()
+US_shares <- filter(inv_origin_shares[["US"]], origin == "AngloSaxon") %>%
+        select(p_year, share) %>% mutate(US_foreign_share = 1 - share)
+for(i in 2:length(inv_origin_shares)){
+        tmp <- filter(inv_origin_shares[[i]], origin == domestic_origin[i]) %>%
+                mutate(foreign_share = 1- share)
+        tmp <- merge(tmp, US_shares, by = "p_year")
+        tmp <- tmp %>% select(p_year, foreign_share, US_foreign_share, country) %>%
+                mutate(foreign_share = foreign_share / US_foreign_share) %>%
+                filter(p_year <= 2015)
+        country_diff <- rbind(country_diff, tmp)
+}
+
+# plot:
+ggplot(country_diff, aes(x = p_year, y = foreign_share, color = country))+
+        geom_line()+ labs(y = "foreign origin share relative to the U.S.")+
+        geom_smooth()
+
+
+####################################################
+## China, India & South-East-Asia only #############
+####################################################
+
+countries <- c("US", "GB", "DE", "CH", "NL", "CA", "AT", "IT")#, "ES")
+migrant_countries <- c("China", "India", "SouthEastAsia", "Russia&EastEurope", "HispanicLatinAmerica")
+inv_origin_shares <- lapply(countries, function(x) inv_comp_ctry(inv_dat, x))
+names(inv_origin_shares) <- countries
+country_diff <- data.frame()
+for(i in 1:length(inv_origin_shares)){
+        tmp <- filter(inv_origin_shares[[i]], origin %in% migrant_countries)
+        tmp <- tmp %>% group_by(p_year, country) %>% summarise(share = sum(share))
+        tmp <- tmp %>% select(p_year, share, country) %>%
+                filter(p_year <= 2015)
+        country_diff <- rbind(country_diff, tmp)
+}
+# plot:
+ggplot(country_diff, aes(x = p_year, y = share, color = country))+
+        geom_line()
 
