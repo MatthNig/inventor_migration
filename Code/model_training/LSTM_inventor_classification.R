@@ -39,12 +39,11 @@ print("Encoded inventor data loaded.")
 ########## Classify inventors #########
 #######################################
 
-# predict
+# choose sample to predict:
 set.seed(250000)
 sample_idx <- sample(nrow(pred_dat), 250000, replace = FALSE)
 names_encoded <- names_encoded[sample_idx, , ]
 pred_dat <- pred_dat[sample_idx, ]
-pred_dat$origin <- as.numeric(origin_model %>% predict_classes(names_encoded[ , , ]))
 
 # get classes:
 df_train <- read.csv(file = paste0(getwd(), "/Data/training_data/df_train.csv"))
@@ -54,9 +53,17 @@ y_classes <- data.frame(
 )
 df_train <- NULL
 
-# assign origin
+#### (1) predict origin classes: ------------------------------------------------------
+pred_dat$origin <- as.numeric(origin_model %>% predict_classes(names_encoded[ , , ]))
 pred_dat$origin <- y_classes[pred_dat$origin + 1, ]$levels
 paste0("Ethnical origin assigned to ", nrow(pred_dat), " inventors.")
+
+#### (2) predict origin probabilities
+tmp <- origin_model %>% predict_proba(names_encoded[ , , ])
+tmp <- as.data.frame(tmp)
+names(tmp) <- paste0("prob_", y_classes$levels)
+pred_dat <- cbind(pred_dat, tmp)
+paste0("Probabilities for ethnical origins assigned to ", nrow(pred_dat), " inventors.")
 
 ############################
 ##### Save the dataset #####

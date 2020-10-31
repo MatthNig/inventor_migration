@@ -53,3 +53,30 @@ View(inv_dat %>% filter(Ctry_code == "CH" & origin == "HispanicLatinAmerica") %>
 # maybe I could do the following on my model: take the predited classes only if it is reasonably save
 # i.e. for example minimum probability & minimum distance to the second largest prediction.
 # if this is not fullfilled, assign NA
+
+####################################################
+## Create weighted sum for all origins #############
+####################################################
+panel_dat <- filter(inv_dat, Ctry_code == "US")
+weighted_sums <- panel_dat %>% group_by(p_year) %>% select(contains("prob")) %>%
+        summarise_all(.funs = sum)
+total <- panel_dat %>% group_by(p_year) %>% summarise(total = n())
+US_origin_shares <- merge(weighted_sums, total, by = "p_year")
+US_origin_shares[, c(-1, -17)] <- US_origin_shares[, c(-1, -17)] / US_origin_shares$total
+US_origin_shares <- US_origin_shares[, -17]
+US_origin_shares <- filter(US_origin_shares, p_year %in% c(1990, 1995, 2000, 2005, 2010, 2015))
+
+# change wide to long format
+US_origin_shares <- gather(US_origin_shares, key = "origin", value = "share", -p_year)
+US_origin_shares$origin <- gsub("prob_", "", US_origin_shares$origin)
+
+# Domestic Share
+ggplot(US_origin_shares %>% filter(origin == "AngloSaxon"), aes(x = p_year, y = share))+
+        geom_line()+ylim(0,0.8)
+
+# Foreign Shares
+ggplot(filter(US_origin_shares, origin %in% c("China", "India", "HispanicLatinAmerica",
+                                        "German", "Russian&EastEurope", "Scandinavian", "SouthEastAsia")),
+        aes(x = p_year, y = share, color = origin))+
+        geom_line()+ ylim(0, 0.12)
+

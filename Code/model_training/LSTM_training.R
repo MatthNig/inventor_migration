@@ -17,6 +17,18 @@ library("tensorflow")
 library("keras")
 library("reticulate")
 
+# directories  -----------------------------------------------------------------
+if(substr(x = getwd(), 
+          nchar(getwd())-17, nchar(getwd())) == "inventor_migration"){
+  print("Working directory corresponds to repository directory")}else{
+    print("Make sure your working directory is the repository directory.")}
+#setwd(...)
+
+# set seed for reproducibility --------------------------------------------
+set.seed(10082020)
+#tensorflow::tf$random$set_seed(10082020) # this disables GPU
+#https://github.com/rstudio/keras/issues/890
+
 # load encoding function and function parameters--------------------------------
 source(file = paste0(getwd(), "/Code/model_training/names_encoding_function.R"))
 PARAMS <- read.csv(file = paste0(getwd(), "/Data/training_data/PARAMS.csv"))
@@ -26,12 +38,6 @@ CHAR_DICT <- read.csv(file = paste0(getwd(), "/Data/training_data/CHAR_DICT.csv"
 CHAR_DICT <- CHAR_DICT$x
 print("Function and function parameters loaded.")
 
-# directories  -----------------------------------------------------------------
-if(substr(x = getwd(), 
-          nchar(getwd())-17, nchar(getwd())) == "inventor_migration"){
-        print("Working directory corresponds to repository directory")}else{
-                print("Make sure your working directory is the repository directory.")}
-#setwd(...)
 
 ################################
 ## Load the data for training ##
@@ -72,7 +78,6 @@ paste("names are one-hot-encoded with shape: ",
 
 train_frac <- 0.8 # fraction of data to train the model
 N <- nrow(df_train)
-set.seed(10082020)
 train_idx <- sample(seq(N), N * train_frac)
 
 x_train <- x_dat[train_idx, , ]
@@ -126,9 +131,10 @@ hist <- model %>% fit(
 
 ## RESULTS  ----------------------------------
 # (1)   weight AngloSaxon = 10, all separated except Russia/EastEurope no weights, BATCH = 256, EPOCH = 20, DROPOUT = 0.33 / 0.1
-#       TOTAL_ACCURACY: 81.97%, TOTAL F1: 77.55%, 
-#       ANGLOSAXON_ACC: 64.73%, ANGLOSAXON_F1: 78.59%, ANGLOSAXON_PRECISION: 82.05% 
+#       TOTAL_ACCURACY: 81.5%, TOTAL F1: 77.81%, 
+#       ANGLOSAXON_ACC: 65.15%, ANGLOSAXON_F1: 78.89%, ANGLOSAXON_PRECISION: 75.9%, ANGLOSAXON_RECALL: 82.2%  
 #       REAMRKS: Model could further learn
+#       => saved this model
 
 # (2)   weight AngloSaxon = 15, all separated except Russia/EastEurope no weights, BATCH = 256, EPOCH = 20, DROPOUT = 0.33 / 0.1
 #       TOTAL_ACCURACY: 80.84%, AVERAGE_F1: 76.10%, 
@@ -205,6 +211,7 @@ origin_eval %>% arrange(accuracy)
 
 ## median values and range of values across classes:
 sapply(origin_eval[,-1], median)
+sapply(origin_eval[,-1], mean)
 sapply(origin_eval[,-1], range)
 
 # GET MORE SAMPLES FROM IRAN & SOUTH-EAST ASIA
