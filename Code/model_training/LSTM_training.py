@@ -10,10 +10,10 @@ import tensorflow as tf
 import numpy as np
 import pandas as pd
 import random
-import pyreadr
+# import pyreadr
 import os
 import sys
-from matplotlib import pyplot as plt
+# from matplotlib import pyplot as plt
 print("All packages loaded.")
 
 #### set seed for reproducibility --------------------------------------------
@@ -85,10 +85,31 @@ model = tf.keras.models.Sequential([
     tf.keras.layers.Dropout(0.33),
     tf.keras.layers.LSTM(units = 256, return_sequences = True),
     tf.keras.layers.Dropout(0.33),
-    tf.keras.layers.LSTM(units = 64, return_sequences = True),
+    tf.keras.layers.LSTM(units = 64, return_sequences = False),
     tf.keras.layers.Dropout(0.1),
     tf.keras.layers.Dense(y_dat.shape[1], activation = "softmax")
     ])
 model.summary()
 
+model.compile(optimizer =  "adam", 
+              loss = "categorical_crossentropy",
+              metrics = ["accuracy"])
 
+## class_weights: ------------------------------------------------------------
+y_classes["class_weights"] = 1
+y_classes.loc[y_classes.regions == "AngloSaxon", "class_weights"] = 10
+CLASS_WEIGHTS = list(y_classes["class_weights"])
+CLASS_WEIGHTS = dict(zip(y_classes["numbers"]-1, CLASS_WEIGHTS))
+
+## training parameters: -------------------------------------------------------
+EPOCHS = 20
+BATCH_SIZE = 256
+CALLBACK = tf.keras.callbacks.EarlyStopping(monitor='val_loss', 
+                                            patience=3, 
+                                            restore_best_weights = True)
+
+hist = model.fit(x = x_train, y = y_train,
+                 epochs = EPOCHS, batch_size = BATCH_SIZE,
+                 class_weight = CLASS_WEIGHTS, 
+                 callbacks= CALLBACK, verbose = 2,
+                 validation_data= (x_val, y_val))
