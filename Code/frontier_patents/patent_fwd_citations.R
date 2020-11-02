@@ -32,24 +32,41 @@ pat_dat <- readRDS(paste0(mainDir1,  "/created data/", "pat_dat.rds"))
 head(pat_dat)
 print("Data on patent citations loaded")
 
-## if the same p_key has an USPTO and an EPO application, only consider the USPTO
-
 #### Load company information ---------------------------------------------------
 firm_dat <- readRDS(paste0(mainDir1,  "/created data/", "firm_reg.rds"))
 head(firm_dat)
+print("Firm data of patent ownership loaded")
 
 #### Load inventor information ---------------------------------------------------
-inv_dat <- readRDS(paste0(mainDir1,  "/created data/", "inv_reg_CHcommute_adj.rds.rds"))
+inv_dat <- readRDS(paste0(mainDir1,  "/created data/", "inv_reg_CHcommute_adj.rds"))
 head(inv_dat)
+print("Inventor data of patents loaded")
 
 #################################
 ####### Build the dataset #######
 #################################
 
+#### Data cleaning ------------------------------------------------------------
+
+# (1) Sometimes there several equivalent patents per p_key. In these cases, use 
+# USPTO patents with the most 5-year citations as reference.
+tmp <- setDT(pat_dat)
+keep_idx <- tmp[order(pat_off, fwd_cits5), .I[.N], keyby = p_key]$V1 # order by patent office and citations and choose the last obs per p_key
+pat_dat <- pat_dat[keep_idx, ]
+tmp <- NULL
+
+## (2) before merging: 
+# for every inventor_id / p_key pair assign region, lat and long information to all patents
+# ....
+
+## (2) before merging: 
+# for every firm_name / p_key pair assign region, lat and long information to all patents
+# ....
+
 #### combine patents citations with firms -------------------------------------
 VARS <- colnames(firm_dat)[!names(firm_dat) %in% names(pat_dat)]
 tmp <- firm_dat[, c("p_key", VARS)]
-df <- left_join(pat_dat, tmp, by = "p_key")
+df <- full_join(pat_dat, tmp, by = "p_key") # one patent from pat_dat can be assigned to two firms, thus use 'full_join'
 
 #### combine with inventors -------------------------------------
 VARS <- colnames(inv_dat)[!names(inv_dat) %in% names(df)]
@@ -78,6 +95,7 @@ head(tmp0)
 
 # Ressources:
 # https://www.machinelearningplus.com/data-manipulation/datatable-in-r-complete-guide/
+# https://cloud.r-project.org/web/packages/data.table/vignettes/datatable-intro.html
 
 
 
