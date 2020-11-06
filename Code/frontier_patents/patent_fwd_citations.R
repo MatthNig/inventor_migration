@@ -197,34 +197,37 @@ print("Patent characteristics combined with firm and inventor information.")
 
 #### Load functions
 # (1) identify onshored high-impact patents from foreign firms
-
 source(paste0(getwd(), "/Code/frontier_patents/country_onshoring_fun.R"))
-
 # This function creates a new variable called 'onshored' which indicates if
 # a patent has been offshored by foreign firms to a specific country. The 
 # assignment of this status is conditional on the number of involved domestic inventors.
 
 # (2) calculate the share of onshored high-impact patents from foreign firms
-
 source(paste0(getwd(), "/Code/frontier_patents/calc_onshoring_share_fun.R"))
-
 # This function returns a dataset which calculates the share of offshored patents
-# to a specific country from firms by all foreign countries and year.
+# to a specific country from all foreign countries and year.
+
+# (2) calculate the share of onshored high-impact patents from foreign firms
+source(paste0(getwd(), "/Code/frontier_patents/techfield_onshoring_fun.R"))
+# This function returns a dataset which calculates the share of offshored patents
+# to a specific country from all foreign countries and year, differentiated by technology field.
 
 #### Get onshoring shares for different onshoring countries -----------------
-countries <- c("US", "DE", "GB", "FR", "CH", "CN", "JP")
+onshoring_countries <- c("US", "DE", "GB", "FR", "CH", "CN", "JP")
 INVENTOR_NUMBER <- 1
-plot_dat <- lapply(countries, function(x){
+plot_dat <- lapply(onshoring_countries, function(x){
+        
+        # identify onshored patents for country x (= inventor in x, but firm not in x)
         tmp <- country_onshoring_fun(df = df,
                                      onshoring_country = x,
                                      inventor_number = INVENTOR_NUMBER,
                                      world_class_indicator = "world_class_90")
-
-        tmp <- calc_onshoring_share_fun(df = tmp)#,
-                                        # onshoring_country = x)
         
+        # calculate their share on all patents owned by foreign firms
+        tmp <- calc_onshoring_share_fun(df = tmp)
+        
+        # indicate the onshoring country and return the data
         tmp <- tmp %>% mutate(country = x) %>% as.data.frame()
-        
         return(tmp)
         }
         )
@@ -239,7 +242,25 @@ ggplot(plot_dat, aes(x = p_year, y = share_onshored, color = country))+
                                INVENTOR_NUMBER, "domestic inventor by country"),
              x = "Year", y = "Share of foreign owned patents with domestic inventors")
 
-#### Check to which regions and tech_fields the onshoring into the U.S. occurs -----------------
+#### Check from which tech_fields the onshoring into the U.S. occurs -----------------
+COUNTRY <- "CN"
+TECHFIELDS <- c(13, 14, 15, 16, 4, 6)
+TECHFIELDS <- seq(1, 34)
+
+plot_dat <- techfield_onshoring_fun(df = country_onshoring_fun(df, onshoring_country = COUNTRY))
+plot_dat <- filter(plot_dat, p_year <= 2015 & tech_field %in% TECHFIELDS & 
+                           total_patents >= 100) %>% 
+        mutate(tech_field = as.factor(as.character(tech_field))) %>%
+        as.data.frame()
+
+ggplot(plot_dat, aes(x = p_year, y = share_onshored))+#, color = tech_field))+
+        facet_wrap(.~tech_field)+geom_line()+
+        labs(title = " Onshored patents by technological fields",
+             subtitle =  paste(" Share of High-impact patents (Top 10%) from foreign firms \n with at least", INVENTOR_NUMBER, 
+                               "inventor located in", COUNTRY),
+             x = "Year", y = "Share of foreign owned patents with domestic inventors")
+
+#### Check to which regions the onshoring into the U.S. occurs -----------------
 source(paste0(getwd(), "/Code/frontier_patents/region_onshoring_fun.R"))
 ctry <- "US"
 regions <- c("California", "Massachusetts", "New Jersey", "Michigan", 
