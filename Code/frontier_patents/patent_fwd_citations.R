@@ -39,6 +39,8 @@ print("Firm data of patent ownership loaded")
 inv_dat <- readRDS(paste0(mainDir1,  "/created data/", "inv_reg_CHcommute_adj.rds"))
 print("Inventor data of patents loaded")
 
+print("All data loaded")
+
 #################################
 ####### Data processing #########
 #################################
@@ -64,13 +66,49 @@ keep_idx <- NULL
 # Sometimes there several equivalent patents per p_key and inventor. 
 # E.g. the same invention is protected by a US and European patent. 
 # To omit these duplicated patent-inventor pairs, only take one combination per p_key
-inv_dat <- inv_dat %>% distinct(p_key, name, .keep_all = TRUE) %>% as.data.frame()
+# However, on EP patents there is information on regional location of inventors but not
+# on coordinates. For USPTO its the opposite. Thus, before omitting duplicated patents
+# assign the region, lat and long information to all observations per every inventor_name-p_key combination
 
-# for every inventor_name / p_key combination assign the region, lat and long information to all patents
-# ....
+# ## !!!! not run: inefficent... p_key time name is way too many observations..
+# # idea: first identify the NAs, then search for the same inventor/p-key combination
+# # only then do the computations
+# assign_geo_info <- function(df, vars){
+#         
+#         # convert to data.table and keep row-indexes
+#         df <- setDT(df, key = c("p_key", "name"))[, idx := rownames(df)]
+# 
+#         # filter to inventors where one patent equivalent has geographical 
+#         # information and the other does not.
+#         geo_info <- df[, .SD[.N > 1], .SDcols = c(vars, "idx"), by = .(p_key, name)]
+#         # NA_obs <- geo_info[is.na(geo_info$lat), c("p_key", "name", "idx")]
+#         NA_obs <- geo_info %>% 
+#                 filter_at(vars(vars[1]), all_vars(is.na(.))) %>%
+#                 select(p_key, name, idx)
+#         geo_info <- geo_info[complete.cases(geo_info),]
+#         
+#         # assign the information from the one patent to the other
+#         # and replace observations in the original data
+#         NA_obs <- setDT(geo_info %>% select(-idx), key =c("p_key", "name"))[NA_obs]
+#         NA_obs$idx <- as.numeric(NA_obs$idx)
+#         NA_obs <- NA_obs[complete.cases(NA_obs), ] %>% as.data.frame()
+#         
+#         # return as a data.frame
+#         df <- as.data.frame(df)
+#         df[NA_obs$idx, c(vars)] <- NA_obs[, c(vars)]
+#         
+#         return(df)
+# }
+# 
+# # Assign geo_information on all equivalent patents
+# inv_dat <- assign_geo_info(df = inv_dat, vars = c("lat", "lng"))
+# inv_dat <- assign_geo_info(df = inv_dat, vars = "regio_inv")
+
+# Subset to unique patents
+inv_dat <- inv_dat %>% #filter(is.na(regio_inv) == FALSE) %>% # with this I loose all USPTOs without an EP equivalent
+        distinct(p_key, name, .keep_all = TRUE) %>% as.data.frame()
 
 #### firm information -----------------------------------------------------
-
 # Problem:
 # Sometimes there several equivalent patents per p_key and firm 
 # E.g. the same invention is protected by a US and European patent. 
@@ -159,22 +197,27 @@ print("Patent characteristics combined with firm and inventor information.")
 
 #### Load functions
 # (1) identify onshored high-impact patents from foreign firms
+
 source(paste0(getwd(), "/Code/frontier_patents/country_onshoring_fun.R"))
+
 # This function creates a new variable called 'onshored' which indicates if
 # a patent has been offshored by foreign firms to a specific country. The 
 # assignment of this status is conditional on the number of involved domestic inventors.
 
 # (2) calculate the share of onshored high-impact patents from foreign firms
+
 source(paste0(getwd(), "/Code/frontier_patents/calc_onshoring_share_fun.R"))
+
 # This function returns a dataset which calculates the share of offshored patents
 # to a specific country from firms by all foreign countries and year.
 
 #### Get onshoring shares for different onshoring countries -----------------
 countries <- c("US", "DE", "GB", "FR", "CH", "CN", "JP")
+INVENTOR_NUMBER <- 1
 plot_dat <- lapply(countries, function(x){
         tmp <- country_onshoring_fun(df = df,
                                      onshoring_country = x,
-                                     inventor_number = 3,
+                                     inventor_number = INVENTOR_NUMBER,
                                      world_class_indicator = "world_class_90")
 
         tmp <- calc_onshoring_share_fun(df = tmp)#,
@@ -192,9 +235,9 @@ plot_dat <- filter(plot_dat, p_year <= 2015)
 ggplot(plot_dat, aes(x = p_year, y = share_onshored, color = country))+
         geom_line()+geom_point()+ylim(0, 0.15)+
         labs(title = " R&D Onshoring",
-             subtitle =  paste(" Share of High-impact patents (Top 10%) from foreign firms \n with at least two domestic inventor by country"),
+             subtitle =  paste(" Share of High-impact patents (Top 10%) from foreign firms \n with at least",
+                               INVENTOR_NUMBER, "domestic inventor by country"),
              x = "Year", y = "Share of foreign owned patents with domestic inventors")
-
 
 #### Check to which regions and tech_fields the onshoring into the U.S. occurs -----------------
 source(paste0(getwd(), "/Code/frontier_patents/region_onshoring_fun.R"))
