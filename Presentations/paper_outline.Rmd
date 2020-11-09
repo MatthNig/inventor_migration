@@ -1,0 +1,46 @@
+---
+title: "Research Propsal"
+subtitle: "Immigration and Onshoring of High-Impact R&D"
+author: "Matthias Niggli"
+date: "09 November 2020"
+bibliography: bibliography.bib
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+### **Introduction and the general idea**
+
+There is a growing literature of theoretical and empirical papers (mostly concerning the USA) that focus on the effects of high-skilled migration on innovation. Typically, these studies find substantial benefits from migration flows into the USA [e.g. @AcemogluAkcigit2018; @AkcigitStantcheva2016; @Moser2014; or @DoranIsen2014]. In particular, they note that, especially, large inflows of high-skilled workers from China and India since the 1990s have fostered U.S. innovation  [for an overview see @Kerr2016; @Peri2016; @Kerr2013]. 
+
+I plan to build on this empirical observations and ask a further question: ***Has immigration contributed to onshoring of high-impact R&D?***
+
+The rationale for this question is motivated by insights from the trade-in-tasks literature - notably from @BaldwinRobertNicoud2014, @OttavianoPeri2013 and @GrossmanRossiHansberg2008 among others. Onshoring of R&D can be interpreted as a form of trade-in-tasks. What this literature suggests is that the Rybczynski theorem holds in such a trade-in-tasks framework. That is to say, inflows of foreign inventors should allow the receiving country to specialize in activities that employ such inventors intensively. In other words, given an inflow of 'foreign talent', the U.S. should become relatively more attractive for high-impact R&D activities.
+
+There are several case studies and anecdotal evidence that support this hypothesis (e.g. European tech firms relocate some of their R&D to the U.S.). However, I could not find any empirical analysis that addresses this question in detail. The reason might be, because it is 
+1. difficult to identify migrants among patent inventors,
+2. challenging to identify high-impact innovations.
+
+This is where I plan to make a contribution with my paper. First, I use a deep learning model that classifies inventors' ethnic origin by their names. Second, I use big data on patents to determine high-impact quality innoations and onshored R&D. I can then combine both metrics and make descriptive and/or analytical investigations about the interplay of (long-term) migration and onshoring of high-impact R&D.
+
+### **Inferring the ethnic origin of inventors with *Deep Learning* **
+Often, they focus on non-US citizens among patent inventors. While such an approach makes a lot of sense for some specific questions (e.g. the effect of migration restrictions on innovation), it also has several shortcomings. First, the nationality of patent inventors is only observed for a subsample U.S. patents and not for 
+
+
+### **Estimating Onshoring of High-Impact R&D**
+
+
+### **Exploratory Data Analysis**
+
+
+### **Research Direction**
+
+
+### **Literature**
+
+
+
+
+

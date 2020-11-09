@@ -13,22 +13,22 @@
 library("tidyverse")
 
 # directories  -----------------------------------------------------------------
+mainDir1 <- "/scicore/home/weder/GROUP/Innovation/01_patent_data"
 if(substr(x = getwd(), 
           nchar(getwd())-17, nchar(getwd())) == "inventor_migration"){
         print("Working directory corresponds to repository directory")}else{
                 print("Make sure your working directory is the repository directory.")}
-#setwd(...)
 
 # Load names of patents' inventors --------------------------------------------
-#inv_reg <- readRDS(paste0(mainDir1, "/..."))
-inv_dat <- readRDS(paste0(getwd(), "/Data/patent_data/inventor_origin.rds")) # random subset of 250k inventors
+# inv_dat <- readRDS(paste0(getwd(), "/Data/patent_data/inventor_origin.rds")) # random subset of inventors
+inv_dat <- readRDS(paste0(mainDir1, "/created data/inventor_origin.rds")) # full sample
 print("Data on patent inventors loaded")
 
 ####################################################
 ## Count number of inventors per country and year ##
 ####################################################
 
-panel_dat <- filter(inv_dat, Ctry_code == "CH")
+panel_dat <- filter(inv_dat, Ctry_code == "DE")
 origin_dat <- panel_dat %>% group_by(p_year, origin) %>% summarise(count = n())
 total <- panel_dat %>% group_by(p_year) %>% summarise(total = n())
 
@@ -43,7 +43,7 @@ ggplot(filter(panel_dat, origin == c("German")), aes(x = p_year, y = share, colo
 # Foreign Shares
 ggplot(#panel_dat, 
        filter(panel_dat, origin %in% c("China", "India", "HispanicLatinAmerica",
-                                       "Korea", "Japan", "Italian")), 
+                                       "Korea", "Japan", "Italian", "Russian&EastEurope")), 
        aes(x = p_year, y = share, color = origin))+
         geom_line()+ ylim(0, 0.15)
 View(inv_dat %>% filter(Ctry_code == "CH" & origin == "HispanicLatinAmerica") %>% select(name, origin))
@@ -82,17 +82,19 @@ inv_origin_shares <- lapply(countries, function(x) inv_comp_ctry(inv_dat, x))
 names(inv_origin_shares) <- countries
 
 # Domestic Share
-ggplot(inv_origin_shares[["US"]] %>% filter(origin == "AngloSaxon"), aes(x = p_year, y = share))+
+ggplot(inv_origin_shares[["US"]] %>% filter(origin == "AngloSaxon" & p_year <= 2015), 
+       aes(x = p_year, y = share))+
         geom_line()+ylim(0,0.8)
 
 # Foreign Shares
-ggplot(filter(inv_origin_shares[["GB"]], origin %in% c("China", "India", "HispanicLatinAmerica",
-                                        "Italian", "Russian&EastEurope", "Scandinavian", "SouthEastAsia")),
+ggplot(filter(inv_origin_shares[["US"]], origin %in% c("China", "India", "HispanicLatinAmerica",
+                                        "Italian", "Russian&EastEurope", "Scandinavian", "SouthEastAsia") &
+                      p_year <= 2015),
         aes(x = p_year, y = share, color = origin))+
         geom_line()+ ylim(0, 0.12)
 
 # Foreign Shares
-ggplot(filter(inv_origin_shares[["US"]], origin %in% c("Turkey")),
+ggplot(filter(inv_origin_shares[["US"]], origin %in% c("SouthEastAsia") & p_year <= 2015),
        aes(x = p_year, y = share, color = origin))+
         geom_line()+ ylim(0, 0.12)
 
@@ -155,5 +157,43 @@ for(i in 1:length(inv_origin_shares)){
 }
 # plot:
 ggplot(country_diff, aes(x = p_year, y = share, color = country))+
+        geom_line()
+
+####################################################
+## Migrant inflow by technological field ###########
+####################################################
+
+# create a function that requires the country and it's origin-class as arguments and returns
+# the shares of non-domestic origin inventors by technological field over time.
+# e.g. the share of non-AngloSaxon inventors in the U.S. by technological field.
+
+inv_comp_techfield <- function(df, country){
+        
+        annual_total <- filter(df, Ctry_code == country) %>%
+                group_by(tech_field, p_year) %>% summarise(total = n())
+        
+        tmp <- filter(df, Ctry_code == country) %>%
+                group_by(tech_field, p_year) %>% select(contains("prob")) %>%
+                summarise_all(.funs = sum)
+        
+        tmp <- merge(tmp, annual_total, by = c("tech_field", "p_year"))
+        tmp[, c(-1, -2, -18)] <- tmp[, c(-1, -2, -18)] / tmp$total
+        
+        tmp <- gather(tmp, key = "origin", value = "share", -p_year, -total, -tech_field)
+        tmp$origin <- gsub("prob_", "", tmp$origin)
+        tmp$country <- country
+        
+        return(tmp)
+}
+
+plot_dat <- inv_comp_techfield(df = inv_dat, country = "US") %>% 
+        mutate(tech_field = as.character(tech_field))
+TECHFIELDS <- as.character(c(4, 6, 13:16))
+TECHFIELDS <- seq(1, 34)
+plot_dat <- filter(plot_dat, origin == "AngloSaxon" & p_year <= 2015 &
+                           tech_field %in% TECHFIELDS)
+
+ggplot(plot_dat, aes(x = p_year, y = 1 - share, color = tech_field))+
+        facet_wrap(.~ tech_field)+
         geom_line()
 

@@ -146,6 +146,13 @@ hist <- model %>% fit(
 #       ANGLOSAXON_ACC: 62.61%, ANGLOSAXON_F1: 77.01%, ANGLOSAXON_PRECISION: 73.3%, ANGLOSAXON_RECALL: 81.1% 
 #       REAMRKS: lower accuracy. Somewhere between 5 and 15 seems to be optimal weight
 
+# (4)   MORE DATA: weight AngloSaxon = 10, all separated except Russia/EastEurope, BATCH = 256, EPOCH = 20, DROPOUT = 0.33 / 0.1
+#       TOTAL_ACCURACY: 81.9%, TOTAL F1: 80.7%, 
+#       ANGLOSAXON_ACC: 63.9%, ANGLOSAXON_F1: 78.0%, ANGLOSAXON_PRECISION: 72.3%, ANGLOSAXON_RECALL: 84.7%  
+#       REAMRKS: Model could further learn
+#       => saved this model
+
+
 #########################################
 ############ evaluate the model #########
 #########################################
@@ -213,8 +220,6 @@ origin_eval %>% arrange(accuracy)
 sapply(origin_eval[,-1], median)
 sapply(origin_eval[,-1], mean)
 sapply(origin_eval[,-1], range)
-
-# GET MORE SAMPLES FROM IRAN & SOUTH-EAST ASIA
 
 ####################################
 ######### SAVE THE MODEL ###########

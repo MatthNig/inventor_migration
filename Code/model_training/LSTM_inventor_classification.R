@@ -18,11 +18,12 @@ library("keras")
 library("reticulate")
 
 # directories  -----------------------------------------------------------------
+setwd("/scicore/home/weder/nigmat01/inventor_migration")
+mainDir1 <- "/scicore/home/weder/GROUP/Innovation/01_patent_data"
 if(substr(x = getwd(), 
           nchar(getwd())-17, nchar(getwd())) == "inventor_migration"){
         print("Working directory corresponds to repository directory")}else{
                 print("Make sure your working directory is the repository directory.")}
-#setwd("/scicore/home/weder/nigmat01/inventor_migration")
 
 # load the trained LSTM model
 origin_model <- load_model_hdf5(paste0(getwd(), "/Data/classification_model/origin_class_model.h5"))
@@ -30,9 +31,17 @@ origin_model <- load_model_hdf5(paste0(getwd(), "/Data/classification_model/orig
 origin_model <- load_model_hdf5(paste0(getwd(), "/Data/classification_model/origin_class_model.h5"))
 if(is.null(origin_model) == FALSE){print("Classification model loaded")}else{"Model could not be loaded"}
 
-# load encoded inventor data
-names_encoded <- readRDS(paste0(getwd(), "/Data/training_data/inventor_encoded.rds"))
-pred_dat <- readRDS(paste0(getwd(), "/Data/training_data/inventor_raw.rds"))
+## load encoded inventor data --------------------------------------------------
+
+# random sample:
+# names_encoded <- readRDS(paste0(getwd(), "/Data/training_data/inventor_encoded.rds"))
+# pred_dat <- readRDS(paste0(getwd(), "/Data/training_data/inventor_raw.rds"))
+
+# full sample:
+names_encoded <- readRDS(paste0(mainDir1, "/created data/inventor_encoded.rds"))
+pred_dat <- readRDS(paste0(mainDir1, "/created data/inventor_raw.rds"))
+# !!!! for classifying the full sample, I need several runs and not just 1 (~ takes approx. 2 hours for 500k names)
+
 print("Encoded inventor data loaded.")
 
 #######################################
@@ -40,10 +49,11 @@ print("Encoded inventor data loaded.")
 #######################################
 
 # choose sample to predict:
-set.seed(250000)
-sample_idx <- sample(nrow(pred_dat), 250000, replace = FALSE)
-names_encoded <- names_encoded[sample_idx, , ]
-pred_dat <- pred_dat[sample_idx, ]
+# set.seed(250000)
+# N <- 500000
+# sample_idx <- sample(nrow(pred_dat), N, replace = FALSE)
+# names_encoded <- names_encoded[sample_idx, , ]
+# pred_dat <- pred_dat[sample_idx, ]
 
 # get classes:
 df_train <- read.csv(file = paste0(getwd(), "/Data/training_data/df_train.csv"))
@@ -69,5 +79,10 @@ paste0("Probabilities for ethnical origins assigned to ", nrow(pred_dat), " inve
 ##### Save the dataset #####
 ############################
 
-pred_dat %>% saveRDS(paste0(getwd(), "/Data/patent_data/inventor_origin.rds"))
+# random sample:
+# pred_dat %>% saveRDS(paste0(getwd(), "/Data/patent_data/inventor_origin.rds"))
+
+# full sample:
+pred_dat %>% saveRDS(paste0(mainDir1, "/created data/inventor_origin.rds"))
+
 print("Dataset saved as 'inventor_origin.rds'.")
