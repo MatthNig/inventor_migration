@@ -2,16 +2,17 @@
 title: "Research Propsal"
 subtitle: "Immigration and Onshoring of High-Impact R&D"
 author: "Matthias Niggli"
-date: "09 November 2020"
+date: "10 November 2020"
 bibliography: bibliography.bib
 output: html_document
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+library("tidyverse")
 ```
 
-### **Introduction and the general idea**
+### **Introduction and the General Idea**
 
 There is a growing literature of theoretical and empirical papers (mostly concerning the USA) that focus on the effects of high-skilled migration on innovation. Typically, these studies find substantial benefits from migration flows into the USA [e.g. @AcemogluAkcigit2018; @AkcigitStantcheva2016; @Moser2014; or @DoranIsen2014]. In particular, they note that, especially, large inflows of high-skilled workers from China and India since the 1990s have fostered U.S. innovation  [for an overview see @Kerr2016; @Peri2016; @Kerr2013]. 
 
@@ -23,11 +24,164 @@ There are several case studies and anecdotal evidence that support this hypothes
 1. difficult to identify migrants among patent inventors,
 2. challenging to identify high-impact innovations.
 
-This is where I plan to make a contribution with my paper. First, I use a deep learning model that classifies inventors' ethnic origin by their names. Second, I use big data on patents to determine high-impact quality innoations and onshored R&D. I can then combine both metrics and make descriptive and/or analytical investigations about the interplay of (long-term) migration and onshoring of high-impact R&D.
+This is where I plan to make a contribution with my paper. First, I use a deep learning model that classifies inventors' ethnic origins based on their names. Second, I use big data on patents to determine high-impact innovations and onshored R&D. I can then combine both of these aspects and make descriptive and/or analytic investigations about the interplay of (long-term) migration and onshoring of high-impact R&D.
 
-### **Inferring the ethnic origin of inventors with *Deep Learning* **
-Often, they focus on non-US citizens among patent inventors. While such an approach makes a lot of sense for some specific questions (e.g. the effect of migration restrictions on innovation), it also has several shortcomings. First, the nationality of patent inventors is only observed for a subsample U.S. patents and not for 
+### **Migration and the Ethnic Composition of Patent Inventors**
 
+Oftentimes, previous studies have focused on non-US citizens among patent inventors [@Kerr2013]. While such an approach makes a lot of sense for some specific questions (e.g. the effect of migration restrictions on innovation), it also has several shortcomings: First, the nationality of patent inventors is only observed for a sub-sample U.S. patents and not for any other patents e.g. European patents [@MiguelezFink2013]. Second, immigrants can obtain citizenship and thus, the number of immigrant inventors gets underestimated in the longer run [e.g. @BreschiLissoni2019]. Using the names of inventors offers a remedy for these two problems. However, it introduces a new bias which is that 2nd generation immigrants will also be considered as immigrants even though they have potentially been born in the immigrant country.
+
+Therefore, by using names I obtain a measure for *ethnic background* and not directly for migrant status. This is fine for the purpose of my analysis, which is to focus on longer-run migration effects. The previous literature has mainly used name-matching [see @Kerr2013] or relied on (somewhat non-transparent) commercial tools [@BreschiLissoni2019] to infer ethnic background from names. 
+
+#### **Inferring the Ethnic Origin of Inventors with Deep Learning**
+
+For my analysis, I train a special kind of neural network that is capable of processing names. To do this, I have to encode names as sequences of data. In other words, I transform a name to a matrix of zeros and ones. Rows indicate the first, second... last character of a specific name and the columns specify the letters of the alphabet. If the first row has "1" in the first column and zeros everywhere else, this means that the first character of this name is an "A". An example for a fully encoded name is given below:
+
+```{r}
+source("/scicore/home/weder/nigmat01/inventor_migration/Code/model_training/names_encoding_function.R")
+exp_name = encode_chars(names = "rolf weder", 
+                        char_dict = c(letters, " ", "END"), 
+                        seq_max = 10, n_chars = 28)
+exp_name[1, ,]
+```
+
+I apply this procedure to 50'000 names, for which I have also obtained the probability of belonging to one of 14 different ethnicities from the <a href=https://name-prism.com/about>name-prism</a> database. This dataset is my training data. With this dataset, I can then train machine learning and deep learning models that learn to classify ethnic origin based on names. 
+
+To start, I have trained a so-called long-short-term-memory (LSTM) model. This is an artificial recurrent neural network, specifically designed to process sequences of data. In the case of names, this sequence corresponds to the characters of the name (as shown above). The model reaches a performance that is comparable or better than some models that I have found in the literature (i.e. e.g. an overall accuracy of 81.9% and a macro F1 score of 80.7%) [e.g. @Ye2017].
+
+After training the model, I can then use it to make predictions about the ethnic background of patent inventors. I already did this for a random sample of 500'000 inventors (the full sample will be around 4.3 million patent inventors). This allows me to examine the ethnic composition of patent inventors across countries, technological fields and over time.
+
+#### **Preliminary Results**
+
+```{r, echo=FALSE, include=FALSE}
+
+# load data
+inv_dat <- readRDS("/scicore/home/weder/nigmat01/inventor_migration/Data/patent_data/inventor_origin.rds")
+
+# load functions
+inv_comp_ctry <- function(df, country){
+        
+        annual_total <- filter(df, Ctry_code == country) %>%
+                group_by(p_year) %>% summarise(total = n())
+        
+        tmp <- filter(df, Ctry_code == country) %>%
+                group_by(p_year) %>% select(contains("prob")) %>%
+                summarise_all(.funs = sum)
+        
+        tmp <- merge(tmp, annual_total, by = "p_year")
+        tmp[, c(-1, -17)] <- tmp[, c(-1, -17)] / tmp$total
+
+        tmp <- gather(tmp, key = "origin", value = "share", -p_year, -total)
+        tmp$origin <- gsub("prob_", "", tmp$origin)
+        tmp$country <- country
+
+        return(tmp)
+}
+
+foreign_shares_fun <- function(COUNTRIES, ORIGIN){
+        
+        inv_origin_shares <- lapply(COUNTRIES, function(x) inv_comp_ctry(inv_dat, x))
+        for (i in length(inv_origin_shares)) {
+                inv_origin_shares[[i]]$country <- COUNTRIES[i]
+        }
+        inv_origin_shares <- bind_rows(inv_origin_shares)
+
+        
+        p <- ggplot(filter(inv_origin_shares, 
+                           origin %in% ORIGIN & p_year <= 2015),
+                    aes(x = p_year, y = share, color = origin))+
+                facet_wrap(.~ country)+
+                scale_color_hue("Ethnic origin")+
+                labs(x = "year", y = "share of ethnic background",
+                     title = paste0(" Share of selected ethnic backgrounds \n in different countries"))+
+                geom_line()+
+                ylim(0, 0.12)
+        
+        return(p)
+}
+
+foreign_country_comparison <- function(countries, domestic_origin){
+        
+        inv_origin_shares <- lapply(countries, function(x) inv_comp_ctry(inv_dat, x))
+        names(inv_origin_shares) <- countries
+        
+        country_diff <- data.frame()
+        
+        for(i in 1:length(inv_origin_shares)){
+                tmp <- filter(inv_origin_shares[[i]], origin == domestic_origin[i])
+                tmp <- tmp %>% mutate(foreign_share = 1 - share) %>%
+                        select(p_year, foreign_share, country) %>%
+                        filter(p_year <= 2015)
+                country_diff <- rbind(country_diff, tmp)
+        }
+        
+        p <- ggplot(country_diff, aes(x = p_year, y = foreign_share, color = country))+
+                geom_line()+ scale_color_hue("Country")+
+                labs(y = "Share of non-domestic origin", x = "Year",
+                     title = paste0("Share of inventors with foreign origins in ", 
+                                    paste(countries, collapse = ", ")))
+        return(p)
+}
+
+inv_comp_techfield <- function(df, country){
+        
+        annual_total <- filter(df, Ctry_code == country) %>%
+                group_by(tech_field, p_year) %>% summarise(total = n())
+        
+        tmp <- filter(df, Ctry_code == country) %>%
+                group_by(tech_field, p_year) %>% select(contains("prob")) %>%
+                summarise_all(.funs = sum)
+        
+        tmp <- merge(tmp, annual_total, by = c("tech_field", "p_year"))
+        tmp[, c(-1, -2, -18)] <- tmp[, c(-1, -2, -18)] / tmp$total
+        
+        tmp <- gather(tmp, key = "origin", value = "share", -p_year, -total, -tech_field)
+        tmp$origin <- gsub("prob_", "", tmp$origin)
+        tmp$country <- country
+        
+        return(tmp)
+}
+
+tech_field_plot <- function(COUNTRY, DOMESTIC_ORIGIN, 
+                            TECHFIELDS, MIN_INVENTORS = 30){
+        
+        plot_dat <- inv_comp_techfield(df = inv_dat, country = COUNTRY) %>% 
+                mutate(tech_field = as.character(tech_field))
+        
+        plot_dat <- filter(plot_dat, origin == DOMESTIC_ORIGIN & p_year <= 2015 &
+                           tech_field %in% TECHFIELDS & total >= MIN_INVENTORS)
+        
+        p <- ggplot(plot_dat, aes(x = p_year, y = share))+
+                facet_wrap(.~ tech_field)+
+                geom_line()+
+                labs(y = "Share of domestic origin", 
+                     x = "Year", title = paste0(" Share of ", DOMESTIC_ORIGIN, " origin in ",
+                                                COUNTRY, "\n (by technological field)"))
+        return(p)
+}
+```
+
+```{r, warnings=FALSE, message=FALSE, fig.width=7, fig.height=5, fig.align="center"}
+COUNTRIES <- c("US", "GB", "FR", "DE", "IT")
+DOMESTIC_ORIGIN <- c("AngloSaxon", "AngloSaxon", "French", "German", "Italian")
+foreign_country_comparison(countries = COUNTRIES,
+                           domestic_origin = DOMESTIC_ORIGIN)
+```
+
+```{r, warnings=FALSE, message=FALSE, fig.width=7, fig.height=5, fig.align="center"}
+COUNTRIES <- c("US", "GB", "FR", "DE", "IT", "CH")
+ORIGIN <- c("China", "India", "Russian&EastEurope", "SouthEastAsia")
+foreign_shares_fun(COUNTRIES, ORIGIN)
+```
+
+```{r, warnings=FALSE, message=FALSE, fig.width=7, fig.height=5, fig.align="center"}
+TECHFIELDS <- as.character(c(4, 5, 6, 8, 13:16, 22, 24))
+tech_field_plot(COUNTRY = "US", DOMESTIC_ORIGIN = "AngloSaxon",
+                TECHFIELDS = TECHFIELDS)
+```
+
+<!-- ![](foreign_inv_share.png) -->
+<!-- ![](selected_foreign_shares.png) -->
+<!-- ![](tech_field_US.png) -->
 
 ### **Estimating Onshoring of High-Impact R&D**
 
