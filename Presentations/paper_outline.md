@@ -1,146 +1,18 @@
 ---
-title: "Immigration and Onshoring of High-Impact R&D"
-subtitle: "Research Outline"
+title: "Research Propsal"
+subtitle: "Immigration and Onshoring of High-Impact R&D"
 author: "Matthias Niggli"
-date: "`r Sys.Date()`"
+date: "2020-11-11"
 bibliography: bibliography.bib
 output: 
         html_document:
                 keep_md: true
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-library("tidyverse")
-library("tensorflow")
-library("keras")
-library("reticulate")
-```
 
 
-```{r, echo=FALSE, include=FALSE, warning=FALSE}
-
-#### load data -----------------------------------------------------
-inv_dat <- readRDS("/scicore/home/weder/nigmat01/inventor_migration/Data/patent_data/inventor_origin.rds")
-
-#### load the classification model  -------------------------------------------
-origin_model <- load_model_hdf5("/scicore/home/weder/nigmat01/inventor_migration/Data/classification_model/origin_class_model.h5")
-origin_model <- load_model_hdf5("/scicore/home/weder/nigmat01/inventor_migration/Data/classification_model/origin_class_model.h5")
-origin_model <- load_model_hdf5("/scicore/home/weder/nigmat01/inventor_migration/Data/classification_model/origin_class_model.h5")
 
 
-#### load functions -----------------------------------------------------
-
-## function to encode names
-source("/scicore/home/weder/nigmat01/inventor_migration/Code/model_training/names_encoding_function.R")
-
-## function to calculate ethnic origin shares by country 
-inv_comp_ctry <- function(df, country){
-        
-        annual_total <- filter(df, Ctry_code == country) %>%
-                group_by(p_year) %>% summarise(total = n())
-        
-        tmp <- filter(df, Ctry_code == country) %>%
-                group_by(p_year) %>% select(contains("prob")) %>%
-                summarise_all(.funs = sum)
-        
-        tmp <- merge(tmp, annual_total, by = "p_year")
-        tmp[, c(-1, -17)] <- tmp[, c(-1, -17)] / tmp$total
-
-        tmp <- gather(tmp, key = "origin", value = "share", -p_year, -total)
-        tmp$origin <- gsub("prob_", "", tmp$origin)
-        tmp$country <- country
-
-        return(tmp)
-}
-
-## function to plot the share of the dominant domestic ethnic background in different countries 
-foreign_country_comparison <- function(countries, domestic_origin){
-        
-        inv_origin_shares <- lapply(countries, function(x) inv_comp_ctry(inv_dat, x))
-        names(inv_origin_shares) <- countries
-        
-        country_diff <- data.frame()
-        
-        for(i in 1:length(inv_origin_shares)){
-                tmp <- filter(inv_origin_shares[[i]], origin == domestic_origin[i])
-                tmp <- tmp %>% mutate(foreign_share = share) %>%
-                        select(p_year, foreign_share, country) %>%
-                        filter(p_year <= 2015)
-                country_diff <- rbind(country_diff, tmp)
-        }
-        
-        p <- ggplot(country_diff, aes(x = p_year, y = foreign_share, color = country))+
-                geom_line()+ scale_color_hue("Country")+
-                labs(y = "Share of non-domestic origin", x = "Year",
-                title = paste0(" Share of the dominant domestic ethnic background \n among patent inventors"))+
-                ylim(0.3, 1)
-        return(p)
-}
-
-## function to plot the share of selected ethnic backgrounds in different countries 
-foreign_shares_fun <- function(COUNTRIES, ORIGIN){
-        
-        inv_origin_shares <- lapply(COUNTRIES, function(x) inv_comp_ctry(inv_dat, x))
-        for (i in length(inv_origin_shares)) {
-                inv_origin_shares[[i]]$country <- COUNTRIES[i]
-        }
-        inv_origin_shares <- bind_rows(inv_origin_shares)
-
-        
-        p <- ggplot(filter(inv_origin_shares, 
-                           origin %in% ORIGIN & p_year <= 2015),
-                    aes(x = p_year, y = share, color = origin))+
-                facet_wrap(.~ country)+
-                scale_color_hue("Ethnic origin")+
-                labs(x = "year", y = "share of ethnic background",
-                     title = paste0(" Share of selected ethnic backgrounds in different countries"))+
-                geom_line()+
-                ylim(0, 0.12)
-        
-        return(p)
-}
-
-## function to calculate the share of ethnic backgrounds in different technological fields in a given country
-inv_comp_techfield <- function(df, country){
-        
-        annual_total <- filter(df, Ctry_code == country) %>%
-                group_by(tech_field, p_year) %>% summarise(total = n())
-        
-        tmp <- filter(df, Ctry_code == country) %>%
-                group_by(tech_field, p_year) %>% select(contains("prob")) %>%
-                summarise_all(.funs = sum)
-        
-        tmp <- merge(tmp, annual_total, by = c("tech_field", "p_year"))
-        tmp[, c(-1, -2, -18)] <- tmp[, c(-1, -2, -18)] / tmp$total
-        
-        tmp <- gather(tmp, key = "origin", value = "share", -p_year, -total, -tech_field)
-        tmp$origin <- gsub("prob_", "", tmp$origin)
-        tmp$country <- country
-        
-        return(tmp)
-}
-
-## function to plot the share of ethnic backgrounds in different technological fields in a given country
-tech_field_plot <- function(COUNTRY, DOMESTIC_ORIGIN, 
-                            TECHFIELDS, MIN_INVENTORS = 30){
-        
-        plot_dat <- inv_comp_techfield(df = inv_dat, country = COUNTRY) %>% 
-                mutate(tech_field = as.character(tech_field))
-        
-        plot_dat <- filter(plot_dat, origin == DOMESTIC_ORIGIN & p_year <= 2015 &
-                           tech_field %in% TECHFIELDS & total >= MIN_INVENTORS)
-        
-        p <- ggplot(plot_dat, aes(x = p_year, y = share))+
-                facet_wrap(.~ tech_field)+
-                guides(NULL)+
-                geom_line(aes(aes(color = tech_field)))+
-                labs(y = "Share of domestic origin", 
-                     x = "Year", title = paste0(" Share of ", DOMESTIC_ORIGIN, " origin in ",
-                                                COUNTRY, " (by technological field)"))
-        return(p)
-}
-```
 
 ## **Introduction and the General Idea**
 There is a growing literature of theoretical and empirical papers (mostly concerning the USA) that focus on the effects of high-skilled migration on innovation. Typically, these studies find substantial benefits from high-skilled migration into the USA [e.g. @AcemogluAkcigit2018; @AkcigitStantcheva2016; @Moser2014; or @DoranIsen2014]. In particular, large inflows of high-skilled workers from China and India since the 1990s seemed to have fostered U.S.-based innovation [for an overview see @Kerr2016; @Peri2016; @Kerr2013]. 
@@ -167,51 +39,104 @@ Therefore, by using names I obtain a measure for *ethnic background* and not dir
 ### **Inferring the Ethnic Origin of Inventors with Deep Learning**
 For my analysis, I desgin and train a special kind of neural network which is capable to process names. To do this, I have to encode names as sequences of data. In other words, I transform a name to a sparse matrix of zeros and ones. Rows indicate the first, second... last character of a specific name and the columns specify letters of the Latin alphabet. If the first row features a "1" in the first column and zeros in all others, this means that the first character of this name is an "A". An example for a fully encoded name is given below:
 
-```{r, echo=FALSE}
-exp_name = encode_chars(names = "rolf weder", 
-                        char_dict = c(letters, " ", "END"), 
-                        seq_max = 10, n_chars = 28)
-exp_name[1, ,]
+
+```
+##       [,1] [,2] [,3] [,4] [,5] [,6] [,7] [,8] [,9] [,10] [,11] [,12] [,13]
+##  [1,]    0    0    0    0    0    0    0    0    0     0     0     0     0
+##  [2,]    0    0    0    0    0    0    0    0    0     0     0     0     0
+##  [3,]    0    0    0    0    0    0    0    0    0     0     0     1     0
+##  [4,]    0    0    0    0    0    1    0    0    0     0     0     0     0
+##  [5,]    0    0    0    0    0    0    0    0    0     0     0     0     0
+##  [6,]    0    0    0    0    0    0    0    0    0     0     0     0     0
+##  [7,]    0    0    0    0    1    0    0    0    0     0     0     0     0
+##  [8,]    0    0    0    1    0    0    0    0    0     0     0     0     0
+##  [9,]    0    0    0    0    1    0    0    0    0     0     0     0     0
+## [10,]    0    0    0    0    0    0    0    0    0     0     0     0     0
+##       [,14] [,15] [,16] [,17] [,18] [,19] [,20] [,21] [,22] [,23] [,24] [,25]
+##  [1,]     0     0     0     0     1     0     0     0     0     0     0     0
+##  [2,]     0     1     0     0     0     0     0     0     0     0     0     0
+##  [3,]     0     0     0     0     0     0     0     0     0     0     0     0
+##  [4,]     0     0     0     0     0     0     0     0     0     0     0     0
+##  [5,]     0     0     0     0     0     0     0     0     0     0     0     0
+##  [6,]     0     0     0     0     0     0     0     0     0     1     0     0
+##  [7,]     0     0     0     0     0     0     0     0     0     0     0     0
+##  [8,]     0     0     0     0     0     0     0     0     0     0     0     0
+##  [9,]     0     0     0     0     0     0     0     0     0     0     0     0
+## [10,]     0     0     0     0     1     0     0     0     0     0     0     0
+##       [,26] [,27] [,28]
+##  [1,]     0     0     0
+##  [2,]     0     0     0
+##  [3,]     0     0     0
+##  [4,]     0     0     0
+##  [5,]     0     1     0
+##  [6,]     0     0     0
+##  [7,]     0     0     0
+##  [8,]     0     0     0
+##  [9,]     0     0     0
+## [10,]     0     0     0
 ```
 
 I apply this procedure to over 50'000 names, for which I have also obtained the probability of belonging to one of 15 different ethnic groups from the <a href=https://name-prism.com/about>name-prism</a> database [see @Ye2017]. With this dataset, I can train machine learning and deep learning models that learn to assign ethnic backgrounds to names. 
 
 To start, I have trained a so-called long-short-term-memory (LSTM) model. This is an artificial recurrent neural network that is specifically designed to process sequences of data. In the case of names, this sequence corresponds to the characters of the name (as shown above). The models that I have trained thus far reach a performance that is comparable or better than some of the models that I have found in the literature (e.g. an overall accuracy of 81.9% and a average F1 score of 80.7%) [e.g. @Ye2017]. The architecture of this first model is shown below.
 
-```{r, echo=FALSE, warnings=FALSE, message=FALSE}
-origin_model
+
+```
+## Model
+## Model: "sequential_1"
+## ________________________________________________________________________________
+## Layer (type)                        Output Shape                    Param #     
+## ================================================================================
+## lstm_6 (LSTM)                       (None, 30, 512)                 1107968     
+## ________________________________________________________________________________
+## dropout_3 (Dropout)                 (None, 30, 512)                 0           
+## ________________________________________________________________________________
+## lstm_7 (LSTM)                       (None, 30, 256)                 787456      
+## ________________________________________________________________________________
+## dropout_4 (Dropout)                 (None, 30, 256)                 0           
+## ________________________________________________________________________________
+## lstm_8 (LSTM)                       (None, 64)                      82176       
+## ________________________________________________________________________________
+## dropout_5 (Dropout)                 (None, 64)                      0           
+## ________________________________________________________________________________
+## dense_1 (Dense)                     (None, 15)                      975         
+## ================================================================================
+## Total params: 1,978,575
+## Trainable params: 1,978,575
+## Non-trainable params: 0
+## ________________________________________________________________________________
 ```
 
 After training the model, I can then use it to make predictions about the ethnic background of patent inventors. Below, you can see what the output of this deep learning model is. For every name, it predicts the probability of belonging to each of the 14 different ethnic origin groups.
 
-```{r, echo=FALSE, warnings=FALSE, message=FALSE}
-NAMES <- c("rolf weder", "aya kachi")
-exp_name <- encode_chars(NAMES,
-                         char_dict = c(letters, " ", "END"), 
-                         seq_max = 30, n_chars = 28)
-exp_name <- origin_model %>% predict_proba(exp_name[ , , ]) %>% 
-        round(digits = 2) %>% as.data.frame()
-rownames(exp_name) <- NAMES
-names(exp_name) <- names(inv_dat)[grepl("prob", names(inv_dat))]
-names(exp_name) <- gsub(pattern = "prob_", "", names(exp_name))
-exp_name
+
+```
+##            AngloSaxon China French German HispanicLatinAmerica India Italian
+## rolf weder       0.10     0      0   0.87                 0.00  0.00    0.00
+## aya kachi        0.02     0      0   0.00                 0.13  0.04    0.04
+##            Japan Korea MiddleEast Persian Russian&EastEurope Scandinavian
+## rolf weder  0.00     0          0    0.00               0.00         0.01
+## aya kachi   0.46     0          0    0.03               0.01         0.00
+##            SouthEastAsia Turkey
+## rolf weder          0.00   0.00
+## aya kachi           0.23   0.04
 ```
 
 There are two possibilities to use this information for my analysis. I could either classify every name to only one ethnic background (e.g. to the one with the highest probability or according to some threshold-probability) or I could also directly use the individual class probabilities.
 
 I decided to use the latter approach. The reason is that some names can have rather high probabilities for several ethnic groups. Two examples are given below. "Michael Muller" could be an American but also a German name. Similarly, "Stefanie Berger" could be of French or German origin. Classifying to the highest probability would not account for that.
 
-```{r, echo=FALSE, warnings=FALSE, message=FALSE}
-NAMES <- c("michael muller", "stefanie berger")
-exp_name <- encode_chars(NAMES,
-                         char_dict = c(letters, " ", "END"), 
-                         seq_max = 30, n_chars = 28)
-exp_name <- origin_model %>% predict_proba(exp_name[ , , ]) %>% 
-        round(digits = 2) %>% as.data.frame()
-rownames(exp_name) <- NAMES
-names(exp_name) <- names(inv_dat)[grepl("prob", names(inv_dat))]
-names(exp_name) <- gsub(pattern = "prob_", "", names(exp_name))
-exp_name
+
+```
+##                 AngloSaxon China French German HispanicLatinAmerica India
+## michael muller        0.67     0   0.01   0.31                 0.00     0
+## stefanie berger       0.05     0   0.35   0.57                 0.01     0
+##                 Italian Japan Korea MiddleEast Persian Russian&EastEurope
+## michael muller     0.00     0     0          0       0                  0
+## stefanie berger    0.01     0     0          0       0                  0
+##                 Scandinavian SouthEastAsia Turkey
+## michael muller             0             0      0
+## stefanie berger            0             0      0
 ```
 
 Therefore, I decided to use the ethnic origin probabilities for my analysis. I proceed in the following way: For a given year and country (or region, or technological field), I sum up the probabilities to belong to ethnic class $j$ for all inventors and divide it by the total number of inventors $N$ in this country and year. All the $J$ different ethnic origin shares sum up to unity.
@@ -220,16 +145,18 @@ $$EthnicShare_j = \frac{\sum_{i = 1}^{N} P_{i,j}}{N}$$
 
 With this approach, I obtain a measure for the ethnic composition of inventors in a given country, region or technological field for a given point in time. Below, I highlight this for the case with the four previously presented example names: A patent universe that would only consist of these four inventor names would have the following ethnic origin composition:
 
-```{r, echo=FALSE, warnings=FALSE, message=FALSE}
-NAMES <- c("rolf weder", "aya kachi", "michael muller", "stefanie berger")
-exp_name <- encode_chars(NAMES,
-                         char_dict = c(letters, " ", "END"), 
-                         seq_max = 30, n_chars = 28)
-exp_name <- origin_model %>% predict_proba(exp_name[ , , ]) %>% 
-        round(digits = 2) %>% as.data.frame()
-names(exp_name) <- names(inv_dat)[grepl("prob", names(inv_dat))]
-names(exp_name) <- gsub(pattern = "prob_", "", names(exp_name))
-colSums(exp_name) / length(NAMES)
+
+```
+##           AngloSaxon                China               French 
+##               0.2100               0.0000               0.0900 
+##               German HispanicLatinAmerica                India 
+##               0.4375               0.0350               0.0100 
+##              Italian                Japan                Korea 
+##               0.0125               0.1150               0.0000 
+##           MiddleEast              Persian   Russian&EastEurope 
+##               0.0000               0.0075               0.0025 
+##         Scandinavian        SouthEastAsia               Turkey 
+##               0.0025               0.0575               0.0100
 ```
 
 In the next section, I present preliminary results when I apply the outlined procedure to a representative sub-sample of 500'000 patents inventors (the full sample will consider more than 4 million inventors).
@@ -237,33 +164,19 @@ In the next section, I present preliminary results when I apply the outlined pro
 ### **Preliminary Results**
 First, I want to show some results concerning the dominant domestic origin share of patent inventors located in different countries. The graph below highlights this for the US (AngloSaxon), China (Chinese), Japan (Japanese), Korea (Korean), Great Britain (AngloSaxon), France (French), Germany (German) and Italy (Italian). Switzerland is not included because it is a multilingual country. The sample data is from 1990 to 2015 (the full dataset will cover years starting in 1978).
 
-```{r, echo=FALSE, warnings=FALSE, message=FALSE, fig.width=10, fig.height=4, fig.align="center"}
-COUNTRIES <- c("US", "CN", "JP", "KR", "GB", "FR", "DE", "IT")
-DOMESTIC_ORIGIN <- c("AngloSaxon", "China", "Japan", "Korea", 
-                     "AngloSaxon", "French", "German", "Italian")
-foreign_country_comparison(countries = COUNTRIES,
-                           domestic_origin = DOMESTIC_ORIGIN)
-```
+<img src="paper_outline_files/figure-html/unnamed-chunk-7-1.png" style="display: block; margin: auto;" />
 In the U.S. the share of Anglo-Saxon origin has steadily declines. Similarly, this is also the case for Germany and Great Britain (to a lesser extent also for France). Still, it is remarkable that the level of this domestic origin share is - and remains - much lower in the U.S. compared to other industrialized economies. Notably, in 2015 Anglo-Saxon origin corresponds to less than 50% of the ethnic composition in the U.S. (compared to around 65% for German origin in Germany). Therefore, the U.S. seemed to have retained it's privileged position in terms of inventor diversity over the last 25 years.
 
 However, the decline of the dominant ethnic origin among patent inventors can suggest several things: First, these countries could have become more attractive for foreign talents, making their ethnic composition more diverse. Second, their education systems could have been very effective in integrating descendants of earlier immigrants to become inventors (e.g. Children of Turkish immigrants in Germany or children of Latin American immigrants in the U.S.). Third, it could also simply mean that the pattern of name-giving has changed, e.g. Germans could have become more likely to give their children no typical German names anymore (e.g. more 'Lauras' instead of 'Gudruns'). The last point should be considered by the classification model to some extent, as this would have been taken into account when I trained it. However, it cannot be completely ruled out.
 
 Another interesting thing is thus, which ethnic origins have changed over time in different countries. From the literature, it is known that the U.S. has especially attracted high-skilled immigrants from China and India. I should also observe this as an increase in these origin shares for the U.S. I investigate this in the plot below and extend the analysis to European countries as well as to origin shares of "Russia&EastEurope" and "SouthEastAsia" (i.e. Thailand, Vietnam, Malaysia, Indonesia).
 
-```{r, echo=FALSE, warnings=FALSE, message=FALSE, fig.width=10, fig.height=4, fig.align="center"}
-COUNTRIES <- c("US", "GB", "FR", "DE", "IT", "CH")
-ORIGIN <- c("China", "India", "Russian&EastEurope", "SouthEastAsia")
-foreign_shares_fun(COUNTRIES, ORIGIN)
-```
+<img src="paper_outline_files/figure-html/unnamed-chunk-8-1.png" style="display: block; margin: auto;" />
 This presents some interesting results. I do also observe a strong increase for Chinese and Indian origin shares in the U.S. (to a lesser extent also in Great Britain), but not for European countries. That is to say, inventors from these regions seem to have almost exclusively migrated to Anglo-Saxon countries. Thus, primarily the U.S. seems to be very attractive for foreign non-Western inventors. 
 
 In the next step, I want to stress in which technological fields this inflow of foreign inventors occured. For this purpose, I plot the share of Anglo-Saxon origin among patent inventors in selected technological fields for the U.S.
 
-```{r, echo=FALSE, warnings=FALSE, message=FALSE, fig.width=10, fig.height=4, fig.align="center"}
-TECHFIELDS <- as.character(c(4, 5, 6, 8, 13:16, 22, 24))
-tech_field_plot(COUNTRY = "US", DOMESTIC_ORIGIN = "AngloSaxon",
-                TECHFIELDS = TECHFIELDS)
-```
+<img src="paper_outline_files/figure-html/unnamed-chunk-9-1.png" style="display: block; margin: auto;" />
 The technological fields that are considered here are the following: 13. Medical technology, 14. Organic fine chemistry, 15. Biotechnology, 16. Pharmaceuticals, 24. Environmental technology, 4. Digital communication, 5. Basic communication processes, 6. Computer technology, 8. Semiconductors. 
 
 The strongest decline of Anglo-Saxon origin shares seems to be in the "new" fields related to Digitization and Semiconductors. In all of these fields, the Anglo-Saxon origin share is much below 50%, sometimes only 30%. I have also conducted the same analysis for Germany or Great Britain and also found a decline of the domestic origin share. Note, however, that due to the relatively "small" sample, these preliminary results for Germany and Great Britain are not really robust. In any case, the level of the domestic origin share is much higher and I expect this to hold for the full sample. This suggests that it might be much easier for the U.S. to attract (much more) foreign talent in key technological fields.
