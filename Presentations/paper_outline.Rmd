@@ -4,9 +4,7 @@ subtitle: "Research Outline"
 author: "Matthias Niggli"
 date: "`r Sys.Date()`"
 bibliography: bibliography.bib
-output: 
-        html_document:
-                keep_md: true
+output: html_document
 ---
 
 ```{r setup, include=FALSE}

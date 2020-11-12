@@ -206,7 +206,7 @@ paste0("Training data ready. ", nrow(df),
 ############ BALANCE THE SAMPLE ############
 ############################################
 
-## Drop, up-/downsample classes in the training data --------------------------------------------
+## Drop, up-/down-sample classes in the training data --------------------------------------------
 df <- select(df, full_name, origin)
 df %>% group_by(origin) %>% summarise(count = n())
 
@@ -216,7 +216,7 @@ tmp <- df %>% filter(origin == "French")
 df_train <- rbind(df_train, tmp)
 tmp <- df %>% filter(origin == "German")
 df_train <- rbind(df_train, tmp)
-tmp <- df %>% filter(origin == "HispanicLatinAmerica")
+tmp <- df %>% filter(origin == "HispanicLatinAmerica") %>% sample_n(3000)
 df_train <- rbind(df_train, tmp)
 tmp <- df %>% filter(origin == "India")
 df_train <- rbind(df_train, tmp)
