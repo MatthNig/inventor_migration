@@ -57,7 +57,7 @@ inv_comp_ctry <- function(df, country){
 }
 
 ## function to plot the share of the dominant domestic ethnic background in different countries 
-foreign_country_comparison <- function(countries, domestic_origin){
+dom_country_comparison <- function(countries, domestic_origin){
         
         inv_origin_shares <- lapply(countries, function(x) inv_comp_ctry(inv_dat, x))
         names(inv_origin_shares) <- countries
@@ -74,7 +74,7 @@ foreign_country_comparison <- function(countries, domestic_origin){
         
         p <- ggplot(country_diff, aes(x = p_year, y = foreign_share, color = country))+
                 geom_line()+ scale_color_hue("Country")+
-                labs(y = "Share of non-domestic origin", x = "Year",
+                labs(y = "Share of dominant domestic origin", x = "Year",
                 title = paste0(" Share of the dominant domestic ethnic background \n among patent inventors"))+
                 ylim(0.3, 1)
         return(p)
@@ -135,7 +135,7 @@ tech_field_plot <- function(COUNTRY, DOMESTIC_ORIGIN,
         
         p <- ggplot(plot_dat, aes(x = p_year, y = share))+
                 facet_wrap(.~ tech_field)+
-                geom_line()+
+                geom_line(aes(color = tech_field))+scale_color_hue(guide = "none")+
                 labs(y = "Share of domestic origin", 
                      x = "Year", title = paste0(" Share of ", DOMESTIC_ORIGIN, " origin in ",
                                                 COUNTRY, " (by technological field)"))
@@ -146,7 +146,7 @@ tech_field_plot <- function(COUNTRY, DOMESTIC_ORIGIN,
 ## **Introduction and the General Idea**
 There is a growing literature of theoretical and empirical papers (mostly concerning the USA) that focus on the effects of high-skilled migration on innovation. Typically, these studies find substantial benefits from high-skilled migration into the USA [e.g. @AcemogluAkcigit2018; @AkcigitStantcheva2016; @Moser2014; or @DoranIsen2014]. In particular, large inflows of high-skilled workers from China and India since the 1990s seemed to have fostered U.S.-based innovation [for an overview see @Kerr2016; @Peri2016; @Kerr2013]. 
 
-I plan to build on this empirical observations and ***investigate a potential relationship between immigration and onshoring of high-impact R&D***.
+I build on these empirical observations and ***investigate a potential relationship between immigration and onshoring of high-impact R&D***.
 
 The rationale for this is motivated by insights from the trade-in-tasks literature - notably from @BaldwinRobertNicoud2014, @OttavianoPeri2013 and @GrossmanRossiHansberg2008 among others. According to this literature, onshoring of R&D can be interpreted as a form of trade-in-tasks. Furthermore, what this literature suggests is that the Rybczynski theorem from goods-trade also holds in a trade-in-tasks framework [@BaldwinRobertNicoud2014]. That is to say, inflows of foreign inventors should allow the receiving country to specialize in activities that employ these inventors intensively. In other words, given an inflow of 'foreign talent', the U.S. should become relatively more attractive for high-impact R&D activities.
 
@@ -242,21 +242,42 @@ First, I want to show some results concerning the dominant domestic origin share
 COUNTRIES <- c("US", "CN", "JP", "KR", "GB", "FR", "DE", "IT")
 DOMESTIC_ORIGIN <- c("AngloSaxon", "China", "Japan", "Korea", 
                      "AngloSaxon", "French", "German", "Italian")
-foreign_country_comparison(countries = COUNTRIES,
+dom_country_comparison(countries = COUNTRIES,
                            domestic_origin = DOMESTIC_ORIGIN)
 ```
 In the U.S. the share of Anglo-Saxon origin has steadily declines. Similarly, this is also the case for Germany and Great Britain (to a lesser extent also for France). Still, it is remarkable that the level of this domestic origin share is - and remains - much lower in the U.S. compared to other industrialized economies. Notably, in 2015 Anglo-Saxon origin corresponds to less than 50% of the ethnic composition in the U.S. (compared to around 65% for German origin in Germany). Therefore, the U.S. seemed to have retained it's privileged position in terms of inventor diversity over the last 25 years.
 
-However, the decline of the dominant ethnic origin among patent inventors can suggest several things: First, these countries could have become more attractive for foreign talents, making their ethnic composition more diverse. Second, their education systems could have been very effective in integrating descendants of earlier immigrants to become inventors (e.g. Children of Turkish immigrants in Germany or children of Latin American immigrants in the U.S.). Third, it could also simply mean that the pattern of name-giving has changed, e.g. Germans could have become more likely to give their children no typical German names anymore (e.g. more 'Lauras' instead of 'Gudruns'). The last point should be considered by the classification model to some extent, as this would have been taken into account when I trained it. However, it cannot be completely ruled out.
+However, the decline of the dominant ethnic origin among patent inventors can suggest several things: First, these countries could have become more attractive for foreign talents, making their ethnic composition more diverse. Second, their education systems could have been very effective in integrating descendants of earlier immigrants to become inventors (e.g. Children of Turkish immigrants in Germany or children of Latin American immigrants in the U.S.). Third, it could also simply mean that the pattern of name-giving has changed, e.g. Germans could have become more likely to give their children no typical German names anymore (e.g. more 'Lauras' instead of 'Gudruns'). The last point should be considered by the classification model to some extent, as this would have been taken into account when I trained it. However, it cannot be completely ruled out. As a robustness test, I plot the same graph again, but this time, I classify inventors to the highest ethnic probability instead of summing up all probabilities. The graph looks very similar and I thus consider the shown trends as robust.
 
 ```{r, echo=FALSE, warnings=FALSE, message=FALSE, fig.width=10, fig.height=4, fig.align="center"}
 COUNTRIES <- c("US", "CN", "JP", "KR", "GB", "FR", "DE", "IT")
 DOMESTIC_ORIGIN <- c("AngloSaxon", "China", "Japan", "Korea", 
                      "AngloSaxon", "French", "German", "Italian")
 
-# SHOW PLOT FOR CLASSIFICATION AS A ROBUSTNESS CHECK
-```
+class_dom_country <- function(country, domestic_origin){
+        N_invs <- inv_dat %>% filter(Ctry_code == country) %>% 
+                group_by(p_year) %>% summarise(N_invs = n())
+        dom_origin <- inv_dat %>% filter(Ctry_code == country, 
+                                         origin == domestic_origin) %>% 
+                group_by(p_year) %>% summarise(N_dom_ethnic = n())
+        tmp <- merge(N_invs, dom_origin, by = "p_year")
+        tmp$share <- tmp$N_dom_ethnic / tmp$N_invs
+        tmp$Country <- country
+        tmp <- tmp %>% filter(p_year <= 2015)
+}
 
+plot_dat <- list()
+for(i in 1:length(COUNTRIES)){
+        plot_dat[[i]] <- class_dom_country(country = COUNTRIES[i],
+                                           domestic_origin = DOMESTIC_ORIGIN[i])
+}
+plot_dat <- bind_rows(plot_dat)
+ggplot(plot_dat, aes(x = p_year, y = share, color = Country))+
+                geom_line()+
+                labs(y = "Share of dominant domestic origin", x = "Year",
+                title = paste0(" Share of the dominant domestic ethnic background \n among patent inventors (classification approach)"))+
+                ylim(0.3, 1)
+```
 
 Another interesting thing is thus, which ethnic origins have changed over time in different countries. From the literature, it is known that the U.S. has especially attracted high-skilled immigrants from China and India. I should also observe this as an increase in these origin shares for the U.S. I investigate this in the plot below and extend the analysis to European countries as well as to origin shares of "Russia&EastEurope" and "SouthEastAsia" (i.e. Thailand, Vietnam, Malaysia, Indonesia).
 
@@ -281,10 +302,38 @@ The strongest decline of Anglo-Saxon origin shares seems to be in the "new" fiel
 This brings me to the second piece of my analysis: If it is easier for the U.S. to attract high-skilled talents globally, could this push non-U.S. firms to offshore parts of their R&D to the U.S.? How I approach this question empirically is discussed in more detail in the following section.
 
 ## **Onshoring of High-Impact R&D**
+The literature suggests that especially high-impact and frontier R&D is dependent to have access to global talent pools [e.g. @Kerr2013]. At the same time, a relatively large share of patents does not protect ground-breaking inventions, but rather represents follow-up innovations [@BessenMaskin2009]. Therefore, one can expect that attracting global talents especially matters for high-value/high-impact patents. These can be identified using patent citations [@Hall2005]. Patents receive citations by subsequent patent applications. And the more citations a patent receives, the more valuable it tends to be. I exploit this insight from the literature and define high-impact patents as follows: A patent is a high-impact patent if it is among the top-10% of patents with regard to received citations over the next 5 years after its priority date for a given technological field (top-1% as a robustness check). For example, for pharmaceutical patent that was filed in 1995 I consider the following: How many citations did the patent receive up to the year 2000 and, regarding this metric, is it among the top-10% of all pharmaceutical patents filed in 1995? If it is, it is considered a high-impact patent.
 
+After identifying such high-impact patents, I then combine this with information on the company that owned the patent when it was filed and on the inventors who were involved developing it. With this, I can infer patents that whose development was at least partially offshored to the U.S. by non-U.S. companies. I do this the following way: First I only consider patents that are owned by companies that are not located in the U.S. Second, I then consider the total number of patents that these companies have filed per year. Third, I calculate the share of these patents, where at least one inventor had a resident address in the U.S.. As a robustness check I also did it for at least two and at least three inventors. Thus, I obtain the share of patents by non-U.S. firms that was partially offshored to the U.S. Of course, I can not only do this for the U.S. but also for other countries. The plot below shows the evolution of this share for different countries over time:
+
+<center>
+![](onshoring_shares.png){height=66%}
+</center>
+
+There is a large gap between the U.S. and all other countries, which has strongly increased from 1990 to 2000. The data clearly shows that the U.S. is extremely attractive for foreign offshoring of R&D. Again, it is also very interesting to investigate, which technological fields have benefited the most from onshoring. This is plotted in the next graph for the same technological fields as before. Onshoring seems to have strongly increased to almost all of them.
+
+<center>
+![](onshored_techfield_US.png){height=66%}
+</center>
+
+However, this could even be underestimated. For example, if Roche has a subsidiary in the U.S. that files patents independently from the parent company in Switzerland, this would not show up as onshoring in the data. There are possibilities to correct for this bias to some extent via string-matching of firm names and I will consider to address this during the research project. However, I do not expect the results to change. Rather, the trend will probably even be amplified.
+
+A last observation that I have made is that onshoring is very concentrated within the U.S., which is a known tendency from the economics of geography literature. Below, I plot the regional distribution of onshored patents in the U.S., that is the shares of some regions on all onshored patents.
+
+<center>
+![](regional_distribution.png){height=66%}
+</center>
+
+This data is not smoothed and is thus quite messy at the moment. However, there seems to be a trend that especially California and Massachusetts have increased the share of U.S. patents. The 'old' car manufacturing region of Michigan, in turn, has drastically declined. This could mean that especially digital technologies, computer science, biotechnology and chemistry have attracted the bulk of onshored R&D in the U.S. The winners from this trend, however, could be concentrated in some very specific regions. 
 
 ## **Bringing Everything together: Future Directions of Research**
+Up to now, I have obtained descriptive evidence about changes in the ethnic background of patent inventors as well as on onshoring of foreign high-impact R&D. These first results imply that the U.S. has by far the most diverse inventor composition. More importantly, inventors from India and China seem to have almost exclusively migrated to the U.S. between the 1990s and today. Furthermore, the diversity of ethnic backgrounds in the U.S. has most strongly increased in very dynamic technological fields. At the same time, the U.S. has attracted a muchg larger share of of foreign R&D offshoring compared to other countries. This was especially the case for highly dynamic technological fields such as digital technologies, computer science and biotechnology. 
 
+In summary, there seems to be a correlation between the diversity of ethnic backgrounds of inventors and the attractiveness for onshoring. This could be driven by various factors: Inflows of foreign origin inventors can be interpreted as a trigger for Rybczynski specialization effects [@BaldwinRobertNicoud2014]. Also, network and agglomeration effects can raise local productivity of inventors, thereby attracting foreign R&D [@Kerr2013; @Peri2016]. 
+
+I plan to investigate and discuss these channels in more detail by focusing on the existing literature. Furthermore, I could try to investigate the relationship between inventor diversity and high-impact R&D onshoring in more detailed. I could regress R&D-onshoring on the share of non-AngloSaxon workers at the level of technological fields. However, this would probably require to use a stacked-panel IV approach (e.g. ussing historic migration flows or demographic shares as instruments) to mitigate reverse causality concerns and identifying a convincing causal relationship will probably be very difficult. Also, this would require to use correspondence tables between technological fields and industry classifications in order to obtain control variables.
+
+Both of these issues seem quite challenging. However, it would also be interesting and I plan to evaluate this in the coming weeks. Apart from that, I plan to improve my classification method. As this is a cornerstone of my paper, I plan to spend some more time on this. There are several possibilities I would like to test (hypertune the current network, try different models e.g. Gated Recurrent Units, Multilayer Perceptrons, Random Forests, Boosting Methods or an ensemble of these). Furthermore, I will extend the analysis to our full dataset, which will involve classifying the origin of around 4.5 Mio. patent inventors. 
 
 ## **Literature**
 

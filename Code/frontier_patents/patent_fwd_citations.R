@@ -243,18 +243,18 @@ ggplot(plot_dat, aes(x = p_year, y = share_onshored, color = country))+
              x = "Year", y = "Share of foreign owned patents with domestic inventors")
 
 #### Check from which tech_fields the onshoring into the U.S. occurs -----------------
-COUNTRY <- "CN"
-TECHFIELDS <- c(13, 14, 15, 16, 4, 6)
+COUNTRY <- "US"
+TECHFIELDS <- c(4, 5, 6, 8, 13:16, 24)
 TECHFIELDS <- seq(1, 34)
 
 plot_dat <- techfield_onshoring_fun(df = country_onshoring_fun(df, onshoring_country = COUNTRY))
 plot_dat <- filter(plot_dat, p_year <= 2015 & tech_field %in% TECHFIELDS & 
-                           total_patents >= 100) %>% 
+                           total_patents >= 30) %>% 
         mutate(tech_field = as.factor(as.character(tech_field))) %>%
         as.data.frame()
 
 ggplot(plot_dat, aes(x = p_year, y = share_onshored))+#, color = tech_field))+
-        facet_wrap(.~tech_field)+geom_line()+
+        facet_wrap(.~tech_field)+geom_line(aes(color = tech_field))+scale_color_hue(guide = "none")+
         labs(title = " Onshored patents by technological fields",
              subtitle =  paste(" Share of High-impact patents (Top 10%) from foreign firms \n with at least", INVENTOR_NUMBER, 
                                "inventor located in", COUNTRY),
@@ -267,13 +267,13 @@ regions <- c("California", "Massachusetts", "New Jersey", "Michigan",
              "Texas", "New York")#, "Illinois", "Pennsylvania", "Connecticut",
 plot_dat <- region_onshoring_fun(df = country_onshoring_fun(dat, onshoring_country = ctry),
                                  onshoring_country = ctry)
-plot_dat <- filter(plot_dat, p_year <= 2015& regio_inv %in% regions) %>% as.data.frame()
+plot_dat <- filter(plot_dat, p_year <= 2015 & regio_inv %in% regions) %>% as.data.frame()
 
 ggplot(plot_dat, aes(x = p_year, y = regional_share, color = regio_inv))+
         geom_line()+
         #geom_area()+ #guides(fill = FALSE)
         labs(title = " Regional distribution of onshored patents",
-             subtitle =  paste(" Share of High-impact patents (Top 10%) from foreign firms \n with at least two domestic inventor by country"),
+             subtitle =  paste(" Share of all onshored high-impact patents to the U.S."),
              x = "Year", y = "Share of foreign owned patents with domestic inventors")
 
 
