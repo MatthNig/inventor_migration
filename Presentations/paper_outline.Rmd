@@ -3,10 +3,8 @@ title: "Immigration and Onshoring of High-Impact R&D"
 subtitle: "Research Outline"
 author: "Matthias Niggli"
 date: "`r Sys.Date()`"
-bibliography: bibliography.bib
-output: 
-        html_document:
-                keep_md: true
+# bibliography: bibliography.bib # throws an error with this markdown version because of the .bib file.
+output: html_document
 ---
 
 ```{r setup, include=FALSE}
@@ -15,24 +13,28 @@ library("tidyverse")
 library("tensorflow")
 library("keras")
 library("reticulate")
+
+if(file.exists("/scicore/home/weder/nigmat01/inventor_migration")) {
+        PATH <- "/scicore/home/weder/nigmat01/inventor_migration"}else{
+                PATH <- "C:/Users/Matthias/Documents/GithubRepos/inventor_migration"}
+
 ```
 
 
 ```{r, echo=FALSE, include=FALSE, warning=FALSE}
 
 #### load data -----------------------------------------------------
-inv_dat <- readRDS("/scicore/home/weder/nigmat01/inventor_migration/Data/patent_data/inventor_origin.rds")
+inv_dat <- readRDS(paste0(PATH, "/Data/patent_data/inventor_origin.rds"))
 
 #### load the classification model  -------------------------------------------
-origin_model <- load_model_hdf5("/scicore/home/weder/nigmat01/inventor_migration/Data/classification_model/origin_class_model.h5")
-origin_model <- load_model_hdf5("/scicore/home/weder/nigmat01/inventor_migration/Data/classification_model/origin_class_model.h5")
-origin_model <- load_model_hdf5("/scicore/home/weder/nigmat01/inventor_migration/Data/classification_model/origin_class_model.h5")
-
+origin_model <- load_model_hdf5(paste0(PATH, "/Data/classification_model/origin_class_model.h5"))
+origin_model <- load_model_hdf5(paste0(PATH, "/Data/classification_model/origin_class_model.h5"))
+origin_model <- load_model_hdf5(paste0(PATH, "/Data/classification_model/origin_class_model.h5"))
 
 #### load functions -----------------------------------------------------
 
 ## function to encode names
-source("/scicore/home/weder/nigmat01/inventor_migration/Code/model_training/names_encoding_function.R")
+source(paste0(PATH, "/Code/model_training/names_encoding_function.R"))
 
 ## function to calculate ethnic origin shares by country 
 inv_comp_ctry <- function(df, country){
@@ -133,8 +135,7 @@ tech_field_plot <- function(COUNTRY, DOMESTIC_ORIGIN,
         
         p <- ggplot(plot_dat, aes(x = p_year, y = share))+
                 facet_wrap(.~ tech_field)+
-                guides(NULL)+
-                geom_line(aes(aes(color = tech_field)))+
+                geom_line()+
                 labs(y = "Share of domestic origin", 
                      x = "Year", title = paste0(" Share of ", DOMESTIC_ORIGIN, " origin in ",
                                                 COUNTRY, " (by technological field)"))
@@ -167,7 +168,7 @@ Therefore, by using names I obtain a measure for *ethnic background* and not dir
 ### **Inferring the Ethnic Origin of Inventors with Deep Learning**
 For my analysis, I desgin and train a special kind of neural network which is capable to process names. To do this, I have to encode names as sequences of data. In other words, I transform a name to a sparse matrix of zeros and ones. Rows indicate the first, second... last character of a specific name and the columns specify letters of the Latin alphabet. If the first row features a "1" in the first column and zeros in all others, this means that the first character of this name is an "A". An example for a fully encoded name is given below:
 
-```{r, echo=FALSE}
+```{r}
 exp_name = encode_chars(names = "rolf weder", 
                         char_dict = c(letters, " ", "END"), 
                         seq_max = 10, n_chars = 28)
@@ -247,6 +248,15 @@ foreign_country_comparison(countries = COUNTRIES,
 In the U.S. the share of Anglo-Saxon origin has steadily declines. Similarly, this is also the case for Germany and Great Britain (to a lesser extent also for France). Still, it is remarkable that the level of this domestic origin share is - and remains - much lower in the U.S. compared to other industrialized economies. Notably, in 2015 Anglo-Saxon origin corresponds to less than 50% of the ethnic composition in the U.S. (compared to around 65% for German origin in Germany). Therefore, the U.S. seemed to have retained it's privileged position in terms of inventor diversity over the last 25 years.
 
 However, the decline of the dominant ethnic origin among patent inventors can suggest several things: First, these countries could have become more attractive for foreign talents, making their ethnic composition more diverse. Second, their education systems could have been very effective in integrating descendants of earlier immigrants to become inventors (e.g. Children of Turkish immigrants in Germany or children of Latin American immigrants in the U.S.). Third, it could also simply mean that the pattern of name-giving has changed, e.g. Germans could have become more likely to give their children no typical German names anymore (e.g. more 'Lauras' instead of 'Gudruns'). The last point should be considered by the classification model to some extent, as this would have been taken into account when I trained it. However, it cannot be completely ruled out.
+
+```{r, echo=FALSE, warnings=FALSE, message=FALSE, fig.width=10, fig.height=4, fig.align="center"}
+COUNTRIES <- c("US", "CN", "JP", "KR", "GB", "FR", "DE", "IT")
+DOMESTIC_ORIGIN <- c("AngloSaxon", "China", "Japan", "Korea", 
+                     "AngloSaxon", "French", "German", "Italian")
+
+# SHOW PLOT FOR CLASSIFICATION AS A ROBUSTNESS CHECK
+```
+
 
 Another interesting thing is thus, which ethnic origins have changed over time in different countries. From the literature, it is known that the U.S. has especially attracted high-skilled immigrants from China and India. I should also observe this as an increase in these origin shares for the U.S. I investigate this in the plot below and extend the analysis to European countries as well as to origin shares of "Russia&EastEurope" and "SouthEastAsia" (i.e. Thailand, Vietnam, Malaysia, Indonesia).
 
