@@ -22,12 +22,17 @@ if(substr(x = getwd(),
                 print("Make sure your working directory is the repository directory.")}
 #setwd(...)
 
+################################################
+####### Load functions for data analysis #######
+################################################
+
+source(paste0(getwd(), "/Code/frontier_patents/patent_analysis_functions.R"))
+
 #########################
 ####### Load data #######
 #########################
 
 #### Load patent information ---------------------------------------------------
-#cit_dat <- readRDS(paste0(mainDir1,  "/created data/", "forward_cit_dat.rds"))
 pat_dat <- readRDS(paste0(mainDir1,  "/created data/", "pat_dat.rds"))
 print("Data on patent citations loaded")
 
@@ -105,7 +110,7 @@ keep_idx <- NULL
 # inv_dat <- assign_geo_info(df = inv_dat, vars = "regio_inv")
 
 # Subset to unique patents
-inv_dat <- inv_dat %>% #filter(is.na(regio_inv) == FALSE) %>% # with this I loose all USPTOs without an EP equivalent
+inv_dat <- inv_dat %>%
         distinct(p_key, name, .keep_all = TRUE) %>% as.data.frame()
 
 #### firm information -----------------------------------------------------
@@ -126,10 +131,7 @@ VARS <- colnames(firm_dat)[!names(firm_dat) %in% names(pat_dat)]
 tmp <- firm_dat[, c("p_key", VARS)]
 colnames(tmp)[-c(1:2)] <- paste0(colnames(tmp)[-c(1:2)], "_firm")
 df <- merge(setDT(pat_dat, key = "p_key"), setDT(tmp, key = "p_key"), by = "p_key", all = TRUE) # merge.data.table
-
-# Alternative attempts:
-# df0 <- full_join(pat_dat, tmp, by = "p_key") # dplyr
-# df1 <- setDT(pat_dat, key = "p_key")[setDT(tmp, key = "p_key")] # data.table right join
+tmp <- NULL
 
 #### Combine information on inventors with patent and firm characteristic-------
 VARS <- colnames(inv_dat)[!names(inv_dat) %in% names(df)]
@@ -139,92 +141,66 @@ change_names <- colnames(tmp)[colnames(tmp) %in% c("Up_reg_code", "lat", "lng")]
 change_names <- which(colnames(tmp) %in% change_names)
 colnames(tmp)[change_names] <- paste0(colnames(tmp)[change_names], "_inv")
 df <- merge(setDT(df, key = "p_key"), setDT(tmp, key = "p_key"), by = "p_key", all = TRUE) # merge.data.table
-
-# Alternative attempts:
-#df <- full_join(df, tmp, by = "p_key") # dplyr
-
 tmp <- NULL
 print("Patent characteristics combined with firm and inventor information.")
 
-##########################
-####### Data analysis ####
-##########################
+#####################################
+####### DOMESTIC: Data analysis #####
+#####################################
 
-# onshoring_fun_country <- function(df, onshoring_country = "US", world_class_indicator = "world_class_90"){
-#         
-#         # subset to firms that are not from the onshoring_country and to high-impact patents of this country
-#         tmp <- df %>% filter(country_firm != onshoring_country)
-#         tmp <- tmp %>% filter_at(vars(starts_with(world_class_indicator)), any_vars(. == 1))
-#         # tmp <- df %>% filter(country_firm != "US" & world_class_90 == 1) # old without function
-#         
-#         # Step 1: For this country, calculate the number of patents by firm and year
-#         total_pat_firms <- setDT(tmp)[, .(total_patents = uniqueN(p_key)), by = .(organization, p_year)]
-#         total_pat_firms <- setDT(total_pat_firms, key = c("organization", "p_year"))
-# 
-#         # Step 2: For this country, calculate the number of patents with at least 
-#         #         one domestic inventor by firm and year
-#         total_pat_onshored <- setDT(tmp)[ctry_inv == onshoring_country, 
-#                                    .(total_patents_onshored = uniqueN(p_key)), 
-#                                    by = .(organization, p_year)]
-#         total_pat_onshored <- setDT(total_pat_onshored, key = c("organization", "p_year"))
-#         
-#         # Step 3: Combine these two measures and calculate the share
-#         tmp <- total_pat_onshored[total_pat_firms]
-#         tmp$total_patents_onshored <- unlist(sapply(tmp$total_patents_onshored, 
-#                                                     function(x)ifelse(is.na(x) == TRUE, 0, x)))
-#         
-#         # Step 4: calculate the overall share of onshored patents per country and year:
-#         tmp <- tmp %>% group_by(p_year) %>%
-#         summarise(total_patents_onshored = sum(total_patents_onshored),
-#                   total_patents = sum(total_patents)) %>%
-#         mutate(share_onshored = total_patents_onshored / total_patents)
-#         
-#         # Step 5: subset to 2015
-#         tmp <- filter(tmp, p_year <= 2015)
-#         
-#         return(tmp)
-# }
-# 
-# countries <- c("US", "DE", "GB", "FR", "CH", "CN", "JP")
-# plot_dat <- lapply(countries,
-#                    function(x)onshoring_fun_country(df = df, 
-#                                                     onshoring_country = x, 
-#                                                     world_class_indicator = "world_class_90")
-#                    )
-# for(i in 1:length(countries)){plot_dat[[i]]$country <- countries[i]}
+# differentiate between high-tech and low-tech sectors 
+# e.g. based on the share of high-tech patents
+# then calculate the number of patents in both sectors
+# =>    this would be a proxy for domestic Rybczinsky-effects, that is the high-tech
+#       sector should increase in comparison to the low-tech sector.
 
-# I could do the same thing for regions or tech-fields
+# identify high-impact sectors as those with the highest shares of world_class patents
+winner_loser_fun <- function(df, country){
+        high_impact_pat <- setDT(df)[world_class_90 == 1 & country_firm == country, 
+                                     .(high_impact_pat = .N), 
+                                     by = .(tech_field)]
+        total_pat <- setDT(df)[country_firm == "US", 
+                               .(total_pat = .N), 
+                               by = .(tech_field)]
+        tmp <- merge(high_impact_pat, total_pat, by = "tech_field")
+        tmp$share_high_impact <- tmp$high_impact_pat / tmp$total_pat
+        return(tmp %>% arrange(-share_high_impact))
+}
+high_impact_sectors <- winner_loser_fun(df = df, country = "US")[1:5, "tech_field"]
 
-#### Load functions
-# (1) identify onshored high-impact patents from foreign firms
-source(paste0(getwd(), "/Code/frontier_patents/country_onshoring_fun.R"))
-# This function creates a new variable called 'onshored' which indicates if
-# a patent has been offshored by foreign firms to a specific country. The 
-# assignment of this status is conditional on the number of involved domestic inventors.
+# assign frontier-status 
+df <- df %>% mutate(high_impact_sector = ifelse(tech_field %in% high_impact_sectors, 
+                                                "frontier", "non-frontier"))
 
-# (2) calculate the share of onshored high-impact patents from foreign firms
-source(paste0(getwd(), "/Code/frontier_patents/calc_onshoring_share_fun.R"))
-# This function returns a dataset which calculates the share of offshored patents
-# to a specific country from all foreign countries and year.
+# calculate the number of patents in both sectors
+plot_dat <- setDT(df)[p_year <= 2015 & country_firm == "US", .(N_pat = .N), 
+                             by = .(high_impact_sector, p_year)]
+ggplot(plot_dat, aes(x = p_year, y = log(N_pat), color = high_impact_sector))+
+        geom_line()
+# => kaum Veränderung
 
-# (2) calculate the share of onshored high-impact patents from foreign firms
-source(paste0(getwd(), "/Code/frontier_patents/techfield_onshoring_fun.R"))
-# This function returns a dataset which calculates the share of offshored patents
-# to a specific country from all foreign countries and year, differentiated by technology field.
+# @RW: schwierig da 1) sehr ungenau identifizierbar. Shares an high-impact sind bei allen
+# tech-sectors sehr hoch. 2) macht auch nicht unbedingt Sinn, denn diese Sektoren machen nicht
+# "entweder oder" sondern meist sowohl gute wie auch schlechte Patente.
+
+#####################################
+####### ONSHORING: Data analysis ####
+#####################################
 
 #### Get onshoring shares for different onshoring countries -----------------
 onshoring_countries <- c("US", "DE", "GB", "FR", "CH", "CN", "JP")
 INVENTOR_NUMBER <- 1
+WORLD_CLASS_INDICATOR  <- FALSE
 plot_dat <- lapply(onshoring_countries, function(x){
         
         # identify onshored patents for country x (= inventor in x, but firm not in x)
-        tmp <- country_onshoring_fun(df = df,
-                                     onshoring_country = x,
-                                     inventor_number = INVENTOR_NUMBER,
-                                     world_class_indicator = "world_class_90")
+        tmp <- country_onshoring(df = df,
+                                 onshoring_country = x,
+                                 inventor_number = INVENTOR_NUMBER,
+                                 world_class_indicator = WORLD_CLASS_INDICATOR)
         
         # calculate their share on all patents owned by foreign firms
-        tmp <- calc_onshoring_share_fun(df = tmp)
+        tmp <- calc_onshoring_share(df = tmp)
         
         # indicate the onshoring country and return the data
         tmp <- tmp %>% mutate(country = x) %>% as.data.frame()
@@ -237,17 +213,16 @@ plot_dat <- bind_rows(plot_dat)
 plot_dat <- filter(plot_dat, p_year <= 2015)
 ggplot(plot_dat, aes(x = p_year, y = share_onshored, color = country))+
         geom_line()+geom_point()+ylim(0, 0.15)+
-        labs(title = " R&D Onshoring",
-             subtitle =  paste(" Share of High-impact patents (Top 10%) from foreign firms \n with at least",
-                               INVENTOR_NUMBER, "domestic inventor by country"),
-             x = "Year", y = "Share of foreign owned patents with domestic inventors")
+        labs(title = " R&D offshoring intensity to selected countries",
+             subtitle =  " Share of offshored patents to selected countries among \n all patents owned by foreign firms",
+             x = "Year", y = "Offshoring intensity")
 
 #### Check from which tech_fields the onshoring into the U.S. occurs -----------------
 COUNTRY <- "US"
 TECHFIELDS <- c(4, 5, 6, 8, 13:16, 24)
 TECHFIELDS <- seq(1, 34)
 
-plot_dat <- techfield_onshoring_fun(df = country_onshoring_fun(df, onshoring_country = COUNTRY))
+plot_dat <- techfield_onshoring_shares(df = country_onshoring(df, onshoring_country = COUNTRY))
 plot_dat <- filter(plot_dat, p_year <= 2015 & tech_field %in% TECHFIELDS & 
                            total_patents >= 30) %>% 
         mutate(tech_field = as.factor(as.character(tech_field))) %>%
@@ -255,31 +230,22 @@ plot_dat <- filter(plot_dat, p_year <= 2015 & tech_field %in% TECHFIELDS &
 
 ggplot(plot_dat, aes(x = p_year, y = share_onshored))+#, color = tech_field))+
         facet_wrap(.~tech_field)+geom_line(aes(color = tech_field))+scale_color_hue(guide = "none")+
-        labs(title = " Onshored patents by technological fields",
-             subtitle =  paste(" Share of High-impact patents (Top 10%) from foreign firms \n with at least", INVENTOR_NUMBER, 
-                               "inventor located in", COUNTRY),
+        labs(title = paste(" R&D offshoring intensity to", COUNTRY, "technological fields"),
+             subtitle = " Share of offshored patents among \n all patents owned by foreign firms by technological field",
              x = "Year", y = "Share of foreign owned patents with domestic inventors")
 
 #### Check to which regions the onshoring into the U.S. occurs -----------------
-source(paste0(getwd(), "/Code/frontier_patents/region_onshoring_fun.R"))
-ctry <- "US"
-regions <- c("California", "Massachusetts", "New Jersey", "Michigan", 
+COUNTRY <- "US"
+REGIONS <- c("California", "Massachusetts", "New Jersey", "Michigan", 
              "Texas", "New York")#, "Illinois", "Pennsylvania", "Connecticut",
-plot_dat <- region_onshoring_fun(df = country_onshoring_fun(dat, onshoring_country = ctry),
+plot_dat <- region_onshoring_shares(df = country_onshoring(df, onshoring_country = COUNTRY),
                                  onshoring_country = ctry)
-plot_dat <- filter(plot_dat, p_year <= 2015 & regio_inv %in% regions) %>% as.data.frame()
-
+plot_dat <- filter(plot_dat, p_year <= 2015 & regio_inv %in% REGIONS) %>% as.data.frame()
 ggplot(plot_dat, aes(x = p_year, y = regional_share, color = regio_inv))+
         geom_line()+
-        #geom_area()+ #guides(fill = FALSE)
-        labs(title = " Regional distribution of onshored patents",
-             subtitle =  paste(" Share of all onshored high-impact patents to the U.S."),
-             x = "Year", y = "Share of foreign owned patents with domestic inventors")
-
-
-
-
-
+        labs(title = " R&D Onshoring by region",
+             subtitle =  paste(" Share among all onshored patents to the U.S. by region"),
+             x = "Year", y = "Share among all onshored patents to the U.S.")
 
 
 
