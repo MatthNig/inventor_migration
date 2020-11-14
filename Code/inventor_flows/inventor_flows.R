@@ -151,14 +151,15 @@ DOMESTIC_ORIGIN <- c("AngloSaxon", "AngloSaxon", "French", "German", "Japan")
 foreign_country_comparison(countries = COUNTRIES,
                            domestic_origin = DOMESTIC_ORIGIN)
 
-####################################################
-## Migrant inflow by technological field ###########
-####################################################
+###########################################################
+## Domestic origin share by technological field ###########
+###########################################################
 
 # create a function that requires the country and it's origin-class as arguments and returns
 # the shares of non-domestic origin inventors by technological field over time.
 # e.g. the share of non-AngloSaxon inventors in the U.S. by technological field.
 
+# calculates origin shares per tech_field
 inv_comp_techfield <- function(df, country){
         
         annual_total <- filter(df, Ctry_code == country) %>%
@@ -178,6 +179,7 @@ inv_comp_techfield <- function(df, country){
         return(tmp)
 }
 
+# filters the data according to tech_fields and plots the shares
 tech_field_plot <- function(COUNTRY, DOMESTIC_ORIGIN, 
                             TECHFIELDS, MIN_INVENTORS = 30){
         
@@ -189,7 +191,7 @@ tech_field_plot <- function(COUNTRY, DOMESTIC_ORIGIN,
         
         p <- ggplot(plot_dat, aes(x = p_year, y = share))+
                 facet_wrap(.~ tech_field)+
-                geom_line()+
+                geom_line(aes(color = tech_field))+scale_color_hue(guide = "none")+
                 labs(y = "Share of domestic origin", 
                      x = "Year", title = paste0(" Share of ", DOMESTIC_ORIGIN, " origin in ",
                                                 COUNTRY, "\n (by technological field)"))
@@ -200,3 +202,84 @@ tech_field_plot <- function(COUNTRY, DOMESTIC_ORIGIN,
 TECHFIELDS <- as.character(c(4, 5, 6, 8, 13:16, 22, 24))
 tech_field_plot(COUNTRY = "US", DOMESTIC_ORIGIN = "AngloSaxon",
                 TECHFIELDS = TECHFIELDS)
+
+
+###########################################################
+## Foreign origin shares by technological field ###########
+###########################################################
+
+tech_field_foreign_plot <- function(COUNTRY, ORIGINS, 
+                            TECHFIELDS, MIN_INVENTORS = 30){
+        
+        plot_dat <- inv_comp_techfield(df = inv_dat, country = COUNTRY) %>% 
+                mutate(tech_field = as.character(tech_field))
+        
+        plot_dat <- filter(plot_dat, origin %in% ORIGINS & p_year <= 2015 &
+                                   tech_field %in% TECHFIELDS & total >= MIN_INVENTORS)
+        
+        p <- ggplot(plot_dat, aes(x = p_year, y = share))+
+                facet_wrap(.~ tech_field)+
+                geom_line(aes(color = origin))+
+                labs(y = "Share of foreign origins", 
+                     x = "Year", title = paste0(" Share of foreign origin shares in ",
+                                                COUNTRY, "\n (by technological field)"))
+        return(p)
+}
+TECHFIELDS <- as.character(seq(1:34))
+TECHFIELDS <- as.character(c(4, 5, 6, 8, 13:16, 22, 24))
+ORIGINS <- c("China", "India", "HispanicLatinAmerica", "Russian&EastEurope", "SouthEastAsia")
+tech_field_foreign_plot(COUNTRY = "US", ORIGINS = ORIGINS,
+                        TECHFIELDS = TECHFIELDS, MIN_INVENTORS = 30)
+
+### check geographical variation among highly treated: -------------------------
+inv_comp_techfield_geo <- function(df, country, techfields, 
+                                   Tech_group = FALSE, origins){
+        
+        annual_total <- filter(df, Ctry_code == country, 
+                               tech_field %in% techfields) %>%
+                group_by(Up_reg_label, p_year) %>% summarise(total = n())
+        
+        tmp <- filter(df, Ctry_code == country,
+                      tech_field %in% techfields) %>%
+                group_by(Up_reg_label, p_year) %>% select(contains("prob")) %>%
+                summarise_all(.funs = sum)
+        
+        tmp <- merge(tmp, annual_total, by = c("Up_reg_label", "p_year"))
+        tmp <- filter(tmp, total >= 10)
+        share_vars <- names(tmp)[grepl(pattern = "prob_", x = names(tmp))]
+        tmp[, share_vars] <- tmp[, share_vars] / tmp$total
+
+        tmp <- gather(tmp, key = "origin", value = "share", -p_year, -total, -Up_reg_label)
+        tmp$origin <- gsub("prob_", "", tmp$origin)
+        tmp <- mutate(tmp, country = country, tech_field = paste(techfields, collapse = ", "))
+        tmp <- filter(tmp, origin %in% origins)
+        
+        if(Tech_group == FALSE){
+                plot_name <- paste(techfields, collapse = ", ")}else{
+                        plot_name <- Tech_group}
+        
+        p <- ggplot(tmp, aes(x = p_year, y = share))+
+                facet_wrap(.~ Up_reg_label)+
+                geom_line(aes(color = origin))+
+                labs(y = "Share of foreign origins", 
+                     x = "Year", 
+                     title = paste0("Share of origin shares in ",
+                                    country, "-states"), 
+                     subtitle = paste("in technological field:", plot_name))
+        return(p)
+}
+
+TECHFIELDS <- as.character(c(13:17)) # MedTech, BioTech, Pharma, Chemicals
+TECHFIELDS <- as.character(c(3:8)) # Telecommunications, IT and Software
+TECHFIELDS <- as.character(c(1:2, 9:10)) # electrics, visual, measurement technology
+TECHFIELDS <- as.character(seq(1:34)) # All technologies
+TECHFIELDS <- as.character(c(19:21, 23)) # material sciences
+TECHFIELDS <- as.character(c(24:32)) # machinery, transportation, pumps, energy & environment
+
+ORIGINS <- c("China", "India", "HispanicLatinAmerica", "Russian&EastEurope", "SouthEastAsia")
+ORIGINS <- "AngloSaxon"
+
+inv_comp_techfield_geo(df = inv_dat, country = "US", 
+                       Tech_group = "Machinery",
+                       techfields = TECHFIELDS, origins = ORIGINS)
+
