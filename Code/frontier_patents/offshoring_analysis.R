@@ -1,7 +1,5 @@
 ####################################################################
-# Description:    Script to (1) determine the number of patents'   #
-#                 forward citations (2) Classification of frontier #
-#                 patents based on these received citations.       #
+# Description:    Script to investigate on-/off-shoring of patents #
 # Authors:        Matthias Niggli/CIEB UniBasel                    #
 # Date:           02.11.2020                                       #
 ####################################################################
@@ -15,138 +13,26 @@ library("tidyverse")
 library("data.table")
 
 # directories  -----------------------------------------------------------------
-mainDir1 <- "/scicore/home/weder/GROUP/Innovation/01_patent_data"
+datDir <- "/scicore/home/weder/nigmat01/Data"
 if(substr(x = getwd(), 
           nchar(getwd())-17, nchar(getwd())) == "inventor_migration"){
         print("Working directory corresponds to repository directory")}else{
                 print("Make sure your working directory is the repository directory.")}
-#setwd(...)
+#setwd("/scicore/home/weder/nigmat01/inventor_migration")
 
-################################################
-####### Load functions for data analysis #######
-################################################
+#########################################################
+####### Load data and functions for data analysis #######
+#########################################################
 
+#### DATA
+df <- readRDS(paste0(datDir, "/pat_dat_all.rds"))
+
+#### FUNCTIONS
 source(paste0(getwd(), "/Code/frontier_patents/patent_analysis_functions.R"))
 
-#########################
-####### Load data #######
-#########################
-
-#### Load patent information ---------------------------------------------------
-pat_dat <- readRDS(paste0(mainDir1,  "/created data/", "pat_dat.rds"))
-print("Data on patent citations loaded")
-
-#### Load company information --------------------------------------------------
-firm_dat <- readRDS(paste0(mainDir1,  "/created data/", "firm_reg.rds"))
-print("Firm data of patent ownership loaded")
-
-#### Load inventor information -------------------------------------------------
-inv_dat <- readRDS(paste0(mainDir1,  "/created data/", "inv_reg_CHcommute_adj.rds"))
-print("Inventor data of patents loaded")
-
-print("All data loaded")
-
-#################################
-####### Data processing #########
-#################################
-
-#### Patent information: -------------------------------------------------------
-
-# Problem:
-# Sometimes there several equivalent patents per p_key. E.g. the same invention 
-# is protected by a US and European patent. In these cases, use the USPTO patents 
-# with the most 5-year citations as the reference patent for this p_key.
-
-# order by patent office and citations and choose the last obs per p_key:
-tmp <- setDT(pat_dat)
-keep_idx <- tmp[order(pat_off, fwd_cits5), .I[.N], keyby = p_key]$V1 
-pat_dat <- pat_dat[keep_idx, ]
-paste("Obtained patents information of", nrow(pat_dat), "different patents cleaned for equivalents.")
-tmp <- NULL
-keep_idx <- NULL
-
-#### Inventor information: -----------------------------------------------------
-
-# Problem:
-# Sometimes there several equivalent patents per p_key and inventor. 
-# E.g. the same invention is protected by a US and European patent. 
-# To omit these duplicated patent-inventor pairs, only take one combination per p_key
-# However, on EP patents there is information on regional location of inventors but not
-# on coordinates. For USPTO its the opposite. Thus, before omitting duplicated patents
-# assign the region, lat and long information to all observations per every inventor_name-p_key combination
-
-# ## !!!! not run: inefficent... p_key time name is way too many observations..
-# # idea: first identify the NAs, then search for the same inventor/p-key combination
-# # only then do the computations
-# assign_geo_info <- function(df, vars){
-#         
-#         # convert to data.table and keep row-indexes
-#         df <- setDT(df, key = c("p_key", "name"))[, idx := rownames(df)]
-# 
-#         # filter to inventors where one patent equivalent has geographical 
-#         # information and the other does not.
-#         geo_info <- df[, .SD[.N > 1], .SDcols = c(vars, "idx"), by = .(p_key, name)]
-#         # NA_obs <- geo_info[is.na(geo_info$lat), c("p_key", "name", "idx")]
-#         NA_obs <- geo_info %>% 
-#                 filter_at(vars(vars[1]), all_vars(is.na(.))) %>%
-#                 select(p_key, name, idx)
-#         geo_info <- geo_info[complete.cases(geo_info),]
-#         
-#         # assign the information from the one patent to the other
-#         # and replace observations in the original data
-#         NA_obs <- setDT(geo_info %>% select(-idx), key =c("p_key", "name"))[NA_obs]
-#         NA_obs$idx <- as.numeric(NA_obs$idx)
-#         NA_obs <- NA_obs[complete.cases(NA_obs), ] %>% as.data.frame()
-#         
-#         # return as a data.frame
-#         df <- as.data.frame(df)
-#         df[NA_obs$idx, c(vars)] <- NA_obs[, c(vars)]
-#         
-#         return(df)
-# }
-# 
-# # Assign geo_information on all equivalent patents
-# inv_dat <- assign_geo_info(df = inv_dat, vars = c("lat", "lng"))
-# inv_dat <- assign_geo_info(df = inv_dat, vars = "regio_inv")
-
-# Subset to unique patents
-inv_dat <- inv_dat %>%
-        distinct(p_key, name, .keep_all = TRUE) %>% as.data.frame()
-
-#### firm information -----------------------------------------------------
-# Problem:
-# Sometimes there several equivalent patents per p_key and firm 
-# E.g. the same invention is protected by a US and European patent. 
-# To omit these duplicated patent-firm pairs, only take one combination per p_key
-firm_dat <- firm_dat %>% distinct(p_key, organization, .keep_all = TRUE) %>% as.data.frame()
-
-print("All data processing completed")
-
-#################################
-####### Data merging ############
-#################################
-
-#### Combine information on firms with patent characteristics ------------------
-VARS <- colnames(firm_dat)[!names(firm_dat) %in% names(pat_dat)]
-tmp <- firm_dat[, c("p_key", VARS)]
-colnames(tmp)[-c(1:2)] <- paste0(colnames(tmp)[-c(1:2)], "_firm")
-df <- merge(setDT(pat_dat, key = "p_key"), setDT(tmp, key = "p_key"), by = "p_key", all = TRUE) # merge.data.table
-tmp <- NULL
-
-#### Combine information on inventors with patent and firm characteristic-------
-VARS <- colnames(inv_dat)[!names(inv_dat) %in% names(df)]
-VARS <- VARS[!VARS %in% c("ipc_main", "pat_off_name")]
-tmp <- inv_dat[, c("p_key", VARS)]
-change_names <- colnames(tmp)[colnames(tmp) %in% c("Up_reg_code", "lat", "lng")]
-change_names <- which(colnames(tmp) %in% change_names)
-colnames(tmp)[change_names] <- paste0(colnames(tmp)[change_names], "_inv")
-df <- merge(setDT(df, key = "p_key"), setDT(tmp, key = "p_key"), by = "p_key", all = TRUE) # merge.data.table
-tmp <- NULL
-print("Patent characteristics combined with firm and inventor information.")
-
-#####################################
-####### DOMESTIC: Data analysis #####
-#####################################
+##################################################
+####### DOMESTIC PATENT OUTPUT (Rybczynski) ######
+##################################################
 
 # differentiate between high-tech and low-tech sectors 
 # e.g. based on the share of high-tech patents
@@ -179,18 +65,20 @@ ggplot(plot_dat, aes(x = p_year, y = log(N_pat), color = high_impact_sector))+
         geom_line()
 # => kaum Veränderung
 
-# @RW: schwierig da 1) sehr ungenau identifizierbar. Shares an high-impact sind bei allen
-# tech-sectors sehr hoch. 2) macht auch nicht unbedingt Sinn, denn diese Sektoren machen nicht
+# message an RW: 
+# Schwierig da 1) sehr ungenau identifizierbar. Shares an high-impact patents sind bei allen
+# tech-sectors ähnlich hoch, da dies endogen ist. 
+# 2) macht auch nicht unbedingt Sinn, denn diese Sektoren machen nicht
 # "entweder oder" sondern meist sowohl gute wie auch schlechte Patente.
 
 #####################################
-####### ONSHORING: Data analysis ####
+############## ONSHORING ############
 #####################################
 
 #### Get onshoring shares for different onshoring countries -----------------
-onshoring_countries <- c("US", "DE", "GB", "FR", "CH", "CN", "JP")
+onshoring_countries <- c("US")#, "DE", "GB", "FR", "CH", "CN", "JP")
 INVENTOR_NUMBER <- 1
-WORLD_CLASS_INDICATOR  <- FALSE
+WORLD_CLASS_INDICATOR  <- FALSE # indicate whether only onshoring of world class patents should be considered
 plot_dat <- lapply(onshoring_countries, function(x){
         
         # identify onshored patents for country x (= inventor in x, but firm not in x)
@@ -239,17 +127,13 @@ COUNTRY <- "US"
 REGIONS <- c("California", "Massachusetts", "New Jersey", "Michigan", 
              "Texas", "New York")#, "Illinois", "Pennsylvania", "Connecticut",
 plot_dat <- region_onshoring_shares(df = country_onshoring(df, onshoring_country = COUNTRY),
-                                 onshoring_country = ctry)
+                                 onshoring_country = COUNTRY)
 plot_dat <- filter(plot_dat, p_year <= 2015 & regio_inv %in% REGIONS) %>% as.data.frame()
 ggplot(plot_dat, aes(x = p_year, y = regional_share, color = regio_inv))+
         geom_line()+
         labs(title = " R&D Onshoring by region",
              subtitle =  paste(" Share among all onshored patents to the U.S. by region"),
              x = "Year", y = "Share among all onshored patents to the U.S.")
-
-
-
-
 
 rm(list=ls())
 
