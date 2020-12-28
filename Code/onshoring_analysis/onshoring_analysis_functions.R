@@ -13,12 +13,21 @@
 
 country_onshoring <- function(df,
                               onshoring_country = "US",
+                              collaboration = FALSE,
                               inventor_number = 1,
                               world_class_indicator = FALSE){
         
-        # Step 1: subset to firms that are not from the onshoring country 
-        # as well as to their high-impact patents
-        tmp <- df %>% filter(country_firm != onshoring_country)
+        # ---------------
+        # Step 1: check if collaborations with domestic firms should be excluded and
+        # if so drop all patents where a domestic firms was involved
+        if(collaboration == FALSE){
+                tmp <- setDT(df)[country_firm == onshoring_country, p_key]
+                tmp <- unique(tmp)
+                tmp <- setDT(df)[!p_key %in% tmp, ]}else{tmp <- df}
+        # ---------------------
+        
+        ## as before....
+        tmp <- tmp %>% filter(country_firm != onshoring_country)
         
         # Step 2: check if only world class patents should be considered and,
         # if so, subset accordingly.
