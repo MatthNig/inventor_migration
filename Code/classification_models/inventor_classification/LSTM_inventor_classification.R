@@ -48,6 +48,7 @@ y_classes <- data.frame(
         numbers = seq(length(unique(df_train$origin)))
 )
 df_train <- NULL
+print("All data loaded. Ready for classification.")
 
 ################################################
 ########## Classify inventors' origins #########
@@ -85,6 +86,8 @@ res <- lapply(BATCH_PARAMS[[2]], function(x){
         
         # clean and return the predicted batch as a data.frame
         names_encoded <- NULL
+        print(paste0("Predicted batch ", x + 1, "to", 
+                     x + BATCH_PARAMS[[1]]))
         return(res)}
        )
 

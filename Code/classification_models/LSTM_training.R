@@ -147,10 +147,18 @@ hist <- model %>% fit(
 #       REAMRKS: lower accuracy. Somewhere between 5 and 15 seems to be optimal weight
 
 # (4)   MORE DATA: weight AngloSaxon = 10, all separated except Russia/EastEurope, BATCH = 256, EPOCH = 20, DROPOUT = 0.33 / 0.1
-#       TOTAL_ACCURACY: 81.9%, TOTAL F1: 80.7%, 
+#       TOTAL_ACCURACY: 81.9%, AVERAGE_F1: 80.7%, 
 #       ANGLOSAXON_ACC: 63.9%, ANGLOSAXON_F1: 78.0%, ANGLOSAXON_PRECISION: 72.3%, ANGLOSAXON_RECALL: 84.7%  
-#       REAMRKS: Model could further learn
-#       => saved this model
+#       REAMRKS: Model could further learn, F1 on small groups (SEA, Persian mostly) are still not so good.
+# => saved this model as current classification model
+
+## 21.11.2020
+# (5)   EVEN MORE DATA: weight AngloSaxon = 10, all separated except Russia/EastEurope, BATCH = 256, EPOCH = 20, DROPOUT = 0.33 / 0.1
+#       TOTAL_ACCURACY: 82.7%, AVERAGE_F1: 80.8%, 
+#       ANGLOSAXON_ACC: 64.9%, ANGLOSAXON_F1: 78.7%, ANGLOSAXON_PRECISION: 78.9%, ANGLOSAXON_RECALL: 78.6%  
+#       REAMRKS: maybe adjust weights for anglosaxons, Hispanics have high precision now, which ist good.
+#                Turkey improved drastically. weighted F1 would be even higher because only SEA is lower than 0.78 on F1
+
 
 
 #########################################
@@ -234,6 +242,7 @@ model %>% save_model_hdf5(file = paste0(getwd(), "/Data/classification_model/ori
 ## 3) larger batch size to ensure that there are a few labels of each class per batch
 ## 4) add early stopping & weight decay
 ## 5) maybe make a smaller model
-## 6) maybe make class_weights proportional to share? e.g. weight_i = (1 / N_i)*N/2 
+
+## resources
 ## https://www.tensorflow.org/tutorials/structured_data/imbalanced_data
 ## https://karpathy.github.io/2019/04/25/recipe/#2-set-up-the-end-to-end-trainingevaluation-skeleton--get-dumb-baselines
