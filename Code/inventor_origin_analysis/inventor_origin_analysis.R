@@ -82,8 +82,10 @@ inv_origin_shares <- lapply(countries, function(x) inv_comp_ctry(inv_dat, x))
 names(inv_origin_shares) <- countries
 
 non_domestic_fun <- function(COUNTRY, ORIGIN){
-        p <- ggplot(inv_origin_shares[[COUNTRY]] %>% filter(origin == ORIGIN  & p_year <= 2015), 
-               aes(x = p_year, y = share))+
+        plot_data <- inv_origin_shares[[COUNTRY]] %>% 
+                filter(origin == ORIGIN  & p_year <= 2015 & p_year >=1980)
+        
+        p <- ggplot(plot_data, aes(x = p_year, y = share))+
                 geom_line()+ylim(0,1)+
                 labs(x = "year", y = "share of domestic origin inventors",
                      title = paste0("Share of inventors with ",
@@ -91,7 +93,7 @@ non_domestic_fun <- function(COUNTRY, ORIGIN){
         return(p)
 }
         
-non_domestic_fun("JP", "Japan")
+non_domestic_fun("US", "AngloSaxon")
 
 
 #### Shares of foreign origins by country: -------------------------------------
@@ -103,10 +105,10 @@ foreign_shares_fun <- function(COUNTRIES, ORIGIN){
         }
         inv_origin_shares <- bind_rows(inv_origin_shares)
 
+        plot_data <- filter(inv_origin_shares, origin %in% ORIGIN & 
+                                    p_year <= 2015 & p_year >= 1980)
         
-        p <- ggplot(filter(inv_origin_shares, 
-                           origin %in% ORIGIN & p_year <= 2015),
-                    aes(x = p_year, y = share, color = origin))+
+        p <- ggplot(plot_data, aes(x = p_year, y = share, color = origin))+
                 facet_wrap(.~ country)+
                 scale_color_hue("Ethnic origin")+
                 labs(x = "year", y = "share of ethnic background",
@@ -117,7 +119,7 @@ foreign_shares_fun <- function(COUNTRIES, ORIGIN){
         return(p)
 }
 COUNTRIES <- c("US", "GB", "FR", "DE", "IT", "CH")
-ORIGIN <- c("China", "India", "HispanicLatinAmerica", "Russian&EastEurope", "SouthEastAsia")
+ORIGIN <- c("China", "India", "Russian&EastEurope", "SouthEastAsia")
 foreign_shares_fun(COUNTRIES, ORIGIN)
 
 #### Country comparison of overall foreign origin share of inventors:
@@ -132,7 +134,7 @@ foreign_country_comparison <- function(countries, domestic_origin){
                 tmp <- filter(inv_origin_shares[[i]], origin == domestic_origin[i])
                 tmp <- tmp %>% mutate(foreign_share = 1 - share) %>%
                         select(p_year, foreign_share, country) %>%
-                        filter(p_year <= 2015)
+                        filter(p_year <= 2015 & p_year >= 1980)
                 country_diff <- rbind(country_diff, tmp)
         }
         
@@ -185,8 +187,10 @@ tech_field_plot <- function(COUNTRY, DOMESTIC_ORIGIN,
         plot_dat <- inv_comp_techfield(df = inv_dat, country = COUNTRY) %>% 
                 mutate(tech_field = as.character(tech_field))
         
-        plot_dat <- filter(plot_dat, origin == DOMESTIC_ORIGIN & p_year <= 2015 &
-                           tech_field %in% TECHFIELDS & total >= MIN_INVENTORS)
+        plot_dat <- filter(plot_dat, origin == DOMESTIC_ORIGIN & 
+                                   p_year <= 2015 & p_year >= 1980 & 
+                                   tech_field %in% TECHFIELDS & 
+                                   total >= MIN_INVENTORS)
         
         p <- ggplot(plot_dat, aes(x = p_year, y = share))+
                 facet_wrap(.~ tech_field)+
@@ -213,7 +217,7 @@ tech_field_foreign_plot <- function(COUNTRY, ORIGINS,
         plot_dat <- inv_comp_techfield(df = inv_dat, country = COUNTRY) %>% 
                 mutate(tech_field = as.character(tech_field))
         
-        plot_dat <- filter(plot_dat, origin %in% ORIGINS & p_year <= 2015 &
+        plot_dat <- filter(plot_dat, origin %in% ORIGINS & p_year <= 2015 & p_year >= 1980 &
                                    tech_field %in% TECHFIELDS & total >= MIN_INVENTORS)
         
         p <- ggplot(plot_dat, aes(x = p_year, y = share))+
