@@ -1,0 +1,1765 @@
+"","organization","organization_cleaned","eq_firm","name_diff","match"
+"1","ansell","ansell","ansell",0,1
+"2","arnotts biscuits","arnotts biscuits","arnotts biscuits",0,1
+"3","burns philp","burns philp","burns philp",0,1
+"4","sigma","sigma","sigma",0,1
+"5","telstra","telstra","telstra",0,1
+"6","ams","ams","ams",0,1
+"7","avl","avl","avl",0,1
+"8","borealis","borealis","borealis",0,1
+"9","julius blum","julius blum","julius blum",0,1
+"10","lenzing","lenzing","lenzing",0,1
+"11","palfinger","palfinger","palfinger",0,1
+"12","semperit","semperit","semperit",0,1
+"13","skidata","skidata","skidata",0,1
+"14","steyr mannlicher holding","steyr mannlicher","steyr mannlicher",0,1
+"15","zumtobel lighting","zumtobel lighting","zumtobel lighting",0,1
+"16","janssen pharmaceutica","janssen pharmaceutica","janssen pharmaceutica",0,1
+"17","materialise nv","materialise nv","materialise nv",0,1
+"18","solvay","solvay","solvay",0,1
+"19","ucb pharma","ucb","ucb",0,1
+"20","umicore","umicore","umicore",0,1
+"21","braskem","braskem","braskem",0,1
+"22","ballard power systems","ballard power","ballard power",0,1
+"23","biovail","biovail","biovail",0,1
+"24","cameco","cameco","cameco",0,1
+"25","canadian national railway","canadian national railway","canadian national railway",0,1
+"26","cascades","cascades","cascades",0,1
+"27","cognos","cognos","cognos",0,1
+"28","corel","corel","corel",0,1
+"29","domtar","domtar","domtar",0,1
+"30","enwave","enwave","enwave",0,1
+"31","ganz","ganz","ganz",0,1
+"32","hatch","hatch","hatch",0,1
+"33","imax","imax","imax",0,1
+"34","lee valley tools","lee valley tools","lee valley tools",0,1
+"35","macdonald dettwiler and associates","macdonald dettwiler and","macdonald dettwiler and",0,1
+"36","mitel","mitel","mitel",0,1
+"37","opentext","opentext","opentext",0,1
+"38","prairie plant systems","prairie plant","prairie plant",0,1
+"39","precision drilling","precision drilling","precision drilling",0,1
+"40","valeant pharmaceuticals","valeant","valeant",0,1
+"41","founder","founder","founder",0,1
+"42","huawei","huawei","huawei",0,1
+"43","neusoft","neusoft","neusoft",0,1
+"44","opple lighting","opple lighting","opple lighting",0,1
+"45","tcl communication","tcl","tcl",0,1
+"46","xiaomi","xiaomi","xiaomi",0,1
+"47","novo nordisk","novo nordisk","novo nordisk",0,1
+"48","nokia","nokia","nokia",0,1
+"49","valmet","valmet","valmet",0,1
+"50","airbus operations","airbus","airbus",0,1
+"51","alstom","alstom","alstom",0,1
+"52","atos services","atos","atos",0,1
+"53","bnp paribas","bnp paribas","bnp paribas",0,1
+"54","canal","canal","canal",0,1
+"55","cartier","cartier","cartier",0,1
+"56","dassault systèmes","dassault systemes","dassault systemes",0,1
+"57","decathlon","decathlon","decathlon",0,1
+"58","framatome","framatome","framatome",0,1
+"59","genset","genset","genset",0,1
+"60","hutchinson","hutchinson","hutchinson",0,1
+"61","jcdecaux","jcdecaux","jcdecaux",0,1
+"62","lafuma","lafuma","lafuma",0,1
+"63","loreal","loreal","loreal",0,1
+"64","matra","matra","matra",0,1
+"65","mavic","mavic","mavic",0,1
+"66","naval","naval","naval",0,1
+"67","parrot","parrot","parrot",0,1
+"68","rhodia operations","rhodia","rhodia",0,1
+"69","safran","safran","safran",0,1
+"70","sagem","sagem","sagem",0,1
+"71","salomon","salomon","salomon",0,1
+"72","schneider electric","schneider electric","schneider electric",0,1
+"73","snecma","snecma","snecma",0,1
+"74","bic","bic","bic",0,1
+"75","sodexo","sodexo","sodexo",0,1
+"76","technicolor licensing","technicolor","technicolor",0,1
+"77","technip","technip","technip",0,1
+"78","thales","thales","thales",0,1
+"79","total","total","total",0,1
+"80","adidas","adidas","adidas",0,1
+"81","aeg","aeg","aeg",0,1
+"82","altana pharma","altana","altana",0,1
+"83","arcor","arcor","arcor",0,1
+"84","audi","audi","audi",0,1
+"85","august storck kg","august storck","august storck",0,1
+"86","basf","basf","basf",0,1
+"87","bayer","bayer","bayer",0,1
+"88","beiersdorf","beiersdorf","beiersdorf",0,1
+"89","bmw","bmw","bmw",0,1
+"90","boehringer ingelheim","boehringer ingelheim","boehringer ingelheim",0,1
+"91","braun","braun","braun",0,1
+"92","carl zeiss","carl zeiss","carl zeiss",0,1
+"93","continental","continental","continental",0,1
+"94","daimler","daimler","daimler",0,1
+"95","deutsche börse","deutsche borse","deutsche borse",0,1
+"96","deutsche telekom","deutsche telekom","deutsche telekom",0,1
+"97","dräger medical","drager","drager",0,1
+"98","dürr systems","durr","durr",0,1
+"99","elringklinger","elringklinger","elringklinger",0,1
+"100","epcos","epcos","epcos",0,1
+"101","festo","festo","festo",0,1
+"102","fresenius","fresenius","fresenius",0,1
+"103","gea","gea","gea",0,1
+"104","gfk","gfk","gfk",0,1
+"105","heidelberger druckmaschinen","heidelberger druckmaschinen","heidelberger druckmaschinen",0,1
+"106","heinkel","heinkel","heinkel",0,1
+"107","henkel","henkel","henkel",0,1
+"108","heraeus holding","heraeus","heraeus",0,1
+"109","herrenknecht","herrenknecht","herrenknecht",0,1
+"110","hoechst","hoechst","hoechst",0,1
+"111","hoesch","hoesch","hoesch",0,1
+"112","iav","iav","iav",0,1
+"113","j schmalz","j schmalz","j schmalz",0,1
+"114","körber","korber","korber",0,1
+"115","kraussmaffei","kraussmaffei","kraussmaffei",0,1
+"116","krones","krones","krones",0,1
+"117","kuka systems","kuka","kuka",0,1
+"118","magix","magix","magix",0,1
+"119","mahle","mahle","mahle",0,1
+"120","man","man","man",0,1
+"121","mannesmann","mannesmann","mannesmann",0,1
+"122","merck","merck","merck",0,1
+"123","metro systems","metro","metro",0,1
+"124","miele","miele","miele",0,1
+"125","philipp holzmann","philipp holzmann","philipp holzmann",0,1
+"126","porsche","porsche","porsche",0,1
+"127","puma","puma","puma",0,1
+"128","recaro","recaro","recaro",0,1
+"129","rheinmetall","rheinmetall","rheinmetall",0,1
+"130","robert bosch","robert bosch","robert bosch",0,1
+"131","rwe","rwe","rwe",0,1
+"132","saba","saba","saba",0,1
+"133","schaeffler kg","schaeffler","schaeffler",0,1
+"134","schering","schering","schering",0,1
+"135","schott","schott","schott",0,1
+"136","seca","seca","seca",0,1
+"137","siemens","siemens","siemens",0,1
+"138","","","",0,1
+"139","sudzucker","sudzucker","sudzucker",0,1
+"140","thyssenkrupp","thyssenkrupp","thyssenkrupp",0,1
+"141","vereinigte flugtechnische werke","vereinigte flugtechnische werke","vereinigte flugtechnische werke",0,1
+"142","volkswagen","volkswagen","volkswagen",0,1
+"143","wacker chemie","wacker chemie","wacker chemie",0,1
+"144","wella","wella","wella",0,1
+"145","wintershall","wintershall","wintershall",0,1
+"146","zf friedrichshafen","zf friedrichshafen","zf friedrichshafen",0,1
+"147","cadila healthcare","cadila","cadila",0,1
+"148","cipla","cipla","cipla",0,1
+"149","indian oil","indian oil","indian oil",0,1
+"150","infosys","infosys","infosys",0,1
+"151","konkan railway","konkan railway","konkan railway",0,1
+"152","ramco systems","ramco","ramco",0,1
+"153","sun pharmaceutical","sun pharmaceutical","sun pharmaceutical",0,1
+"154","tata consultancy services","tata consultancy","tata consultancy",0,1
+"155","wipro","wipro","wipro",0,1
+"156","landi renzo spa","landi renzo","landi renzo",0,1
+"157","magneti marelli","magneti marelli","magneti marelli",0,1
+"158","zambon spa","zambon","zambon",0,1
+"159","asml","asml","asml",0,1
+"160","thin film electronics asa","thin film electronics asa","thin film electronics asa",0,1
+"161","biotecnol","biotecnol","biotecnol",0,1
+"162","adcock ingram","adcock ingram","adcock ingram",0,1
+"163","sasol chemical","sasol","sasol",0,1
+"164","repsol","repsol","repsol",0,1
+"165","tecnicas reunidas","tecnicas reunidas","tecnicas reunidas",0,1
+"166","telefonica","telefonica","telefonica",0,1
+"167","enea software ab","enea ab","enea ab",0,1
+"168","höganäs ab","hoganas ab","hoganas ab",0,1
+"169","luxor ab","luxor ab","luxor ab",0,1
+"170","meda ab","meda ab","meda ab",0,1
+"171","mysql ab","mysql ab","mysql ab",0,1
+"172","trio ab","trio ab","trio ab",0,1
+"173","volvo trucks","volvo trucks","volvo trucks",0,1
+"174","actelion pharmaceuticals","actelion","actelion",0,1
+"175","alcon","alcon","alcon",0,1
+"176","allseas","allseas","allseas",0,1
+"177","also holding","also","also",0,1
+"178","basilea pharmaceutica","basilea pharmaceutica","basilea pharmaceutica",0,1
+"179","blancpain","blancpain","blancpain",0,1
+"180","bls","bls","bls",0,1
+"181","ciba specialty chemicals holding","ciba specialty chemicals","ciba specialty chemicals",0,1
+"182","clariant","clariant","clariant",0,1
+"183","firmenich","firmenich","firmenich",0,1
+"184","geberit","geberit","geberit",0,1
+"185","georg fischer","georg fischer","georg fischer",0,1
+"186","givaudan","givaudan","givaudan",0,1
+"187","hamilton medical","hamilton","hamilton",0,1
+"188","leica geosystems","leica geosystems","leica geosystems",0,1
+"189","lonza","lonza","lonza",0,1
+"190","manor","manor","manor",0,1
+"191","mettler toledo","mettler toledo","mettler toledo",0,1
+"192","mido","mido","mido",0,1
+"193","novartis","novartis","novartis",0,1
+"194","rieter","rieter","rieter",0,1
+"195","sig","sig","sig",0,1
+"196","sigg","sigg","sigg",0,1
+"197","sika","sika","sika",0,1
+"198","sonova","sonova","sonova",0,1
+"199","staubli","staubli","staubli",0,1
+"200","suva","suva","suva",0,1
+"201","swisscom","swisscom","swisscom",0,1
+"202","tecan","tecan","tecan",0,1
+"203","tissot","tissot","tissot",0,1
+"204","von roll holding","von roll","von roll",0,1
+"205","emirates","emirates","emirates",0,1
+"206","alvarion","alvarion","alvarion",0,1
+"207","audiocodes","audiocodes","audiocodes",0,1
+"208","biolinerx","biolinerx","biolinerx",0,1
+"209","compugen","compugen","compugen",0,1
+"210","conduit","conduit","conduit",0,1
+"211","cyberark software","cyberark","cyberark",0,1
+"212","elbit systems","elbit","elbit",0,1
+"213","elta systems","elta","elta",0,1
+"214","expand networks","expand networks","expand networks",0,1
+"215","gilat satellite networks","gilat satellite networks","gilat satellite networks",0,1
+"216","greensun energy","greensun energy","greensun energy",0,1
+"217","nice systems","nice","nice",0,1
+"218","nilit","nilit","nilit",0,1
+"219","objet geometries","objet geometries","objet geometries",0,1
+"220","orbotech","orbotech","orbotech",0,1
+"221","primesense","primesense","primesense",0,1
+"222","radvision","radvision","radvision",0,1
+"223","rafael armament development authority","rafael armament development authority","rafael armament development authority",0,1
+"224","tadiran","tadiran","tadiran",0,1
+"225","vocaltec","vocaltec","vocaltec",0,1
+"226","glaxo","glaxo","glaxo",0,1
+"227","ge healthcare","ge","ge",0,1
+"228","anglian water services","anglian water","anglian water",0,1
+"229","cambridge enterprise","cambridge","cambridge",0,1
+"230","zeneca","zeneca","zeneca",0,1
+"231","rover","rover","rover",0,1
+"232","bae systems","bae","bae",0,1
+"233","british aerospace","british aerospace","british aerospace",0,1
+"234","beecham","beecham","beecham",0,1
+"235","smithkline beecham","smithkline beecham","smithkline beecham",0,1
+"236","glaxosmithkline","glaxosmithkline","glaxosmithkline",0,1
+"237","vickers","vickers","vickers",0,1
+"238","south west water","south west water","south west water",0,1
+"239","british aluminium","british aluminium","british aluminium",0,1
+"240","british biotech pharmaceuticals","british biotech","british biotech",0,1
+"241","oxford medical systems","oxford","oxford",0,1
+"242","british gas","british gas","british gas",0,1
+"243","bg intellectual property","bg","bg",0,1
+"244","transco","transco","transco",0,1
+"245","bt","bt","bt",0,1
+"246","chiroscience","chiroscience","chiroscience",0,1
+"247","hanson","hanson","hanson",0,1
+"248","warwick","warwick","warwick",0,1
+"249","coral","coral","coral",0,1
+"250","boots healthcare","boots","boots",0,1
+"251","reckitt benckiser","reckitt benckiser","reckitt benckiser",0,1
+"252","thorn emi","thorn emi","thorn emi",0,1
+"253","galvani bioelectronics","galvani bioelectronics","galvani bioelectronics",0,1
+"254","lotus cars","lotus cars","lotus cars",0,1
+"255","gw pharma","gw","gw",0,1
+"256","yorkshire water services","yorkshire water","yorkshire water",0,1
+"257","sky medical","sky","sky",0,1
+"258","thames water","thames water","thames water",0,1
+"259","north west water","north west water","north west water",0,1
+"260","randox laboratories","randox","randox",0,1
+"261","southern water services","southern water","southern water",0,1
+"262","united utilities","united utilities","united utilities",0,1
+"263","vodafone","vodafone","vodafone",0,1
+"264","ppl","ppl","ppl",0,1
+"265","advantest","advantest","advantest",0,1
+"266","agc","agc","agc",0,1
+"267","aisin seiki","aisin seiki","aisin seiki",0,1
+"268","aiwa","aiwa","aiwa",0,1
+"269","ajinomoto","ajinomoto","ajinomoto",0,1
+"270","akebono brake industry","akebono brake industry","akebono brake industry",0,1
+"271","alps electric","alps electric","alps electric",0,1
+"272","alpine electronics","alpine electronics","alpine electronics",0,1
+"273","anritsu","anritsu","anritsu",0,1
+"274","aruze","aruze","aruze",0,1
+"275","asics","asics","asics",0,1
+"276","asahi kasei","asahi kasei","asahi kasei",0,1
+"277","astellas pharma","astellas","astellas",0,1
+"278","avex","avex","avex",0,1
+"279","namco bandai games","namco bandai games","namco bandai games",0,1
+"280","bridgestone","bridgestone","bridgestone",0,1
+"281","calsonic kansei","calsonic kansei","calsonic kansei",0,1
+"282","canon sales","canon","canon",0,1
+"283","capcom","capcom","capcom",0,1
+"284","cateye","cateye","cateye",0,1
+"285","chino","chino","chino",0,1
+"286","chisso","chisso","chisso",0,1
+"287","chiyoda","chiyoda","chiyoda",0,1
+"288","chubu electric power","chubu electric power","chubu electric power",0,1
+"289","citizen","citizen","citizen",0,1
+"290","dai nippon printing","dai nippon printing","dai nippon printing",0,1
+"291","daicel chemical","daicel","daicel",0,1
+"292","daiei chemical","daiei","daiei",0,1
+"293","daifuku","daifuku","daifuku",0,1
+"294","daiichi sankyo","daiichi sankyo","daiichi sankyo",0,1
+"295","daikyo chemical","daikyo","daikyo",0,1
+"296","dainippon sumitomo pharma","dainippon sumitomo","dainippon sumitomo",0,1
+"297","daiso","daiso","daiso",0,1
+"298","denka","denka","denka",0,1
+"299","denon","denon","denon",0,1
+"300","denso","denso","denso",0,1
+"301","dmg mori seiki","dmg mori seiki","dmg mori seiki",0,1
+"302","dome","dome","dome",0,1
+"303","dynic","dynic","dynic",0,1
+"304","ebara","ebara","ebara",0,1
+"305","eiken chemical","eiken","eiken",0,1
+"306","eisai","eisai","eisai",0,1
+"307","eizo","eizo","eizo",0,1
+"308","fanuc","fanuc","fanuc",0,1
+"309","fuji electric","fuji electric","fuji electric",0,1
+"310","fujifilm","fujifilm","fujifilm",0,1
+"311","fujimitsu","fujimitsu","fujimitsu",0,1
+"312","fujitec","fujitec","fujitec",0,1
+"313","fujitsu","fujitsu","fujitsu",0,1
+"314","furukawa electric","furukawa electric","furukawa electric",0,1
+"315","futaba","futaba","futaba",0,1
+"316","gs yuasa","gs yuasa","gs yuasa",0,1
+"317","hirose electric","hirose electric","hirose electric",0,1
+"318","hisamitsu pharmaceutical","hisamitsu pharmaceutical","hisamitsu pharmaceutical",0,1
+"319","hitachi","hitachi","hitachi",0,1
+"320","hks","hks","hks",0,1
+"321","horiba","horiba","horiba",0,1
+"322","hoshino gakki","hoshino gakki","hoshino gakki",0,1
+"323","hosiden","hosiden","hosiden",0,1
+"324","house foods","house foods","house foods",0,1
+"325","howa machinery","howa machinery","howa machinery",0,1
+"326","hoya","hoya","hoya",0,1
+"327","ibiden","ibiden","ibiden",0,1
+"328","icom","icom","icom",0,1
+"329","idemitsu kosan","idemitsu kosan","idemitsu kosan",0,1
+"330","index","index","index",0,1
+"331","inpex","inpex","inpex",0,1
+"332","iris ohyama","iris ohyama","iris ohyama",0,1
+"333","ishida","ishida","ishida",0,1
+"334","isuzu motors","isuzu motors","isuzu motors",0,1
+"335","jaleco","jaleco","jaleco",0,1
+"336","japan airlines","japan airlines","japan airlines",0,1
+"337","japan display","japan display","japan display",0,1
+"338","japan tobacco","japan tobacco","japan tobacco",0,1
+"339","jeol","jeol","jeol",0,1
+"340","jtb","jtb","jtb",0,1
+"341","jtekt","jtekt","jtekt",0,1
+"342","juki","juki","juki",0,1
+"343","jvckenwood","jvckenwood","jvckenwood",0,1
+"344","justsystems","justsystems","justsystems",0,1
+"345","kagome","kagome","kagome",0,1
+"346","kaneka","kaneka","kaneka",0,1
+"347","kansai paint","kansai paint","kansai paint",0,1
+"348","kao","kao","kao",0,1
+"349","kawai musical instruments manufacturing","kawai musical instruments manufacturing","kawai musical instruments manufacturing",0,1
+"350","kddi","kddi","kddi",0,1
+"351","keihin","keihin","keihin",0,1
+"352","keyence","keyence","keyence",0,1
+"353","kobe steel","kobe steel","kobe steel",0,1
+"354","kodansha","kodansha","kodansha",0,1
+"355","koei","koei","koei",0,1
+"356","konica minolta","konica minolta","konica minolta",0,1
+"357","kosé","kose","kose",0,1
+"358","kubota","kubota","kubota",0,1
+"359","kuraray","kuraray","kuraray",0,1
+"360","kureha","kureha","kureha",0,1
+"361","kyocera","kyocera","kyocera",0,1
+"362","kyb","kyb","kyb",0,1
+"363","mabuchi motor","mabuchi motor","mabuchi motor",0,1
+"364","maeda","maeda","maeda",0,1
+"365","marui","marui","marui",0,1
+"366","mazda","mazda","mazda",0,1
+"367","meiji dairies","meiji dairies","meiji dairies",0,1
+"368","meiji seika","meiji seika","meiji seika",0,1
+"369","mitsuba","mitsuba","mitsuba",0,1
+"370","mitsubishi chemical","mitsubishi","mitsubishi",0,1
+"371","mitsubishi motors","mitsubishi motors","mitsubishi motors",0,1
+"372","mitsubishi electric","mitsubishi electric","mitsubishi electric",0,1
+"373","mitsubishi gas chemical","mitsubishi gas","mitsubishi gas",0,1
+"374","mitsubishi materials","mitsubishi materials","mitsubishi materials",0,1
+"375","mitsui","mitsui","mitsui",0,1
+"376","mitsui chemicals","mitsui chemicals","mitsui chemicals",0,1
+"377","mitsui  shipbuilding","mitsui  shipbuilding","mitsui  shipbuilding",0,1
+"378","mitsumi electric","mitsumi electric","mitsumi electric",0,1
+"379","mitutoyo","mitutoyo","mitutoyo",0,1
+"380","miyata","miyata","miyata",0,1
+"381","mizuno","mizuno","mizuno",0,1
+"382","modec","modec","modec",0,1
+"383","murata manufacturing","murata manufacturing","murata manufacturing",0,1
+"384","nhk sales","nhk","nhk",0,1
+"385","nhk spring","nhk spring","nhk spring",0,1
+"386","nichia","nichia","nichia",0,1
+"387","nichirei","nichirei","nichirei",0,1
+"388","nidec","nidec","nidec",0,1
+"389","nihon dempa kogyo","nihon dempa kogyo","nihon dempa kogyo",0,1
+"390","nihon kohden","nihon kohden","nihon kohden",0,1
+"391","nec","nec","nec",0,1
+"392","nikken sekkei","nikken sekkei","nikken sekkei",0,1
+"393","nikon","nikon","nikon",0,1
+"394","nintendo","nintendo","nintendo",0,1
+"395","nippon cable","nippon cable","nippon cable",0,1
+"396","nippon flour mills","nippon flour mills","nippon flour mills",0,1
+"397","nippon light metal","nippon light metal","nippon light metal",0,1
+"398","nippon oil","nippon oil","nippon oil",0,1
+"399","nippon paint","nippon paint","nippon paint",0,1
+"400","nippon sheet glass","nippon sheet glass","nippon sheet glass",0,1
+"401","nippon soda","nippon soda","nippon soda",0,1
+"402","nipro","nipro","nipro",0,1
+"403","nissan chemical","nissan","nissan",0,1
+"404","nissan motors","nissan motors","nissan motors",0,1
+"405","nisshin steel","nisshin steel","nisshin steel",0,1
+"406","nissin electric","nissin electric","nissin electric",0,1
+"407","nissin foods","nissin foods","nissin foods",0,1
+"408","nissin kogyo","nissin kogyo","nissin kogyo",0,1
+"409","nitto boseki","nitto boseki","nitto boseki",0,1
+"410","nitto denko","nitto denko","nitto denko",0,1
+"411","nsk","nsk","nsk",0,1
+"412","ntn","ntn","ntn",0,1
+"413","ntt","ntt","ntt",0,1
+"414","ntt docomo","ntt docomo","ntt docomo",0,1
+"415","ohto","ohto","ohto",0,1
+"416","oki electric industry","oki electric industry","oki electric industry",0,1
+"417","okuma","okuma","okuma",0,1
+"418","olympus","olympus","olympus",0,1
+"419","omron","omron","omron",0,1
+"420","orient chemical","orient","orient",0,1
+"421","osaka gas","osaka gas","osaka gas",0,1
+"422","panasonic","panasonic","panasonic",0,1
+"423","pentax","pentax","pentax",0,1
+"424","pioneer","pioneer","pioneer",0,1
+"425","rakuten","rakuten","rakuten",0,1
+"426","rays","rays","rays",0,1
+"427","renesas electronics","renesas electronics","renesas electronics",0,1
+"428","ricoh","ricoh","ricoh",0,1
+"429","rinnai","rinnai","rinnai",0,1
+"430","riso kagaku","riso kagaku","riso kagaku",0,1
+"431","rohm","rohm","rohm",0,1
+"432","rubycon","rubycon","rubycon",0,1
+"433","ryobi","ryobi","ryobi",0,1
+"434","sanden","sanden","sanden",0,1
+"435","santen pharmaceutical","santen pharmaceutical","santen pharmaceutical",0,1
+"436","sanrio","sanrio","sanrio",0,1
+"437","sanyo chemical","sanyo","sanyo",0,1
+"438","sato pharmaceutical","sato pharmaceutical","sato pharmaceutical",0,1
+"439","secom","secom","secom",0,1
+"440","sega","sega","sega",0,1
+"441","seiko","seiko","seiko",0,1
+"442","seiko epson","seiko epson","seiko epson",0,1
+"443","shikoku electric power","shikoku electric power","shikoku electric power",0,1
+"444","shimano","shimano","shimano",0,1
+"445","shimadzu","shimadzu","shimadzu",0,1
+"446","shimizu","shimizu","shimizu",0,1
+"447","shinetsu chemical","shinetsu","shinetsu",0,1
+"448","shindengen electric manufacturing","shindengen electric manufacturing","shindengen electric manufacturing",0,1
+"449","shoei chemical","shoei","shoei",0,1
+"450","showa","showa","showa",0,1
+"451","smc","smc","smc",0,1
+"452","snow brand milk","snow brand milk","snow brand milk",0,1
+"453","sogo","sogo","sogo",0,1
+"454","sony","sony","sony",0,1
+"455","square enix","square enix","square enix",0,1
+"456","stanley electric","stanley electric","stanley electric",0,1
+"457","sumco","sumco","sumco",0,1
+"458","sumitomo chemical","sumitomo","sumitomo",0,1
+"459","sumitomo electric","sumitomo electric","sumitomo electric",0,1
+"460","sumitomo metal mining","sumitomo metal mining","sumitomo metal mining",0,1
+"461","sunrise associates","sunrise","sunrise",0,1
+"462","suntory","suntory","suntory",0,1
+"463","suzuki","suzuki","suzuki",0,1
+"464","taiheiyo cement","taiheiyo cement","taiheiyo cement",0,1
+"465","taisei","taisei","taisei",0,1
+"466","taisho pharmaceutical","taisho pharmaceutical","taisho pharmaceutical",0,1
+"467","taito","taito","taito",0,1
+"468","taiyo kogyo","taiyo kogyo","taiyo kogyo",0,1
+"469","taiyo yuden","taiyo yuden","taiyo yuden",0,1
+"470","takata","takata","takata",0,1
+"471","takeda pharmaceutical","takeda pharmaceutical","takeda pharmaceutical",0,1
+"472","tamiya","tamiya","tamiya",0,1
+"473","tdk","tdk","tdk",0,1
+"474","teac","teac","teac",0,1
+"475","teijin","teijin","teijin",0,1
+"476","tenyo","tenyo","tenyo",0,1
+"477","toa","toa","toa",0,1
+"478","toagosei","toagosei","toagosei",0,1
+"479","tohatsu","tohatsu","tohatsu",0,1
+"480","toho","toho","toho",0,1
+"481","toho zinc","toho zinc","toho zinc",0,1
+"482","tohoku electric power","tohoku electric power","tohoku electric power",0,1
+"483","tokuyama","tokuyama","tokuyama",0,1
+"484","tokyo electric power","tokyo electric power","tokyo electric power",0,1
+"485","tokyo electron","tokyo electron","tokyo electron",0,1
+"486","tokyo gas","tokyo gas","tokyo gas",0,1
+"487","tokyu","tokyu","tokyu",0,1
+"488","tomy","tomy","tomy",0,1
+"489","toppan printing","toppan printing","toppan printing",0,1
+"490","toray","toray","toray",0,1
+"491","toshiba medical systems","toshiba","toshiba",0,1
+"492","tosoh","tosoh","tosoh",0,1
+"493","toto","toto","toto",0,1
+"494","toyo","toyo","toyo",0,1
+"495","toyo seikan","toyo seikan","toyo seikan",0,1
+"496","toyota","toyota","toyota",0,1
+"497","toyota boshoku","toyota boshoku","toyota boshoku",0,1
+"498","toyota tsusho","toyota tsusho","toyota tsusho",0,1
+"499","trend micro","trend micro","trend micro",0,1
+"500","tsubakimoto chain","tsubakimoto chain","tsubakimoto chain",0,1
+"501","unitika","unitika","unitika",0,1
+"502","unicharm","unicharm","unicharm",0,1
+"503","wacom","wacom","wacom",0,1
+"504","yamabiko","yamabiko","yamabiko",0,1
+"505","yamaha","yamaha","yamaha",0,1
+"506","yamasa","yamasa","yamasa",0,1
+"507","yamamoto kogaku","yamamoto kogaku","yamamoto kogaku",0,1
+"508","yamazaki mazak","yamazaki mazak","yamazaki mazak",0,1
+"509","yaskawa electric","yaskawa electric","yaskawa electric",0,1
+"510","yazaki","yazaki","yazaki",0,1
+"511","ykk","ykk","ykk",0,1
+"512","yokogawa electric","yokogawa electric","yokogawa electric",0,1
+"513","yokomo","yokomo","yokomo",0,1
+"514","zebra","zebra","zebra",0,1
+"515","cas","cas","cas",0,1
+"516","cj","cj","cj",0,1
+"517","daelim","daelim","daelim",0,1
+"518","doosan","doosan","doosan",0,1
+"519","gs medical","gs","gs",0,1
+"520","hanwha chemical","hanwha","hanwha",0,1
+"521","humax","humax","humax",0,1
+"522","hyosung","hyosung","hyosung",0,1
+"523","hyundai","hyundai","hyundai",0,1
+"524","hyundai mobis","hyundai mobis","hyundai mobis",0,1
+"525","hyundai motor","hyundai motor","hyundai motor",0,1
+"526","hyundai wia","hyundai wia","hyundai wia",0,1
+"527","kcc","kcc","kcc",0,1
+"528","kia motors","kia motors","kia motors",0,1
+"529","kt","kt","kt",0,1
+"530","lg chemical","lg","lg",0,1
+"531","lg display","lg display","lg display",0,1
+"532","lg electronics","lg electronics","lg electronics",0,1
+"533","lotte chemical","lotte","lotte",0,1
+"534","nexon","nexon","nexon",0,1
+"535","nongshim","nongshim","nongshim",0,1
+"536","samsung","samsung","samsung",0,1
+"537","samsung electronics","samsung electronics","samsung electronics",0,1
+"538","samsung sds","samsung sds","samsung sds",0,1
+"539","sk innovation","sk","sk",0,1
+"540","sk hynix","sk hynix","sk hynix",0,1
+"541","sk telecom","sk telecom","sk telecom",0,1
+"542","taegutec","taegutec","taegutec",0,1
+"543","young chang chemical","young chang","young chang",0,1
+"544","au optronics","au optronics","au optronics",0,1
+"545","avision","avision","avision",0,1
+"546","benq","benq","benq",0,1
+"547","chi mei communication systems","chi mei","chi mei",0,1
+"548","chicony electronics","chicony electronics","chicony electronics",0,1
+"549","chroma ate","chroma ate","chroma ate",0,1
+"550","chunghwa telecom","chunghwa telecom","chunghwa telecom",0,1
+"551","compal electronics","compal electronics","compal electronics",0,1
+"552","delta electronics","delta electronics","delta electronics",0,1
+"553","everlight electronics","everlight electronics","everlight electronics",0,1
+"554","fareastone telecommunications","fareastone","fareastone",0,1
+"555","foxconn","foxconn","foxconn",0,1
+"556","global unichip","global unichip","global unichip",0,1
+"557","hannstar display","hannstar display","hannstar display",0,1
+"558","infortrend","infortrend","infortrend",0,1
+"559","innolux","innolux","innolux",0,1
+"560","inventec","inventec","inventec",0,1
+"561","mediatek","mediatek","mediatek",0,1
+"562","mitac","mitac","mitac",0,1
+"563","mstar semiconductor","mstar semiconductor","mstar semiconductor",0,1
+"564","mustek systems","mustek","mustek",0,1
+"565","nuvoton","nuvoton","nuvoton",0,1
+"566","pou chen","pou chen","pou chen",0,1
+"567","powerchip semiconductor","powerchip semiconductor","powerchip semiconductor",0,1
+"568","quanta computer","quanta computer","quanta computer",0,1
+"569","silicon integrated systems","silicon integrated","silicon integrated",0,1
+"570","taiwan sugar","taiwan sugar","taiwan sugar",0,1
+"571","tecom","tecom","tecom",0,1
+"572","thermaltake","thermaltake","thermaltake",0,1
+"573","united microelectronics","united microelectronics","united microelectronics",0,1
+"574","wistron","wistron","wistron",0,1
+"575","molinos rio de la plata","molinos rio de la plata","molinos rio de la plata",0,1
+"576","ypf","ypf","ypf",0,1
+"577","amcor","amcor","amcor",0,1
+"578","aristocrat leisure","aristocrat leisure","aristocrat leisure",0,1
+"579","aurizon operations","aurizon","aurizon",0,1
+"580","bae systems australia","bae australia","bae australia",0,1
+"581","chemeq","chemeq","chemeq",0,1
+"582","ergon energy","ergon energy","ergon energy",0,1
+"583","florigene","florigene","florigene",0,1
+"584","goodman fielder","goodman fielder","goodman fielder",0,1
+"585","incitec pivot","incitec pivot","incitec pivot",0,1
+"586","macquarie","macquarie","macquarie",0,1
+"587","metal storm","metal storm","metal storm",0,1
+"588","nufarm","nufarm","nufarm",0,1
+"589","orocobre","orocobre","orocobre",0,1
+"590","pipe networks","pipe networks","pipe networks",0,1
+"591","queensland rail","queensland rail","queensland rail",0,1
+"592","santos","santos","santos",0,1
+"593","stanwell","stanwell","stanwell",0,1
+"594","sydney water","sydney water","sydney water",0,1
+"595","transurban","transurban","transurban",0,1
+"596","aht cooling systems","aht cooling","aht cooling",0,1
+"597","andritz","andritz","andritz",0,1
+"598","bene","bene","bene",0,1
+"599","cisc semiconductor","cisc semiconductor","cisc semiconductor",0,1
+"600","delfortgroup","delfortgroup","delfortgroup",0,1
+"601","doka","doka","doka",0,1
+"602","frequentis","frequentis","frequentis",0,1
+"603","ge jenbacher","ge jenbacher","ge jenbacher",0,1
+"604","kapsch","kapsch","kapsch",0,1
+"605","ktm","ktm","ktm",0,1
+"606","omv","omv","omv",0,1
+"607","onepharm","onepharm","onepharm",0,1
+"608","plansee","plansee","plansee",0,1
+"609","red bull","red bull","red bull",0,1
+"610","rhi","rhi","rhi",0,1
+"611","rosenbauer","rosenbauer","rosenbauer",0,1
+"612","steyr motors","steyr motors","steyr motors",0,1
+"613","strabag","strabag","strabag",0,1
+"614","swarovski","swarovski","swarovski",0,1
+"615","telekom austria","telekom austria","telekom austria",0,1
+"616","wienerberger","wienerberger","wienerberger",0,1
+"617","aveve","aveve","aveve",0,1
+"618","barco","barco","barco",0,1
+"619","base","base","base",0,1
+"620","bekaert","bekaert","bekaert",0,1
+"621","cockerill sambre","cockerill sambre","cockerill sambre",0,1
+"622","carmeuse","carmeuse","carmeuse",0,1
+"623","eurogentec","eurogentec","eurogentec",0,1
+"624","evs broadcast equipment","evs broadcast equipment","evs broadcast equipment",0,1
+"625","imec","imec","imec",0,1
+"626","imperia automobiles","imperia automobiles","imperia automobiles",0,1
+"627","innogenetics","innogenetics","innogenetics",0,1
+"628","katoen natie","katoen natie","katoen natie",0,1
+"629","option nv","option nv","option nv",0,1
+"630","soudal","soudal","soudal",0,1
+"631","van genechten packaging","van genechten packaging","van genechten packaging",0,1
+"632","zetes","zetes","zetes",0,1
+"633","ambev","ambev","ambev",0,1
+"634","aracruz celulose","aracruz celulose","aracruz celulose",0,1
+"635","banco bradesco","banco bradesco","banco bradesco",0,1
+"636","duratex","duratex","duratex",0,1
+"637","embraer","embraer","embraer",0,1
+"638","embrapa","embrapa","embrapa",0,1
+"639","hypermarcas","hypermarcas","hypermarcas",0,1
+"640","itautec","itautec","itautec",0,1
+"641","jbs","jbs","jbs",0,1
+"642","marcopolo","marcopolo","marcopolo",0,1
+"643","petrobras","petrobras","petrobras",0,1
+"644","suzano papel e celulose","suzano papel e celulose","suzano papel e celulose",0,1
+"645","vale","vale","vale",0,1
+"646","angoss software","angoss","angoss",0,1
+"647","apotex","apotex","apotex",0,1
+"648","areva resources canada","areva resources canada","areva resources canada",0,1
+"649","barrick gold","barrick gold","barrick gold",0,1
+"650","bell canada","bell canada","bell canada",0,1
+"651","blue giant equipment","blue giant equipment","blue giant equipment",0,1
+"652","boeing canada","boeing canada","boeing canada",0,1
+"653","canadian light source","canadian light source","canadian light source",0,1
+"654","canadian natural resources","canadian natural resources","canadian natural resources",0,1
+"655","canadian oil sands","canadian oil sands","canadian oil sands",0,1
+"656","canadian tire","canadian tire","canadian tire",0,1
+"657","cargill","cargill","cargill",0,1
+"658","catalyst paper","catalyst paper","catalyst paper",0,1
+"659","celestica","celestica","celestica",0,1
+"660","cenovus energy","cenovus energy","cenovus energy",0,1
+"661","colt canada","colt canada","colt canada",0,1
+"662","dofasco","dofasco","dofasco",0,1
+"663","dominion voting systems","dominion voting","dominion voting",0,1
+"664","dynamotive energy systems","dynamotive energy","dynamotive energy",0,1
+"665","elastic path software","elastic path","elastic path",0,1
+"666","electrohome","electrohome","electrohome",0,1
+"667","enbridge","enbridge","enbridge",0,1
+"668","encana","encana","encana",0,1
+"669","esprida","esprida","esprida",0,1
+"670","falconbridge","falconbridge","falconbridge",0,1
+"671","finning","finning","finning",0,1
+"672","geosoft","geosoft","geosoft",0,1
+"673","goldcorp","goldcorp","goldcorp",0,1
+"674","guestlogix","guestlogix","guestlogix",0,1
+"675","halogen software","halogen","halogen",0,1
+"676","imperial oil","imperial oil","imperial oil",0,1
+"677","intertape polymer","intertape polymer","intertape polymer",0,1
+"678","irving oil","irving oil","irving oil",0,1
+"679","keycafe","keycafe","keycafe",0,1
+"680","kinaxis","kinaxis","kinaxis",0,1
+"681","linamar","linamar","linamar",0,1
+"682","london drugs","london drugs","london drugs",0,1
+"683","lystek","lystek","lystek",0,1
+"684","manitoba hydro","manitoba hydro","manitoba hydro",0,1
+"685","maple leaf foods","maple leaf foods","maple leaf foods",0,1
+"686","mccain foods","mccain foods","mccain foods",0,1
+"687","nexen","nexen","nexen",0,1
+"688","nordion","nordion","nordion",0,1
+"689","nova chemicals","nova chemicals","nova chemicals",0,1
+"690","ontario lottery and gaming","ontario lottery and gaming","ontario lottery and gaming",0,1
+"691","packers plus energy services","packers plus energy","packers plus energy",0,1
+"692","painceptor pharma","painceptor","painceptor",0,1
+"693","palliser furniture","palliser furniture","palliser furniture",0,1
+"694","paramount resources","paramount resources","paramount resources",0,1
+"695","parmalat canada","parmalat canada","parmalat canada",0,1
+"696","pollard banknote","pollard banknote","pollard banknote",0,1
+"697","prevost car","prevost car","prevost car",0,1
+"698","protecode","protecode","protecode",0,1
+"699","purolator courier","purolator courier","purolator courier",0,1
+"700","quester tangent","quester tangent","quester tangent",0,1
+"701","rogers communications","rogers communications","rogers communications",0,1
+"702","royal bank of canada","royal bank of canada","royal bank of canada",0,1
+"703","sandvine","sandvine","sandvine",0,1
+"704","saskatchewan minerals","saskatchewan minerals","saskatchewan minerals",0,1
+"705","sasktel","sasktel","sasktel",0,1
+"706","sepro mineral systems","sepro mineral","sepro mineral",0,1
+"707","shell canada","shell canada","shell canada",0,1
+"708","sierra wireless","sierra wireless","sierra wireless",0,1
+"709","sifto canada","sifto canada","sifto canada",0,1
+"710","stelco","stelco","stelco",0,1
+"711","suncor energy","suncor energy","suncor energy",0,1
+"712","teck resources","teck resources","teck resources",0,1
+"713","teledyne dalsa","teledyne dalsa","teledyne dalsa",0,1
+"714","telus","telus","telus",0,1
+"715","tembec","tembec","tembec",0,1
+"716","tm4","tm4","tm4",0,1
+"717","tolko","tolko","tolko",0,1
+"718","west fraser timber","west fraser timber","west fraser timber",0,1
+"719","celulosa arauco y constitucion","celulosa arauco y constitucion","celulosa arauco y constitucion",0,1
+"720","baidu","baidu","baidu",0,1
+"721","bank of communications","bank of communications","bank of communications",0,1
+"722","bosideng","bosideng","bosideng",0,1
+"723","chery automobile","chery automobile","chery automobile",0,1
+"724","citic","citic","citic",0,1
+"725","dongfeng motor","dongfeng motor","dongfeng motor",0,1
+"726","feicheng acid chemicals","feicheng acid chemicals","feicheng acid chemicals",0,1
+"727","haier","haier","haier",0,1
+"728","hefei meiling","hefei meiling","hefei meiling",0,1
+"729","hisense","hisense","hisense",0,1
+"730","hisilicon","hisilicon","hisilicon",0,1
+"731","hytera communication","hytera","hytera",0,1
+"732","joyoung","joyoung","joyoung",0,1
+"733","meizu","meizu","meizu",0,1
+"734","midea","midea","midea",0,1
+"735","saic motor","saic motor","saic motor",0,1
+"736","suntech power","suntech power","suntech power",0,1
+"737","tencent","tencent","tencent",0,1
+"738","zte","zte","zte",0,1
+"739","ecopetrol","ecopetrol","ecopetrol",0,1
+"740","chr hansen","chr hansen","chr hansen",0,1
+"741","coloplast","coloplast","coloplast",0,1
+"742","danfoss","danfoss","danfoss",0,1
+"743","haldor topsoe","haldor topsoe","haldor topsoe",0,1
+"744","leo pharmaceuticals","leo","leo",0,1
+"745","novozymes","novozymes","novozymes",0,1
+"746","ahlstrom","ahlstrom","ahlstrom",0,1
+"747","altia","altia","altia",0,1
+"748","basware","basware","basware",0,1
+"749","codenomicon","codenomicon","codenomicon",0,1
+"750","fiskars","fiskars","fiskars",0,1
+"751","fortum","fortum","fortum",0,1
+"752","kone","kone","kone",0,1
+"753","konecranes","konecranes","konecranes",0,1
+"754","metso","metso","metso",0,1
+"755","neste","neste","neste",0,1
+"756","nokia networks","nokia networks","nokia networks",0,1
+"757","nokian tyres","nokian tyres","nokian tyres",0,1
+"758","raisio","raisio","raisio",0,1
+"759","rovio entertainment","rovio entertainment","rovio entertainment",0,1
+"760","ssh communications security","ssh communications security","ssh communications security",0,1
+"761","stonesoft","stonesoft","stonesoft",0,1
+"762","suominen","suominen","suominen",0,1
+"763","valio","valio","valio",0,1
+"764","valmet automotive","valmet automotive","valmet automotive",0,1
+"765","valtra","valtra","valtra",0,1
+"766","altran","altran","altran",0,1
+"767","arianespace","arianespace","arianespace",0,1
+"768","baccarat","baccarat","baccarat",0,1
+"769","bollore","bollore","bollore",0,1
+"770","bouygues telecom","bouygues telecom","bouygues telecom",0,1
+"771","bouygues","bouygues","bouygues",0,1
+"772","buzzinbees","buzzinbees","buzzinbees",0,1
+"773","carrefour","carrefour","carrefour",0,1
+"774","chanel","chanel","chanel",0,1
+"775","chantelle","chantelle","chantelle",0,1
+"776","credit lyonnais","credit lyonnais","credit lyonnais",0,1
+"777","criteo","criteo","criteo",0,1
+"778","danone","danone","danone",0,1
+"779","dassault aviation","dassault aviation","dassault aviation",0,1
+"780","dassault systems","dassault","dassault",0,1
+"781","diptyque","diptyque","diptyque",0,1
+"782","electricité de france edf","electricite de france edf","electricite de france edf",0,1
+"783","elf aquitaine","elf aquitaine","elf aquitaine",0,1
+"784","essilor","essilor","essilor",0,1
+"785","eutelsat","eutelsat","eutelsat",0,1
+"786","fnac","fnac","fnac",0,1
+"787","free","free","free",0,1
+"788","hermes","hermes","hermes",0,1
+"789","la poste","la poste","la poste",0,1
+"790","lacoste","lacoste","lacoste",0,1
+"791","lafarge","lafarge","lafarge",0,1
+"792","louis vuitton","louis vuitton","louis vuitton",0,1
+"793","michelin","michelin","michelin",0,1
+"794","nicox","nicox","nicox",0,1
+"795","orange","orange","orange",0,1
+"796","oxbow","oxbow","oxbow",0,1
+"797","pernod ricard","pernod ricard","pernod ricard",0,1
+"798","renault","renault","renault",0,1
+"799","sanofi","sanofi","sanofi",0,1
+"800","sephora","sephora","sephora",0,1
+"801","sigfox","sigfox","sigfox",0,1
+"802","suez","suez","suez",0,1
+"803","vinci","vinci","vinci",0,1
+"804","yoplait","yoplait","yoplait",0,1
+"805","aral","aral","aral",0,1
+"806","arburg","arburg","arburg",0,1
+"807","aurubis","aurubis","aurubis",0,1
+"808","axel springer","axel springer","axel springer",0,1
+"809","bahlsen kg","bahlsen","bahlsen",0,1
+"810","baywa","baywa","baywa",0,1
+"811","bbs kraftfahrzeugtechnik","bbs kraftfahrzeugtechnik","bbs kraftfahrzeugtechnik",0,1
+"812","behringer","behringer","behringer",0,1
+"813","bellevue investments","bellevue investments","bellevue investments",0,1
+"814","bertelsmann","bertelsmann","bertelsmann",0,1
+"815","beyerdynamic","beyerdynamic","beyerdynamic",0,1
+"816","bilfinger","bilfinger","bilfinger",0,1
+"817","birkenstock sales","birkenstock","birkenstock",0,1
+"818","blaupunkt","blaupunkt","blaupunkt",0,1
+"819","bomag","bomag","bomag",0,1
+"820","brabus","brabus","brabus",0,1
+"821","brenntag holding","brenntag","brenntag",0,1
+"822","carl walther","carl walther","carl walther",0,1
+"823","commerzbank","commerzbank","commerzbank",0,1
+"824","covestro","covestro","covestro",0,1
+"825","deutsche bahn","deutsche bahn","deutsche bahn",0,1
+"826","deutsche bank","deutsche bank","deutsche bank",0,1
+"827","deutsche post","deutsche post","deutsche post",0,1
+"828","deutz","deutz","deutz",0,1
+"829","diehl aerospace","diehl aerospace","diehl aerospace",0,1
+"830","edding","edding","edding",0,1
+"831","enocean","enocean","enocean",0,1
+"832","ferrostaal","ferrostaal","ferrostaal",0,1
+"833","fischertechnik","fischertechnik","fischertechnik",0,1
+"834","fissler","fissler","fissler",0,1
+"835","fraport","fraport","fraport",0,1
+"836","frosta","frosta","frosta",0,1
+"837","fuchs petrolub","fuchs petrolub","fuchs petrolub",0,1
+"838","gebrüder thonet","gebruder thonet","gebruder thonet",0,1
+"839","gpc biotech","gpc biotech","gpc biotech",0,1
+"840","grundig","grundig","grundig",0,1
+"841","heidelbergcement","heidelbergcement","heidelbergcement",0,1
+"842","hochtief","hochtief","hochtief",0,1
+"843","jenoptik","jenoptik","jenoptik",0,1
+"844","karcher","karcher","karcher",0,1
+"845","leica camera","leica camera","leica camera",0,1
+"846","leoni","leoni","leoni",0,1
+"847","lindauer dornier","lindauer dornier","lindauer dornier",0,1
+"848","loewe","loewe","loewe",0,1
+"849","lufthansa systems","lufthansa","lufthansa",0,1
+"850","meyer werft","meyer werft","meyer werft",0,1
+"851","nero","nero","nero",0,1
+"852","nordzucker","nordzucker","nordzucker",0,1
+"853","osram","osram","osram",0,1
+"854","otto bock healthcare","otto bock","otto bock",0,1
+"855","phoenix contact","phoenix contact","phoenix contact",0,1
+"856","ptv","ptv","ptv",0,1
+"857","putzmeister","putzmeister","putzmeister",0,1
+"858","rehau","rehau","rehau",0,1
+"859","rimowa","rimowa","rimowa",0,1
+"860","salzgitter","salzgitter","salzgitter",0,1
+"861","sap se","sap se","sap se",0,1
+"862","schmitz cargobull","schmitz cargobull","schmitz cargobull",0,1
+"863","sew eurodrive","sew eurodrive","sew eurodrive",0,1
+"864","sgl carbon","sgl carbon","sgl carbon",0,1
+"865","sig sauer","sig sauer","sig sauer",0,1
+"866","skysails","skysails","skysails",0,1
+"867","smart","smart","smart",0,1
+"868","solarworld","solarworld","solarworld",0,1
+"869","sortimo","sortimo","sortimo",0,1
+"870","symrise","symrise","symrise",0,1
+"871","tchibo","tchibo","tchibo",0,1
+"872","telefunken","telefunken","telefunken",0,1
+"873","tetra","tetra","tetra",0,1
+"874","the linde","the linde","the linde",0,1
+"875","trumpf","trumpf","trumpf",0,1
+"876","ultrasone","ultrasone","ultrasone",0,1
+"877","vector informatik","vector informatik","vector informatik",0,1
+"878","viessmann","viessmann","viessmann",0,1
+"879","voith","voith","voith",0,1
+"880","wago kontakttechnik","wago kontakttechnik","wago kontakttechnik",0,1
+"881","wera werk hermann werner","wera werk hermann werner","wera werk hermann werner",0,1
+"882","wittenstein","wittenstein","wittenstein",0,1
+"883","intralot","intralot","intralot",0,1
+"884","lavipharm","lavipharm","lavipharm",0,1
+"885","vianex","vianex","vianex",0,1
+"886","graphisoft","graphisoft","graphisoft",0,1
+"887","magyar telekom","magyar telekom","magyar telekom",0,1
+"888","tungsram","tungsram","tungsram",0,1
+"889","arvind","arvind","arvind",0,1
+"890","asian paints","asian paints","asian paints",0,1
+"891","bajaj auto","bajaj auto","bajaj auto",0,1
+"892","bharat forge","bharat forge","bharat forge",0,1
+"893","bharat heavy electricals","bharat heavy electricals","bharat heavy electricals",0,1
+"894","bharat petroleum","bharat petroleum","bharat petroleum",0,1
+"895","biocon","biocon","biocon",0,1
+"896","crompton greaves","crompton greaves","crompton greaves",0,1
+"897","dabur pharma","dabur","dabur",0,1
+"898","emcure pharmaceuticals","emcure","emcure",0,1
+"899","engineers india","engineers india","engineers india",0,1
+"900","glenmark pharmaceuticals","glenmark","glenmark",0,1
+"901","hawkins cookers","hawkins cookers","hawkins cookers",0,1
+"902","hindustan petroleum","hindustan petroleum","hindustan petroleum",0,1
+"903","hindustan zinc","hindustan zinc","hindustan zinc",0,1
+"904","itc","itc","itc",0,1
+"905","jain irrigation systems","jain irrigation","jain irrigation",0,1
+"906","jsw steel","jsw steel","jsw steel",0,1
+"907","lakshmi machine works","lakshmi machine works","lakshmi machine works",0,1
+"908","mindtree","mindtree","mindtree",0,1
+"909","mphasis","mphasis","mphasis",0,1
+"910","niit","niit","niit",0,1
+"911","oil india","oil india","oil india",0,1
+"912","persistent systems","persistent","persistent",0,1
+"913","piramal enterprises","piramal enterprises","piramal enterprises",0,1
+"914","praj","praj","praj",0,1
+"915","ranbaxy laboratories","ranbaxy","ranbaxy",0,1
+"916","reliance","reliance","reliance",0,1
+"917","steel authority of india","steel authority of india","steel authority of india",0,1
+"918","sun pharmaceuticals","sun","sun",0,1
+"919","synthite","synthite","synthite",0,1
+"920","tata chemicals","tata chemicals","tata chemicals",0,1
+"921","tata global beverages","tata global beverages","tata global beverages",0,1
+"922","tata motors","tata motors","tata motors",0,1
+"923","tata steel","tata steel","tata steel",0,1
+"924","tech mahindra","tech mahindra","tech mahindra",0,1
+"925","thermax","thermax","thermax",0,1
+"926","torrent pharmaceuticals","torrent","torrent",0,1
+"927","ttk prestige","ttk prestige","ttk prestige",0,1
+"928","welspun india","welspun india","welspun india",0,1
+"929","agip spa","agip","agip",0,1
+"930","alenia aermacchi spa","alenia aermacchi","alenia aermacchi",0,1
+"931","alpinestars spa","alpinestars","alpinestars",0,1
+"932","cassina spa","cassina","cassina",0,1
+"933","comau spa","comau","comau",0,1
+"934","fedrigoni spa","fedrigoni","fedrigoni",0,1
+"935","ferrari spa","ferrari","ferrari",0,1
+"936","fiocchi munizioni spa","fiocchi munizioni","fiocchi munizioni",0,1
+"937","italcementi","italcementi","italcementi",0,1
+"938","la sportiva spa","la sportiva","la sportiva",0,1
+"939","lagostina spa","lagostina","lagostina",0,1
+"940","laverda spa","laverda","laverda",0,1
+"941","moto guzzi spa","moto guzzi","moto guzzi",0,1
+"942","nardi spa","nardi","nardi",0,1
+"943","nordica spa","nordica","nordica",0,1
+"944","oto melara spa","oto melara","oto melara",0,1
+"945","pininfarina spa","pininfarina","pininfarina",0,1
+"946","selex es spa","selex es","selex es",0,1
+"947","soilmec spa","soilmec","soilmec",0,1
+"948","misc berhad","misc berhad","misc berhad",0,1
+"949","ocp","ocp","ocp",0,1
+"950","avebe","avebe","avebe",0,1
+"951","dsm","dsm","dsm",0,1
+"952","heerema marine contractors","heerema marine contractors","heerema marine contractors",0,1
+"953","nxp semiconductors","nxp semiconductors","nxp semiconductors",0,1
+"954","oce","oce","oce",0,1
+"955","philips","philips","philips",0,1
+"956","wavin","wavin","wavin",0,1
+"957","air new zealand","air new zealand","air new zealand",0,1
+"958","bank of new zealand","bank of new zealand","bank of new zealand",0,1
+"959","eurekster","eurekster","eurekster",0,1
+"960","fletcher challenge","fletcher challenge","fletcher challenge",0,1
+"961","fletcher building","fletcher building","fletcher building",0,1
+"962","macpac wilderness equipment","macpac wilderness equipment","macpac wilderness equipment",0,1
+"963","pacific edge","pacific edge","pacific edge",0,1
+"964","rakon","rakon","rakon",0,1
+"965","norsk hydro","norsk hydro","norsk hydro",0,1
+"966","statoil","statoil","statoil",0,1
+"967","tine","tine","tine",0,1
+"968","san miguel","san miguel","san miguel",0,1
+"969","smart communications","smart communications","smart communications",0,1
+"970","grupa azoty","grupa azoty","grupa azoty",0,1
+"971","grupa lotos","grupa lotos","grupa lotos",0,1
+"972","orange polska","orange polska","orange polska",0,1
+"973","rasgas","rasgas","rasgas",0,1
+"974","airtricity","airtricity","airtricity",0,1
+"975","bord na mona","bord na mona","bord na mona",0,1
+"976","openet","openet","openet",0,1
+"977","paddy power","paddy power","paddy power",0,1
+"978","vodafone ireland","vodafone ireland","vodafone ireland",0,1
+"979","samba financial","samba financial","samba financial",0,1
+"980","saudi aramco","saudi aramco","saudi aramco",0,1
+"981","saudi oger","saudi oger","saudi oger",0,1
+"982","singapore airlines","singapore airlines","singapore airlines",0,1
+"983","starhub","starhub","starhub",0,1
+"984","anglo american platinum","anglo american platinum","anglo american platinum",0,1
+"985","eskom","eskom","eskom",0,1
+"986","illovo sugar","illovo sugar","illovo sugar",0,1
+"987","telkom","telkom","telkom",0,1
+"988","tongaat hulett","tongaat hulett","tongaat hulett",0,1
+"989","transnet","transnet","transnet",0,1
+"990","acerinox","acerinox","acerinox",0,1
+"991","almirall","almirall","almirall",0,1
+"992","astilleros y talleres del noroeste","astilleros y talleres del noroeste","astilleros y talleres del noroeste",0,1
+"993","balay","balay","balay",0,1
+"994","bankinter","bankinter","bankinter",0,1
+"995","compañía logística de hidrocarburos clh","compania logistica de hidrocarburos clh","compania logistica de hidrocarburos clh",0,1
+"996","festina","festina","festina",0,1
+"997","fomento de construcciones y contratas","fomento de construcciones y contratas","fomento de construcciones y contratas",0,1
+"998","grupo antolin","grupo antolin","grupo antolin",0,1
+"999","iberdrola","iberdrola","iberdrola",0,1
+"1000","indra sistemas","indra sistemas","indra sistemas",0,1
+"1001","majorica","majorica","majorica",0,1
+"1002","natraceutical","natraceutical","natraceutical",0,1
+"1003","pescanova","pescanova","pescanova",0,1
+"1004","porcelanosa","porcelanosa","porcelanosa",0,1
+"1005","red eléctrica de espana","red electrica de espana","red electrica de espana",0,1
+"1006","seat","seat","seat",0,1
+"1007","uralita","uralita","uralita",0,1
+"1008","alfa laval","alfa laval","alfa laval",0,1
+"1009","abb","abb","abb",0,1
+"1010","astra ab","astra ab","astra ab",0,1
+"1011","atlet ab","atlet ab","atlet ab",0,1
+"1012","boliden ab","boliden ab","boliden ab",0,1
+"1013","bona ab","bona ab","bona ab",0,1
+"1014","delaval holding","delaval","delaval",0,1
+"1015","electrolux","electrolux","electrolux",0,1
+"1016","elekta","elekta","elekta",0,1
+"1017","ericsson","ericsson","ericsson",0,1
+"1018","expander system sweden ab","expander system sweden ab","expander system sweden ab",0,1
+"1019","husqvarna","husqvarna","husqvarna",0,1
+"1020","imint image intelligence ab","imint image intelligence ab","imint image intelligence ab",0,1
+"1021","ncc ab","ncc ab","ncc ab",0,1
+"1022","primus ab","primus ab","primus ab",0,1
+"1023","saab automobile","saab automobile","saab automobile",0,1
+"1024","saab","saab","saab",0,1
+"1025","sandvik intellectual property","sandvik","sandvik",0,1
+"1026","sj ab","sj ab","sj ab",0,1
+"1027","skf","skf","skf",0,1
+"1028","terranet ab","terranet ab","terranet ab",0,1
+"1029","tetra pak","tetra pak","tetra pak",0,1
+"1030","uddeholms ab","uddeholms ab","uddeholms ab",0,1
+"1031","volvo","volvo","volvo",0,1
+"1032","volvo penta","volvo penta","volvo penta",0,1
+"1033","vsm","vsm","vsm",0,1
+"1034","ascom","ascom","ascom",0,1
+"1035","audemars piguet holding","audemars piguet","audemars piguet",0,1
+"1036","autoform","autoform","autoform",0,1
+"1037","barry callebaut","barry callebaut","barry callebaut",0,1
+"1038","bolex","bolex","bolex",0,1
+"1039","breitling","breitling","breitling",0,1
+"1040","bron elektronik","bron elektronik","bron elektronik",0,1
+"1041","burckhardt compression","burckhardt compression","burckhardt compression",0,1
+"1042","century time gems","century time gems","century time gems",0,1
+"1043","certina","certina","certina",0,1
+"1044","chopard","chopard","chopard",0,1
+"1045","crypto","crypto","crypto",0,1
+"1046","dartfish","dartfish","dartfish",0,1
+"1047","frédérique constant","frederique constant","frederique constant",0,1
+"1048","hublot","hublot","hublot",0,1
+"1049","intamin","intamin","intamin",0,1
+"1050","iqair","iqair","iqair",0,1
+"1051","jet aviation","jet aviation","jet aviation",0,1
+"1052","kudelski","kudelski","kudelski",0,1
+"1053","liebherr","liebherr","liebherr",0,1
+"1054","logitech","logitech","logitech",0,1
+"1055","maggi","maggi","maggi",0,1
+"1056","maurice lacroix","maurice lacroix","maurice lacroix",0,1
+"1057","nestle","nestle","nestle",0,1
+"1058","nobel biocare services","nobel biocare","nobel biocare",0,1
+"1059","omega","omega","omega",0,1
+"1060","oscilloquartz","oscilloquartz","oscilloquartz",0,1
+"1061","piaget","piaget","piaget",0,1
+"1062","platit","platit","platit",0,1
+"1063","richemont","richemont","richemont",0,1
+"1064","ringier","ringier","ringier",0,1
+"1065","rivella","rivella","rivella",0,1
+"1066","rolex","rolex","rolex",0,1
+"1067","sapal","sapal","sapal",0,1
+"1068","serono","serono","serono",0,1
+"1069","sersa","sersa","sersa",0,1
+"1070","stadler rail","stadler rail","stadler rail",0,1
+"1071","swatch","swatch","swatch",0,1
+"1072","swissgear sarl","swissgear","swissgear",0,1
+"1073","syngenta","syngenta","syngenta",0,1
+"1074","tag heuer","tag heuer","tag heuer",0,1
+"1075","te connectivity services","te connectivity","te connectivity",0,1
+"1076","trisa holding","trisa","trisa",0,1
+"1077","ublox","ublox","ublox",0,1
+"1078","ubs","ubs","ubs",0,1
+"1079","ulysse nardin","ulysse nardin","ulysse nardin",0,1
+"1080","vacheron constantin","vacheron constantin","vacheron constantin",0,1
+"1081","victorinox","victorinox","victorinox",0,1
+"1082","wenger","wenger","wenger",0,1
+"1083","zenith","zenith","zenith",0,1
+"1084","zurich insurance","zurich insurance","zurich insurance",0,1
+"1085","etihad airways","etihad airways","etihad airways",0,1
+"1086","adallom","adallom","adallom",0,1
+"1087","aladdin knowledge systems","aladdin knowledge","aladdin knowledge",0,1
+"1088","allot communications","allot communications","allot communications",0,1
+"1089","amdocs software systems","amdocs","amdocs",0,1
+"1090","anobit","anobit","anobit",0,1
+"1091","babylon","babylon","babylon",0,1
+"1092","barkan mounts","barkan mounts","barkan mounts",0,1
+"1093","brainsway","brainsway","brainsway",0,1
+"1094","castro model","castro model","castro model",0,1
+"1095","cellcom israel","cellcom israel","cellcom israel",0,1
+"1096","ceragon networks","ceragon networks","ceragon networks",0,1
+"1097","cimatron","cimatron","cimatron",0,1
+"1098","collactive","collactive","collactive",0,1
+"1099","ctera networks","ctera networks","ctera networks",0,1
+"1100","dbmotion","dbmotion","dbmotion",0,1
+"1101","eci telecom","eci telecom","eci telecom",0,1
+"1102","frutarom","frutarom","frutarom",0,1
+"1103","given imaging","given imaging","given imaging",0,1
+"1104","hp scitex","hp scitex","hp scitex",0,1
+"1105","insightec","insightec","insightec",0,1
+"1106","ironsource","ironsource","ironsource",0,1
+"1107","israel electric","israel electric","israel electric",0,1
+"1108","israel shipyards","israel shipyards","israel shipyards",0,1
+"1109","jacada","jacada","jacada",0,1
+"1110","kampyle","kampyle","kampyle",0,1
+"1111","keter plastic","keter plastic","keter plastic",0,1
+"1112","kramer electronics","kramer electronics","kramer electronics",0,1
+"1113","msystems","msystems","msystems",0,1
+"1114","makhteshim agan","makhteshim agan","makhteshim agan",0,1
+"1115","mobileye","mobileye","mobileye",0,1
+"1116","motorola israel","motorola israel","motorola israel",0,1
+"1117","namogoo","namogoo","namogoo",0,1
+"1118","netafim","netafim","netafim",0,1
+"1119","perion network","perion network","perion network",0,1
+"1120","phinergy","phinergy","phinergy",0,1
+"1121","rad data communications","rad data communications","rad data communications",0,1
+"1122","rad","rad","rad",0,1
+"1123","radcom","radcom","radcom",0,1
+"1124","radware","radware","radware",0,1
+"1125","radwin","radwin","radwin",0,1
+"1126","secret double octopus","secret double octopus","secret double octopus",0,1
+"1127","sodastream","sodastream","sodastream",0,1
+"1128","solaredge","solaredge","solaredge",0,1
+"1129","source vagabond systems","source vagabond","source vagabond",0,1
+"1130","storedot","storedot","storedot",0,1
+"1131","tadiran telecom","tadiran telecom","tadiran telecom",0,1
+"1132","taro pharmaceuticals","taro","taro",0,1
+"1133","tawkon","tawkon","tawkon",0,1
+"1134","taykey","taykey","taykey",0,1
+"1135","verint systems","verint","verint",0,1
+"1136","videocells","videocells","videocells",0,1
+"1137","zenith solar","zenith solar","zenith solar",0,1
+"1138","birmingham systems","birmingham","birmingham",0,1
+"1139","london electricity","london electricity","london electricity",0,1
+"1140","abcam","abcam","abcam",0,1
+"1141","norwich pharma","norwich","norwich",0,1
+"1142","royal bank of scotland","royal bank of scotland","royal bank of scotland",0,1
+"1143","adam equipment","adam equipment","adam equipment",0,1
+"1144","amersham","amersham","amersham",0,1
+"1145","anglian water authority","anglian water authority","anglian water authority",0,1
+"1146","arrival","arrival","arrival",0,1
+"1147","norton healthcare","norton","norton",0,1
+"1148","wembley innovation","wembley","wembley",0,1
+"1149","gaydon","gaydon","gaydon",0,1
+"1150","leeds","leeds","leeds",0,1
+"1151","astrazeneca","astrazeneca","astrazeneca",0,1
+"1152","austin rover","austin rover","austin rover",0,1
+"1153","marconi electronic systems","marconi electronic","marconi electronic",0,1
+"1154","whitbread","whitbread","whitbread",0,1
+"1155","bentley","bentley","bentley",0,1
+"1156","biocompatibles","biocompatibles","biocompatibles",0,1
+"1157","blink medical","blink","blink",0,1
+"1158","national coal board","national coal board","national coal board",0,1
+"1159","nottingham","nottingham","nottingham",0,1
+"1160","british aircraft","british aircraft","british aircraft",0,1
+"1161","hawker siddeley dynamics","hawker siddeley dynamics","hawker siddeley dynamics",0,1
+"1162","british airways","british airways","british airways",0,1
+"1163","waterside","waterside","waterside",0,1
+"1164","british american tobacco","british american tobacco","british american tobacco",0,1
+"1165","mg rover","mg rover","mg rover",0,1
+"1166","scottish water","scottish water","scottish water",0,1
+"1167","south staffordshire water","south staffordshire water","south staffordshire water",0,1
+"1168","fathom systems","fathom","fathom",0,1
+"1169","celltech","celltech","celltech",0,1
+"1170","central electricity generating board","central electricity generating board","central electricity generating board",0,1
+"1171","food service","food service","food service",0,1
+"1172","convatec","convatec","convatec",0,1
+"1173","severn trent water authority","severn trent water authority","severn trent water authority",0,1
+"1174","united distillers","united distillers","united distillers",0,1
+"1175","douglas equipment","douglas equipment","douglas equipment",0,1
+"1176","textron","textron","textron",0,1
+"1177","eastern electricity","eastern electricity","eastern electricity",0,1
+"1178","kensington","kensington","kensington",0,1
+"1179","electricity north west property","electricity north west","electricity north west",0,1
+"1180","norweb","norweb","norweb",0,1
+"1181","fisons","fisons","fisons",0,1
+"1182","leamington spa","leamington","leamington",0,1
+"1183","gamesys","gamesys","gamesys",0,1
+"1184","the rank organisation","the rank organisation","the rank organisation",0,1
+"1185","milk marketing board","milk marketing board","milk marketing board",0,1
+"1186","dudley","dudley","dudley",0,1
+"1187","severn trent services","severn trent","severn trent",0,1
+"1188","imperial tobacco","imperial tobacco","imperial tobacco",0,1
+"1189","horizon discovery","horizon discovery","horizon discovery",0,1
+"1190","immunocore","immunocore","immunocore",0,1
+"1191","ixico","ixico","ixico",0,1
+"1192","lloyds bank","lloyds bank","lloyds bank",0,1
+"1193","lonmin","lonmin","lonmin",0,1
+"1194","manweb","manweb","manweb",0,1
+"1195","chelmsford services","chelmsford","chelmsford",0,1
+"1196","medherant","medherant","medherant",0,1
+"1197","national power","national power","national power",0,1
+"1198","norbrook laboratories","norbrook","norbrook",0,1
+"1199","innogy","innogy","innogy",0,1
+"1200","nuclear electric","nuclear electric","nuclear electric",0,1
+"1201","scientific games","scientific games","scientific games",0,1
+"1202","oxford biomedica","oxford biomedica","oxford biomedica",0,1
+"1203","oxitec","oxitec","oxitec",0,1
+"1204","panorama antennas","panorama antennas","panorama antennas",0,1
+"1205","pfizer","pfizer","pfizer",0,1
+"1206","pinewood associates","pinewood","pinewood",0,1
+"1207","powell duffryn","powell duffryn","powell duffryn",0,1
+"1208","reneuron","reneuron","reneuron",0,1
+"1209","salts healthcare","salts","salts",0,1
+"1210","scottish power","scottish power","scottish power",0,1
+"1211","sirius minerals","sirius minerals","sirius minerals",0,1
+"1212","british steel","british steel","british steel",0,1
+"1213","tarmac","tarmac","tarmac",0,1
+"1214","wigan","wigan","wigan",0,1
+"1215","severn trent water","severn trent water","severn trent water",0,1
+"1216","wrc","wrc","wrc",0,1
+"1217","aichi steel","aichi steel","aichi steel",0,1
+"1218","alaxala networks","alaxala networks","alaxala networks",0,1
+"1219","all nippon airways","all nippon airways","all nippon airways",0,1
+"1220","anest iwata","anest iwata","anest iwata",0,1
+"1221","arai helmet","arai helmet","arai helmet",0,1
+"1222","asahi breweries","asahi breweries","asahi breweries",0,1
+"1223","balmuda","balmuda","balmuda",0,1
+"1224","bandai","bandai","bandai",0,1
+"1225","chugoku electric power","chugoku electric power","chugoku electric power",0,1
+"1226","comsys","comsys","comsys",0,1
+"1227","cosmo oil","cosmo oil","cosmo oil",0,1
+"1228","daiwa house industry","daiwa house industry","daiwa house industry",0,1
+"1229","dentsu","dentsu","dentsu",0,1
+"1230","descente","descente","descente",0,1
+"1231","disco","disco","disco",0,1
+"1232","dwango","dwango","dwango",0,1
+"1233","enkei","enkei","enkei",0,1
+"1234","ezaki glico","ezaki glico","ezaki glico",0,1
+"1235","eco marine power","eco marine power","eco marine power",0,1
+"1236","family inada","family inada","family inada",0,1
+"1237","fast retailing","fast retailing","fast retailing",0,1
+"1238","fostex","fostex","fostex",0,1
+"1239","fuji television","fuji television","fuji television",0,1
+"1240","gakken","gakken","gakken",0,1
+"1241","globeride","globeride","globeride",0,1
+"1242","gungho online entertainment","gungho online entertainment","gungho online entertainment",0,1
+"1243","hamamatsu photonics","hamamatsu photonics","hamamatsu photonics",0,1
+"1244","hasegawa","hasegawa","hasegawa",0,1
+"1245","hirobo","hirobo","hirobo",0,1
+"1246","hokkaido electric power","hokkaido electric power","hokkaido electric power",0,1
+"1247","hokuetsu","hokuetsu","hokuetsu",0,1
+"1248","honda","honda","honda",0,1
+"1249","irem","irem","irem",0,1
+"1250","iseki","iseki","iseki",0,1
+"1251","jgc","jgc","jgc",0,1
+"1252","k line enterprise","k line","k line",0,1
+"1253","keihin electric express railway","keihin electric express railway","keihin electric express railway",0,1
+"1254","kikkoman","kikkoman","kikkoman",0,1
+"1255","komori","komori","komori",0,1
+"1256","konami","konami","konami",0,1
+"1257","kondo kagaku","kondo kagaku","kondo kagaku",0,1
+"1258","korg","korg","korg",0,1
+"1259","kumagai gumi","kumagai gumi","kumagai gumi",0,1
+"1260","kuretake","kuretake","kuretake",0,1
+"1261","kyosho","kyosho","kyosho",0,1
+"1262","kyushu electric power","kyushu electric power","kyushu electric power",0,1
+"1263","lion","lion","lion",0,1
+"1264","lixil","lixil","lixil",0,1
+"1265","makino","makino","makino",0,1
+"1266","makita","makita","makita",0,1
+"1267","mandom","mandom","mandom",0,1
+"1268","marubeni","marubeni","marubeni",0,1
+"1269","maruha nichiro","maruha nichiro","maruha nichiro",0,1
+"1270","matsuura machinery","matsuura machinery","matsuura machinery",0,1
+"1271","meidensha","meidensha","meidensha",0,1
+"1272","mitsui knowledge industry","mitsui knowledge industry","mitsui knowledge industry",0,1
+"1273","mitsui sumitomo insurance","mitsui sumitomo insurance","mitsui sumitomo insurance",0,1
+"1274","mizkan","mizkan","mizkan",0,1
+"1275","mizuho corporate bank","mizuho corporate bank","mizuho corporate bank",0,1
+"1276","molten","molten","molten",0,1
+"1277","murata machinery","murata machinery","murata machinery",0,1
+"1278","nabtesco","nabtesco","nabtesco",0,1
+"1279","nichicon","nichicon","nichicon",0,1
+"1280","nippon broadcasting system","nippon broadcasting system","nippon broadcasting system",0,1
+"1281","nippon electric glass","nippon electric glass","nippon electric glass",0,1
+"1282","nippon express","nippon express","nippon express",0,1
+"1283","nippon kayaku","nippon kayaku","nippon kayaku",0,1
+"1284","nippon meat packers","nippon meat packers","nippon meat packers",0,1
+"1285","nippon mining","nippon mining","nippon mining",0,1
+"1286","nippon yusen","nippon yusen","nippon yusen",0,1
+"1287","nkk switches","nkk switches","nkk switches",0,1
+"1288","noritake","noritake","noritake",0,1
+"1289","ns solutions","ns solutions","ns solutions",0,1
+"1290","obayashi","obayashi","obayashi",0,1
+"1291","ohara","ohara","ohara",0,1
+"1292","olfa","olfa","olfa",0,1
+"1293","onkyo","onkyo","onkyo",0,1
+"1294","ono pharmaceutical","ono pharmaceutical","ono pharmaceutical",0,1
+"1295","orion breweries","orion breweries","orion breweries",0,1
+"1296","phiten","phiten","phiten",0,1
+"1297","roland","roland","roland",0,1
+"1298","sammy","sammy","sammy",0,1
+"1299","sansui electric","sansui electric","sansui electric",0,1
+"1300","seikosha","seikosha","seikosha",0,1
+"1301","sekisui house","sekisui house","sekisui house",0,1
+"1302","sharp","sharp","sharp",0,1
+"1303","snk playmore","snk playmore","snk playmore",0,1
+"1304","softbank","softbank","softbank",0,1
+"1305","sojitz","sojitz","sojitz",0,1
+"1306","sompo japan insurance","sompo japan insurance","sompo japan insurance",0,1
+"1307","sony music entertainment japan","sony music entertainment japan","sony music entertainment japan",0,1
+"1308","star micronics","star micronics","star micronics",0,1
+"1309","subaru","subaru","subaru",0,1
+"1310","sumitomo mitsui banking","sumitomo mitsui banking","sumitomo mitsui banking",0,1
+"1311","sumitomo mitsui construction","sumitomo mitsui construction","sumitomo mitsui construction",0,1
+"1312","sumitomo riko","sumitomo riko","sumitomo riko",0,1
+"1313","sysmex","sysmex","sysmex",0,1
+"1314","t hasegawa","t hasegawa","t hasegawa",0,1
+"1315","taiyo nippon sanso","taiyo nippon sanso","taiyo nippon sanso",0,1
+"1316","takenaka","takenaka","takenaka",0,1
+"1317","tamron","tamron","tamron",0,1
+"1318","terumo","terumo","terumo",0,1
+"1319","thk","thk","thk",0,1
+"1320","tiger","tiger","tiger",0,1
+"1321","tokai carbon","tokai carbon","tokai carbon",0,1
+"1322","tokyo broadcasting system","tokyo broadcasting system","tokyo broadcasting system",0,1
+"1323","tokyo marui","tokyo marui","tokyo marui",0,1
+"1324","topcon","topcon","topcon",0,1
+"1325","toyobo","toyobo","toyobo",0,1
+"1326","treasure","treasure","treasure",0,1
+"1327","ucc ueshima coffee","ucc ueshima coffee","ucc ueshima coffee",0,1
+"1328","uniden","uniden","uniden",0,1
+"1329","west japan railway","west japan railway","west japan railway",0,1
+"1330","yakult honsha","yakult honsha","yakult honsha",0,1
+"1331","yamazaki baking","yamazaki baking","yamazaki baking",0,1
+"1332","yanmar","yanmar","yanmar",0,1
+"1333","zenrin","zenrin","zenrin",0,1
+"1334","zojirushi","zojirushi","zojirushi",0,1
+"1335","zuken","zuken","zuken",0,1
+"1336","amorepacific","amorepacific","amorepacific",0,1
+"1337","bc card","bc card","bc card",0,1
+"1338","cj cgv","cj cgv","cj cgv",0,1
+"1339","crown confectionery","crown confectionery","crown confectionery",0,1
+"1340","dongbu chemical","dongbu","dongbu",0,1
+"1341","eugene","eugene","eugene",0,1
+"1342","gravity","gravity","gravity",0,1
+"1343","gs caltex","gs caltex","gs caltex",0,1
+"1344","halla","halla","halla",0,1
+"1345","hansol chemical","hansol","hansol",0,1
+"1346","hyundai  construction","hyundai  construction","hyundai  construction",0,1
+"1347","hyundai rotem","hyundai rotem","hyundai rotem",0,1
+"1348","hyundai steel","hyundai steel","hyundai steel",0,1
+"1349","inca internet","inca internet","inca internet",0,1
+"1350","industrial bank of korea","industrial bank of korea","industrial bank of korea",0,1
+"1351","iriver","iriver","iriver",0,1
+"1352","kakao","kakao","kakao",0,1
+"1353","korea electric power","korea electric power","korea electric power",0,1
+"1354","korean broadcasting system","korean broadcasting system","korean broadcasting system",0,1
+"1355","kumho tire","kumho tire","kumho tire",0,1
+"1356","lg chem","lg chem","lg chem",0,1
+"1357","lg cns","lg cns","lg cns",0,1
+"1358","lg uplus","lg uplus","lg uplus",0,1
+"1359","lotte card","lotte card","lotte card",0,1
+"1360","lotte confectionery","lotte confectionery","lotte confectionery",0,1
+"1361","mando","mando","mando",0,1
+"1362","naver","naver","naver",0,1
+"1363","ncsoft","ncsoft","ncsoft",0,1
+"1364","netmarble games","netmarble games","netmarble games",0,1
+"1365","nexen tire","nexen tire","nexen tire",0,1
+"1366","pantech","pantech","pantech",0,1
+"1367","posco","posco","posco",0,1
+"1368","samsung card","samsung card","samsung card",0,1
+"1369","samsung digital imaging","samsung digital imaging","samsung digital imaging",0,1
+"1370","seoul broadcasting system","seoul broadcasting system","seoul broadcasting system",0,1
+"1371","shinhan bank","shinhan bank","shinhan bank",0,1
+"1372","tmaxsoft","tmaxsoft","tmaxsoft",0,1
+"1373","yuhan","yuhan","yuhan",0,1
+"1374","adata","adata","adata",0,1
+"1375","aeon motor","aeon motor","aeon motor",0,1
+"1376","aerospace industrial development","aerospace industrial development","aerospace industrial development",0,1
+"1377","alchip","alchip","alchip",0,1
+"1378","aopen","aopen","aopen",0,1
+"1379","apacer","apacer","apacer",0,1
+"1380","behavior tech computer","behavior tech computer","behavior tech computer",0,1
+"1381","cipherlab","cipherlab","cipherlab",0,1
+"1382","clevo","clevo","clevo",0,1
+"1383","cmc magnetics","cmc magnetics","cmc magnetics",0,1
+"1384","cooler master","cooler master","cooler master",0,1
+"1385","cpc","cpc","cpc",0,1
+"1386","cyberlink","cyberlink","cyberlink",0,1
+"1387","dbtel","dbtel","dbtel",0,1
+"1388","dfi","dfi","dfi",0,1
+"1389","dynacomware","dynacomware","dynacomware",0,1
+"1390","elitegroup computer systems","elitegroup computer","elitegroup computer",0,1
+"1391","epistar","epistar","epistar",0,1
+"1392","far eastern new century","far eastern new century","far eastern new century",0,1
+"1393","formosa plastics","formosa plastics","formosa plastics",0,1
+"1394","fsp","fsp","fsp",0,1
+"1395","htc","htc","htc",0,1
+"1396","insyde software","insyde","insyde",0,1
+"1397","jmicron","jmicron","jmicron",0,1
+"1398","kingmax","kingmax","kingmax",0,1
+"1399","kmc chain industrial","kmc chain industrial","kmc chain industrial",0,1
+"1400","leadtek","leadtek","leadtek",0,1
+"1401","microtek","microtek","microtek",0,1
+"1402","miniwiz","miniwiz","miniwiz",0,1
+"1403","nankang rubber tire","nankang rubber tire","nankang rubber tire",0,1
+"1404","pegatron","pegatron","pegatron",0,1
+"1405","phalanx biotech","phalanx biotech","phalanx biotech",0,1
+"1406","ralink","ralink","ralink",0,1
+"1407","ritek","ritek","ritek",0,1
+"1408","taiwan cement","taiwan cement","taiwan cement",0,1
+"1409","taiwan fertilizer","taiwan fertilizer","taiwan fertilizer",0,1
+"1410","taiwan mobile communication","taiwan mobile","taiwan mobile",0,1
+"1411","thunder tiger","thunder tiger","thunder tiger",0,1
+"1412","transcend information","transcend information","transcend information",0,1
+"1413","ulead systems","ulead","ulead",0,1
+"1414","yageo","yageo","yageo",0,1
+"1415","arcelik","arcelik","arcelik",0,1
+"1416","irkut","irkut","irkut",0,1
+"1417","russian","russian","russian",0,1
+"1418","tupolev","tupolev","tupolev",0,1
+"1419","mapna","mapna","mapna",0,1
+"1420","biosys pty","biosys pty","biosis pty",1,NA
+"1421","slater gordon","slater gordon","slater  gordon",1,NA
+"1422","böhler uddeholm","bohler uddeholm","bohleruddeholm",1,NA
+"1423","voest alpine","voest alpine","voestalpine",1,NA
+"1424","agfa gevaert","agfa gevaert","agfagevaert",1,NA
+"1425","anheuser busch inbev","anheuser busch inbev","anheuserbusch inbev",1,NA
+"1426","carta mundi","carta mundi","cartamundi",1,NA
+"1427","mutoh europe n v","mutoh europe n v","mutoh europe nv",1,NA
+"1428","iochpe maxion","iochpe maxion","iochpemaxion",1,NA
+"1429","weg indústrias","weg industrias","weg industries",1,NA
+"1430","awe","awe","aw",1,NA
+"1431","awn","awn","aw",1,NA
+"1432","alda pharmaceuticals","alda","aldo",1,NA
+"1433","ati technolgies","ati technolgies","ati technologies",1,NA
+"1434","black photo","black photo","blacks photo",1,NA
+"1435","blackberry limted","blackberry limted","blackberry limited",1,NA
+"1436","bombardier recreational product","bombardier recreational product","bombardier recreational products",1,NA
+"1437","cgc","cgc","cgi",1,NA
+"1438","colt","colt","cott",1,NA
+"1439","empra systems","empra","emera",1,NA
+"1440","engineered lifting systems equipment","engineered lifting equipment","engineered lifting  equipment",1,NA
+"1441","hydro quebec","hydro quebec","hydroquebec",1,NA
+"1442","leone","leone","leons",1,NA
+"1443","matrix innovation","matrix","matrox",1,NA
+"1444","matrix","matrix","matrox",1,NA
+"1445","nordel","nordel","nortel",1,NA
+"1446","novacam tyechnologies","novacam tyechnologies","novacam technologies",1,NA
+"1447","one","one","onex",1,NA
+"1448","parrish heimbecker","parrish heimbecker","parrish  heimbecker",1,NA
+"1449","petro canada","petro canada","petrocanada",1,NA
+"1450","potash  of saskatchewan","potash  of saskatchewan","potash of saskatchewan",1,NA
+"1451","pratt whitney canada","pratt whitney canada","pratt  whitney canada",1,NA
+"1452","prism medical","prism","priszm",1,NA
+"1453","srp","srp","src",1,NA
+"1454","snc lavalin","snc lavalin","snclavalin",1,NA
+"1455","sun rype","sun rype","sunrype",1,NA
+"1456","tm4","tm4","tmx",1,NA
+"1457","tmax","tmax","tmx",1,NA
+"1458","alibaba  holding","alibaba ","alibaba",1,NA
+"1459","cofco","cofco","cosco",1,NA
+"1460","cosmo","cosmo","cosco",1,NA
+"1461","ene","ene","eno",1,NA
+"1462","alk abelló","alk abello","alkabello",1,NA
+"1463","bang olufsen","bang olufsen","bang  olufsen",1,NA
+"1464","dtu","dtu","dt",1,NA
+"1465","leo pharmaceuticals","leo","lego",1,NA
+"1466","terma a s","terma a s","terma as",1,NA
+"1467","dna oy","dna oy","dna oyj",1,NA
+"1468","metso","metso","metsa",1,NA
+"1469","upm kymmene","upm kymmene","upmkymmene",1,NA
+"1470","aerospatiale matra","aerospatiale matra","aerospatialematra",1,NA
+"1471","alcatel lucent","alcatel lucent","alcatellucent",1,NA
+"1472","axs medical","axs","axa",1,NA
+"1473","axal","axal","axa",1,NA
+"1474","bee healthcare","bee","bel",1,NA
+"1475","celia","celia","celio",1,NA
+"1476","geolink","geolink","getlink",1,NA
+"1477","reel","reel","rexel",1,NA
+"1478","rhone poulenc","rhone poulenc","rhonepoulenc",1,NA
+"1479","rhone poulenc systems","rhone poulenc","rhonepoulenc",1,NA
+"1480","saint gobain","saint gobain","saintgobain",1,NA
+"1481","snf","snf","sncf",1,NA
+"1482","snef","snef","sncf",1,NA
+"1483","tfk","tfk","tf1",1,NA
+"1484","thomson csf","thomson csf","thomsoncsf",1,NA
+"1485","veglia","veglia","veolia",1,NA
+"1486","alpine","alpine","alpina",1,NA
+"1487","benecke kaliko","benecke kaliko","beneckekaliko",1,NA
+"1488","blohm voss","blohm voss","blohmvoss",1,NA
+"1489","blohm voss holding","blohm voss","blohmvoss",1,NA
+"1490","dbt","dbt","dba",1,NA
+"1491","db systems","db","dba",1,NA
+"1492","dbw holding","dbw","dba",1,NA
+"1493","dbh","dbh","dba",1,NA
+"1494","dbp holding","dbp","dba",1,NA
+"1495","dieffenbacher  kg","dieffenbacher ","dieffenbacher",1,NA
+"1496","diesel","diesel","diezel",1,NA
+"1497","eos","eos","eon",1,NA
+"1498","evonik industrie","evonik industrie","evonik industries",1,NA
+"1499","faber castell","faber castell","fabercastell",1,NA
+"1500","feina","feina","fein",1,NA
+"1501","feil","feil","fein",1,NA
+"1502","gerag","gerag","getrag",1,NA
+"1503","gruner jahr","gruner jahr","gruner  jahr",1,NA
+"1504","hapag lloyd","hapag lloyd","hapaglloyd",1,NA
+"1505","heckler koch","heckler koch","heckler  koch",1,NA
+"1506","hellma holding","hellma","hella",1,NA
+"1507","hell","hell","hella",1,NA
+"1508","howaldtswerke deutsche werft","howaldtswerke deutsche werft","howaldtswerkedeutsche werft",1,NA
+"1509","infineon techonologies","infineon techonologies","infineon technologies",1,NA
+"1510","infineontechnologies","infineontechnologies","infineon technologies",1,NA
+"1511","infineon tehnologies","infineon tehnologies","infineon technologies",1,NA
+"1512","infineon technologie","infineon technologie","infineon technologies",1,NA
+"1513","infineon techologies","infineon techologies","infineon technologies",1,NA
+"1514","infineon technologoies","infineon technologoies","infineon technologies",1,NA
+"1515","infineon technoogies","infineon technoogies","infineon technologies",1,NA
+"1516","infineon technolgies","infineon technolgies","infineon technologies",1,NA
+"1517","infineon tecnologies","infineon tecnologies","infineon technologies",1,NA
+"1518","infineon technoplogies","infineon technoplogies","infineon technologies",1,NA
+"1519","infineon technologioes","infineon technologioes","infineon technologies",1,NA
+"1520","infineon technoloies","infineon technoloies","infineon technologies",1,NA
+"1521","infineon technologoes","infineon technologoes","infineon technologies",1,NA
+"1522","jung hans","jung hans","junghans",1,NA
+"1523","junker holding","junker","junkers",1,NA
+"1524","ksb","ksb","ks",1,NA
+"1525","ksm","ksm","ks",1,NA
+"1526","knürr","knurr","knorr",1,NA
+"1527","knorr bremse","knorr bremse","knorrbremse",1,NA
+"1528","koenig bauer","koenig bauer","koenig  bauer",1,NA
+"1529","mann hummel","mann hummel","mannhummel",1,NA
+"1530","mercedes benz","mercedes benz","mercedesbenz",1,NA
+"1531","meto","meto","metz",1,NA
+"1532","merz pharmaceuticals","merz","metz",1,NA
+"1533","merz","merz","metz",1,NA
+"1534","mez","mez","metz",1,NA
+"1535","mertz","mertz","metz",1,NA
+"1536","oped","oped","opel",1,NA
+"1537","ott","ott","otto",1,NA
+"1538","rohde schwarz","rohde schwarz","rohde  schwarz",1,NA
+"1539","steinway sons","steinway sons","steinway  sons",1,NA
+"1540","still","still","stihl",1,NA
+"1541","stahl","stahl","stihl",1,NA
+"1542","villeroy boch","villeroy boch","villeroy  boch",1,NA
+"1543","ziehl abegg se","ziehl abegg se","ziehlabegg se",1,NA
+"1544","dr reddy s laboratories","dr reddy s","dr reddys",1,NA
+"1545","hero motorcorp","hero motorcorp","hero motocorp",1,NA
+"1546","larsen toubro","larsen toubro","larsen  toubro",1,NA
+"1547","mahindra mahindra","mahindra mahindra","mahindra  mahindra",1,NA
+"1548","danieli  spa","danieli ","danieli",1,NA
+"1549","de longhi spa","de longhi","delonghi",1,NA
+"1550","enea","enea","enel",1,NA
+"1551","fenzi spa","fenzi","fendi",1,NA
+"1552","isa spa","isa","iso",1,NA
+"1553","oscam spa","oscam","osca",1,NA
+"1554","rancilio  spa","rancilio ","rancilio",1,NA
+"1555","selco spa","selco","seleco",1,NA
+"1556","sigma tau","sigma tau","sigmatau",1,NA
+"1557","akzo nobel","akzo nobel","akzonobel",1,NA
+"1558","apollo vredestein b v","apollo vredestein b v","apollo vredestein bv",1,NA
+"1559","stork services b v","stork b v","stork bv",1,NA
+"1560","vdl bus coach","vdl bus coach","vdl bus  coach",1,NA
+"1561","fisher paykel","fisher paykel","fisher  paykel",1,NA
+"1562","fisher paykel healthcare","fisher paykel","fisher  paykel",1,NA
+"1563","new zealand aluminum smelters","new zealand aluminum smelters","new zealand aluminium smelters",1,NA
+"1564","solaris bus coach","solaris bus coach","solaris bus  coach",1,NA
+"1565","avectas","avectas","aventas",1,NA
+"1566","ei","ei","eir",1,NA
+"1567","kerry  services","kerry ","kerry",1,NA
+"1568","creative technoloy","creative technoloy","creative technology",1,NA
+"1569","compania espanola de petroleos  cepsa","compania espanola de petroleos  cepsa","compania espanola de petroleos cepsa",1,NA
+"1570","construcciones y auxiliar de ferrocarriles  caf","construcciones y auxiliar de ferrocarriles  caf","construcciones y auxiliar de ferrocarriles caf",1,NA
+"1571","ibérica","iberica","iberia",1,NA
+"1572","arca systems","arca","arcam",1,NA
+"1573","axel johnson  ab","axel johnson  ab","axel johnson ab",1,NA
+"1574","bal ab","bal ab","bae ab",1,NA
+"1575","mecer","mecer","mecel",1,NA
+"1576","vsm","vsm","vs",1,NA
+"1577","vida  ab","vida  ab","vida ab",1,NA
+"1578","alma","alma","alpa",1,NA
+"1579","alda services","alda","alpa",1,NA
+"1580","alia","alia","alpa",1,NA
+"1581","babco","babco","baboo",1,NA
+"1582","barix","barix","bamix",1,NA
+"1583","caran d ache","caran d ache","caran dache",1,NA
+"1584","girard perregaux","girard perregaux","girardperregaux",1,NA
+"1585","hoffmann la roche","hoffmann la roche","hoffmannla roche",1,NA
+"1586","hoffman la roche","hoffman la roche","hoffmannla roche",1,NA
+"1587","lindt sprüngli","lindt sprungli","lindt  sprungli",1,NA
+"1588","mbt holding","mbt","mbf",1,NA
+"1589","mbb","mbb","mbf",1,NA
+"1590","mb  holding","mb ","mbf",1,NA
+"1591","mb microtec","mb microtec","mbmicrotec",1,NA
+"1592","sauter","sauter","saurer",1,NA
+"1593","sge","sge","sgs",1,NA
+"1594","sika","sika","sita",1,NA
+"1595","sitag","sitag","sita",1,NA
+"1596","st ericsson","st ericsson","stericsson",1,NA
+"1597","swiss red","swiss red","swiss re",1,NA
+"1598","swiss rr","swiss rr","swiss re",1,NA
+"1599","swisspor holding","swisspor","swissport",1,NA
+"1600","caesarstone sdot yam","caesarstone sdot yam","caesarstone sdotyam",1,NA
+"1601","elisha medical","elisha","elisra",1,NA
+"1602","lean","lean","leaf",1,NA
+"1603","maya","maya","mapa",1,NA
+"1604","mapi pharma","mapi","mapa",1,NA
+"1605","med","med","mer",1,NA
+"1606","navot","navot","naot",1,NA
+"1607","ziv healthcare","ziv","zim",1,NA
+"1608","shopping com","shopping com","shoppingcom",1,NA
+"1609","strauss elite","strauss elite","strausselite",1,NA
+"1610","taro pharmaceuticals","taro","tara",1,NA
+"1611","wave","wave","waze",1,NA
+"1612","witcom","witcom","wixcom",1,NA
+"1613","wizcom","wizcom","wixcom",1,NA
+"1614","wix com","wix com","wixcom",1,NA
+"1615","lep chemical","lep","le",1,NA
+"1616","aae","aae","aah",1,NA
+"1617","aaf","aaf","aah",1,NA
+"1618","aac","aac","aah",1,NA
+"1619","aan medical","aan","aah",1,NA
+"1620","allen hanburys","allen hanburys","allen  hanburys",1,NA
+"1621","argo","argo","argos",1,NA
+"1622","boulton","boulton","bolton",1,NA
+"1623","astex","astex","aster",1,NA
+"1624","bba","bba","bbc",1,NA
+"1625","bbm","bbm","bbc",1,NA
+"1626","glaxo wellcome","glaxo wellcome","glaxowellcome",1,NA
+"1627","rolls royce","rolls royce","rollsroyce",1,NA
+"1628","roll royce","roll royce","rollsroyce",1,NA
+"1629","penlon","penlon","pennon",1,NA
+"1630","coras","coras","corus",1,NA
+"1631","holiton","holiton","honiton",1,NA
+"1632","devol","devol","devon",1,NA
+"1633","watfort","watfort","watford",1,NA
+"1634","craley","craley","crawley",1,NA
+"1635","univate","univate","unigate",1,NA
+"1636","imperial chemical industrices","imperial industrices","imperial industries",1,NA
+"1637","imperial chemical industriles","imperial industriles","imperial industries",1,NA
+"1638","imperial chemical indutries","imperial indutries","imperial industries",1,NA
+"1639","itw","itw","ith",1,NA
+"1640","itt","itt","ith",1,NA
+"1641","itc","itc","ith",1,NA
+"1642","its","its","ith",1,NA
+"1643","iti","iti","ith",1,NA
+"1644","tsl","tsl","tsb",1,NA
+"1645","tsg associates","tsg","tsb",1,NA
+"1646","mga","mga","mgm",1,NA
+"1647","mgt","mgt","mgm",1,NA
+"1648","oppilan pharma","oppilan","optilan",1,NA
+"1649","rolls royce motor cars","rolls royce motor cars","rollsroyce motor cars",1,NA
+"1650","rolls royce motors","rolls royce motors","rollsroyce motors",1,NA
+"1651","orthotics","orthotics","orthotic",1,NA
+"1652","huls","huls","hull",1,NA
+"1653","procter gamble","procter gamble","procter  gamble",1,NA
+"1654","sgb services","sgb","sgn",1,NA
+"1655","sgb","sgb","sgn",1,NA
+"1656","thornton ross","thornton ross","thornton  ross",1,NA
+"1657","harmworth","harmworth","harworth",1,NA
+"1658","viig","viig","viiv",1,NA
+"1659","ipv","ipv","iptv",1,NA
+"1660","aco","aco","acom",1,NA
+"1661","aen","aen","aeon",1,NA
+"1662","aki","aki","akai",1,NA
+"1663","akagi","akagi","akai",1,NA
+"1664","audio technica","audio technica","audiotechnica",1,NA
+"1665","bonex","bonex","bones",1,NA
+"1666","cape","cape","cave",1,NA
+"1667","daikin industris","daikin industris","daikin industries",1,NA
+"1668","daikin ondustries","daikin ondustries","daikin industries",1,NA
+"1669","daikin industriesm","daikin industriesm","daikin industries",1,NA
+"1670","daikin industres","daikin industres","daikin industries",1,NA
+"1671","daikin insdustries","daikin insdustries","daikin industries",1,NA
+"1672","daikin industies","daikin industies","daikin industries",1,NA
+"1673","daimatu","daimatu","daimaru",1,NA
+"1674","digian","digian","digion",1,NA
+"1675","fuji xerox xo","fuji xerox xo","fuji xerox co",1,NA
+"1676","fuji xerox cop","fuji xerox cop","fuji xerox co",1,NA
+"1677","geo","geo","geos",1,NA
+"1678","geis","geis","geos",1,NA
+"1679","hi lex","hi lex","hilex",1,NA
+"1680","kajita construction","kajita construction","kajima construction",1,NA
+"1681","keiyo","keiyo","keio",1,NA
+"1682","kei communication","kei","keio",1,NA
+"1683","kuron","kuron","kumon",1,NA
+"1684","kurita water industrie","kurita water industrie","kurita water industries",1,NA
+"1685","kurita water insustries","kurita water insustries","kurita water industries",1,NA
+"1686","maruho","maruho","maruhon",1,NA
+"1687","minex","minex","mines",1,NA
+"1688","mitsubishi heavy indusries","mitsubishi heavy indusries","mitsubishi heavy industries",1,NA
+"1689","mitsubishi heavy industruies","mitsubishi heavy industruies","mitsubishi heavy industries",1,NA
+"1690","mitsubishi heavy idustries","mitsubishi heavy idustries","mitsubishi heavy industries",1,NA
+"1691","mitsubishi heavy industies","mitsubishi heavy industies","mitsubishi heavy industries",1,NA
+"1692","mitsuboshi","mitsuboshi","mitsukoshi",1,NA
+"1693","mujin","mujin","muji",1,NA
+"1694","nachi fujikoshi","nachi fujikoshi","nachifujikoshi",1,NA
+"1695","nakane","nakane","nakano",1,NA
+"1696","nakan","nakan","nakano",1,NA
+"1697","nakao","nakao","nakano",1,NA
+"1698","nakayo","nakayo","nakano",1,NA
+"1699","nakayo telecommunications","nakayo","nakano",1,NA
+"1700","nippon chemi con","nippon chemi con","nippon chemicon",1,NA
+"1701","nippon chem con","nippon chem con","nippon chemicon",1,NA
+"1702","nippon steel sumitomo metal","nippon steel sumitomo metal","nippon steel  sumitomo metal",1,NA
+"1703","nippon steel 7 sumitomo metal","nippon steel 7 sumitomo metal","nippon steel  sumitomo metal",1,NA
+"1704","pentex","pentex","pentel",1,NA
+"1705","san ai oil","san ai oil","sanai oil",1,NA
+"1706","seiku chemical","seiku","seiyu",1,NA
+"1707","sugiyo","sugiyo","sugino",1,NA
+"1708","sumitomo heavy industrries","sumitomo heavy industrries","sumitomo heavy industries",1,NA
+"1709","sumitomo heavy industrie s","sumitomo heavy industrie s","sumitomo heavy industries",1,NA
+"1710","sumitomo metal indusries","sumitomo metal indusries","sumitomo metal industries",1,NA
+"1711","sumitomo rubber indusiries","sumitomo rubber indusiries","sumitomo rubber industries",1,NA
+"1712","sumitomo rubber iindustries","sumitomo rubber iindustries","sumitomo rubber industries",1,NA
+"1713","sumitomo rubber industrues","sumitomo rubber industrues","sumitomo rubber industries",1,NA
+"1714","tokyo max","tokyo max","tokyo mx",1,NA
+"1715","tokyo mk","tokyo mk","tokyo mx",1,NA
+"1716","tokyo land","tokyo land","tokyu land",1,NA
+"1717","tomy","tomy","toms",1,NA
+"1718","tops systems","tops","toms",1,NA
+"1719","tops","tops","toms",1,NA
+"1720","ubeindustries","ubeindustries","ube industries",1,NA
+"1721","ube indrustries","ube indrustries","ube industries",1,NA
+"1722","uni chemical","uni","uny",1,NA
+"1723","yamaha motor","yamaha motor","yamaha motors",1,NA
+"1724","cheil indistries","cheil indistries","cheil industries",1,NA
+"1725","doosan construction","doosan construction","doosan  construction",1,NA
+"1726","fils","fils","fila",1,NA
+"1727","gamepark","gamepark","game park",1,NA
+"1728","gmb korea","gmb korea","gm korea",1,NA
+"1729","hanji","hanji","hanjin",1,NA
+"1730","hankook tire","hankook tire","hankook tires",1,NA
+"1731","hyundai motor campany","hyundai motor campany","hyundai motor company",1,NA
+"1732","hyundai motor companay","hyundai motor companay","hyundai motor company",1,NA
+"1733","isv","isv","isu",1,NA
+"1734","isc","isc","isu",1,NA
+"1735","kocom","kocom","koscom",1,NA
+"1736","ls cable system","ls cable system","ls cable  system",1,NA
+"1737","mbi","mbi","mbc",1,NA
+"1738","mbd","mbd","mbc",1,NA
+"1739","samsung c t","samsung c t","samsung ct",1,NA
+"1740","samsung electro mechanics","samsung electro mechanics","samsung electromechanics",1,NA
+"1741","samsung electr mechanics","samsung electr mechanics","samsung electromechanics",1,NA
+"1742","sk c c","sk c c","sk cc",1,NA
+"1743","sts","sts","stx",1,NA
+"1744","sti","sti","stx",1,NA
+"1745","st1","st1","stx",1,NA
+"1746","stc","stc","stx",1,NA
+"1747","stx offshore shipbuilding","stx offshore shipbuilding","stx offshore  shipbuilding",1,NA
+"1748","yts","yts","ytn",1,NA
+"1749","adl","adl","adly",1,NA
+"1750","asys","asys","asus",1,NA
+"1751","chain tech","chain tech","chaintech",1,NA
+"1752","edison opto","edison opto","edisonopto",1,NA
+"1753","epos","epos","epox",1,NA
+"1754","lin li","lin li","lian li",1,NA
+"1755","lite on","lite on","liteon",1,NA
+"1756","micro","micro","mipro",1,NA
+"1757","tsrc","tsrc","tsmc",1,NA
+"1758","tslc","tslc","tsmc",1,NA
+"1759","via technolgies","via technolgies","via technologies",1,NA
+"1760","via technoologies","via technoologies","via technologies",1,NA
+"1761","via technololgies","via technololgies","via technologies",1,NA
+"1762","via technologyies","via technologyies","via technologies",1,NA
+"1763","mail ru","mail ru","mailru",1,NA
+"1764","vsmpo avisma","vsmpo avisma","vsmpoavisma",1,NA

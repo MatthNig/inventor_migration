@@ -114,4 +114,5 @@ test <- affiliate_search(firm = "nestle")
 # das geht also so nicht. evtl. grösste Firmen aus den europäischen und asiatischen Aktienindizes nehmen.
 # ansonsten bräuchte ich zusätzliche Kriterien z.B., um zu schauen ob dann die Mehrheit aller Patente nicht in den USA sind
 
+# https://en.wikipedia.org/wiki/List_of_companies_of_Norway
 
