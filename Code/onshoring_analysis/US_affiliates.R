@@ -11,7 +11,7 @@
 
 #### packages ------------------------------------------------------------------
 pkgs <- c("tidyverse", "data.table") # packages for data processing:
-pkgs <- c(pkgs, "stringr", "stringdist", "RecordLinkage") # packages for string distance calculations
+pkgs <- c(pkgs, "stringr", "stringi", "stringdist") # packages for string distance calculations
 
 # install if necessary
 inst_pkgs <- which(pkgs %in% rownames(installed.packages()) == FALSE)

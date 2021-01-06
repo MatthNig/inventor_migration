@@ -190,4 +190,4 @@ if(length(unique(res_dat$eq_firm)) == length(unique(df$eq_firm))){
 ##############################
 
 write.csv(df, paste0(getwd(), "/Data/patent_data/non_US_firms_to_applicants.csv"))
-print("Results saved as 'non_US_firms_to_applicants.csv'")
+print("Results saved as 'non_US_firms_to_applicants.csv'. Encode ambigious matches manually and save the results.")
