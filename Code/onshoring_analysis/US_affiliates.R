@@ -99,6 +99,8 @@ cleaning_fun <- function(names, removing_words){
   names <- clear_chars(names, special_chars = SPECIAL_CHARS, repl_vec = REPL_VEC)
   names <- unlist(lapply(names, function(x)removeWords(name = x, removing_words = REMOVING_WORDS)))
   
+  names <- trimws(names)
+  
   return(names)
   }
 
@@ -297,13 +299,20 @@ paste("Number of perfect matches:", res_dat %>% subset(match == 1) %>% nrow())
 # SAVE FULL SAMPLE:
 write.csv(x = res_dat, file = paste0(getwd(), "/Data/patent_data/pot_affiliates.csv"))
 
-# SAVE RANDOM SAMPLE FOR TRAINING CLASSIFICATION MODELS
+# SAVE RANDOM SAMPLE FOR EVALUATING THE NEED OF A CLASSIFICATION MODEL
 set.seed(06012021)
-
 # exclude perfect matches as they do not need to be classified:
 train_dat <- filter(res_dat, name_diff_osa != 0)
-train_dat <- res_dat[sample(nrow(res_dat), 4000), ] # 3000 for training, 1000 for testing
+train_dat <- res_dat[sample(nrow(res_dat), 1000), ]
 write.csv2(x = train_dat, file = paste0(getwd(), "/Data/patent_data/pot_affiliates_train.csv"))
+# => There are only xxx additional matches i.e. 0.15%. 
+# Because of the danger of false positives, it is thus not meaningfull to use classification methods on this data.
 
-
+# SAVE ALL MATCHES:
+res_dat <- res_dat[is.na(res_dat$match) == FALSE, ]
+res_dat <- select(res_dat, organization, pot_parent_country) %>% 
+  rename(country_firm_adj = pot_parent_country)
+res_dat <- res_dat %>% distinct(organization, .keep_all = TRUE)
+write.csv2(x = res_dat, file = paste0(getwd(), "/Data/patent_data/US_affiliates.csv"))
+# => manually confirm and append this list of firms.
 
