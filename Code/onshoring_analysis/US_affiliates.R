@@ -2,7 +2,7 @@
 # Description:    Script to match non-US companies to their     #
 #                 potential US-based affiliates.                #
 # Authors:        Matthias Niggli/CIEB UniBasel                 #
-# Last revised:   06.01.2020                                    #
+# Last revised:   07.01.2020                                    #
 #################################################################
 
 #######################################
@@ -226,18 +226,8 @@ matching_fun <- function(firm, n_letters, max_dist){
                                                   pot_parent_cleaned, method = "jaccard")
                        )
   
+  # prep empty df and filter to reasonable string distances
   NAMES <- names(affiliates)
-  
-  # *** filter to relatively good matches 
-  # (I could make additional conditions here: e.g. if U.S. name string has two words, 
-  # then less restrictive but if it is only one word the restrictive)
-  # => however, this does only introduce noise for the classification problem...
-  # affiliates <- affiliates %>% 
-  #   mutate(filtering = ifelse(
-  #     grepl(" ", organization_cleaned) == TRUE & nchar(organization_cleaned) >= 12, 1, 0))
-  # affiliates <- rbind(affiliates %>% filter(filtering == 1 & name_diff_osa <= max_dist + 10 ),
-  #                     affiliates %>% filter(filtering == 0 & name_diff_osa <= max_dist))
-  # affiliates$filtering <- NULL
   affiliates <- filter(affiliates, name_diff_osa <= max_dist)
         
   # if no combination satisfies the condition, return an empty data.frame
@@ -250,14 +240,11 @@ matching_fun <- function(firm, n_letters, max_dist){
   return(affiliates)
 }
 
-# wenn ich manuell durch die funktion gehe, dann wird nichts zu NA
-
-
 #### parameter values
 N_LETTERS <- 2 # => first two letters between potentially matching firm names must be identical
 MAX_DIST <- 3 # => levenshtein distance cannot be greater than 3
 
-# output data if no match could be found for a given firm name:
+# output an empty dataframe if no match could be found for a given firm name:
 NAMES <- c("organization", "IPC1_US", "IPC2_US", "IPC3_US", "organization_cleaned",
            "pot_parent", "pot_parent_country","IPC1", "IPC2", "IPC3", "pot_parent_cleaned",
            "name_diff_lv", "name_diff_osa", "name_diff_dl", "name_diff_cosine", 
@@ -283,7 +270,6 @@ print("Matching of non-U.S. firms and their potential U.S. branches completed.")
 
 #### finalize the dataset
 res_dat <- bind_rows(res_dat)
-
 N_unmatched <- nrow(res_dat[is.na(res_dat$organization) == TRUE, ])
 paste("No matches found for", N_unmatched, "non-U.S. companies")
 
@@ -298,21 +284,24 @@ paste("Number of perfect matches:", res_dat %>% subset(match == 1) %>% nrow())
 
 # SAVE FULL SAMPLE:
 write.csv(x = res_dat, file = paste0(getwd(), "/Data/patent_data/pot_affiliates.csv"))
+print("All potential matches saved as 'pot_affiliates.csv'.")
 
 # SAVE RANDOM SAMPLE FOR EVALUATING THE NEED OF A CLASSIFICATION MODEL
 set.seed(06012021)
-# exclude perfect matches as they do not need to be classified:
 train_dat <- filter(res_dat, name_diff_osa != 0)
 train_dat <- res_dat[sample(nrow(res_dat), 1000), ]
 write.csv2(x = train_dat, file = paste0(getwd(), "/Data/patent_data/pot_affiliates_train.csv"))
-# => There are only xxx additional matches i.e. 0.15%. 
-# Because of the danger of false positives, it is thus not meaningfull to use classification methods on this data.
+print("Random sample of potential matches for manual checking saved as 'pot_affiliates_train.csv'.")
+# => There are only xxx additional matches i.e. 0.xx%. 
+# Because potentially many false positives, it is not meaningful to use classification methods on this dataset.
 
 # SAVE ALL MATCHES:
 res_dat <- res_dat[is.na(res_dat$match) == FALSE, ]
 res_dat <- select(res_dat, organization, pot_parent_country) %>% 
   rename(country_firm_adj = pot_parent_country)
 res_dat <- res_dat %>% distinct(organization, .keep_all = TRUE)
+res_dat$classified <- "auto"
 write.csv2(x = res_dat, file = paste0(getwd(), "/Data/patent_data/US_affiliates.csv"))
+print("Perfect matches saved as 'US_affiliates.csv'. Ready for manual checking and appending.")
 # => manually confirm and append this list of firms.
 
