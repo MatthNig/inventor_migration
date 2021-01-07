@@ -61,9 +61,13 @@ REMOVING_WORDS <- c("pharmaceuticals", " health", "innovation", "laboratories", 
                     "machines", "sales", "corporation", "operations", "enterprise",
                     "intellectual", "property", "licensing", "licence", "software",
                     "division", "services", "associates", "diagnostics", "gmbh", "ltd", 
-                    "group", "ag", "sa", "a.g.", "s.a.", "spa", "sarl", "kg",
+                    "group", "ag", "sa", "se", "spa", "sarl", "kg",
                     "societe", "produits", "telecommunications", "communication",
-                    "holding", "engineering", "systems")
+                    "holding", "engineering", "systems", "vaccines", "equipment",
+                    "solutions", "properties", "manufacturing", "industrial", 
+                    "automation", "therapeutics", "communications", "mobile",
+                    "optical", "semiconductor", "automotive", "energy", "service",
+                    "motor", "north", "technical")
 
 # DEFINE FUNCTION TO REMOVE STOPWORDS ------------------------------------------
 removeWords <- function(name, removing_words){
@@ -74,23 +78,32 @@ removeWords <- function(name, removing_words){
 }
 
 # CLEAN SPECIAL CHARACTERS FROM APPLICANT NAMES: -------------------------------
-non_US_firms$eq_firm <- gsub("[[:punct:]]", "", non_US_firms$eq_firm)
-SPECIAL_CHARS <- gsub(" ", replacement = "", non_US_firms$eq_firm)
-SPECIAL_CHARS <- stri_extract_all(str = SPECIAL_CHARS, regex = "[^a-z0-9]")
-SPECIAL_CHARS <- unique(unlist(SPECIAL_CHARS))
-SPECIAL_CHARS <- SPECIAL_CHARS[is.na(SPECIAL_CHARS) == FALSE]
-REPL_VEC <- iconv(SPECIAL_CHARS, to = "ASCII//TRANSLIT")
-del_idx <- which(REPL_VEC == "?")
-if(length(del_idx) > 0){
-  REPL_VEC <- REPL_VEC[- del_idx]
-  SPECIAL_CHARS <- SPECIAL_CHARS[- del_idx]
-}
-non_US_firms$eq_firm <- clear_chars(non_US_firms$eq_firm,
-                                         special_chars = SPECIAL_CHARS,
-                                         repl_vec = REPL_VEC)
-non_US_firms$eq_firm <- unlist(lapply(non_US_firms$eq_firm,
-              function(x)removeWords(name = x,
-                                     removing_words = REMOVING_WORDS)))
+# (create a function for these operations...)
+
+cleaning_fun <- function(names, removing_words){
+  
+  # remove punctuation, extract special characters and create a vector of replacments
+  names <- gsub("[[:punct:]]", "", names)
+  SPECIAL_CHARS <- gsub(" ", replacement = "", names)
+  SPECIAL_CHARS <- stri_extract_all(str = SPECIAL_CHARS, regex = "[^a-z0-9]")
+  SPECIAL_CHARS <- unique(unlist(SPECIAL_CHARS))
+  SPECIAL_CHARS <- SPECIAL_CHARS[is.na(SPECIAL_CHARS) == FALSE]
+  REPL_VEC <- iconv(SPECIAL_CHARS, to = "ASCII//TRANSLIT")
+  del_idx <- which(REPL_VEC == "?")
+  if(length(del_idx) > 0){
+    REPL_VEC <- REPL_VEC[- del_idx]
+    SPECIAL_CHARS <- SPECIAL_CHARS[- del_idx]
+  }
+  
+  # clean special characters and remove stop words
+  names <- clear_chars(names, special_chars = SPECIAL_CHARS, repl_vec = REPL_VEC)
+  names <- unlist(lapply(names, function(x)removeWords(name = x, removing_words = REMOVING_WORDS)))
+  
+  return(names)
+  }
+
+non_US_firms$eq_firm <- cleaning_fun(names = non_US_firms$eq_firm,
+                                     removing_words = REMOVING_WORDS)
 print("Cleaned applicant names")
 
 # add firms' countries of origin
@@ -146,35 +159,21 @@ firm_dat <- firm_dat %>% distinct(organization, country_firm, .keep_all = TRUE) 
 firm_dat <- merge(firm_dat, Top_IPC, by = "organization", all.x = TRUE)
 
 # clean firm names
-firm_dat$organization_cleaned <- gsub("[[:punct:]]", "", firm_dat$organization)
-SPECIAL_CHARS <- gsub(" ", replacement = "", firm_dat$organization_cleaned)
-SPECIAL_CHARS <- stri_extract_all(str = SPECIAL_CHARS, regex = "[^a-z0-9]")
-SPECIAL_CHARS <- unique(unlist(SPECIAL_CHARS))
-SPECIAL_CHARS <- SPECIAL_CHARS[is.na(SPECIAL_CHARS) == FALSE]
-REPL_VEC <- iconv(SPECIAL_CHARS, to = "ASCII//TRANSLIT")
-del_idx <- which(REPL_VEC == "?")
-if(length(del_idx) > 0){
-  REPL_VEC <- REPL_VEC[- del_idx]
-  SPECIAL_CHARS <- SPECIAL_CHARS[- del_idx]
-}
-firm_dat$organization_cleaned <- clear_chars(firm_dat$organization_cleaned,
-                                             special_chars = SPECIAL_CHARS,
-                                             repl_vec = REPL_VEC)
-firm_dat$organization_cleaned <- unlist(lapply(firm_dat$organization_cleaned,
-                                               function(x)removeWords(name = x,
-                                                                      removing_words = REMOVING_WORDS)))
+firm_dat$organization_cleaned <- cleaning_fun(names = firm_dat$organization,
+                                              removing_words = REMOVING_WORDS)
+
 paste(nrow(firm_dat), "non-US based firms ready for affiliate search.")
 
 ##############################
 ####### U.S. based firms #####
 ##############################
 
-# subset to US_firms with at least 50 patents
+# subset to US_firms with at least 20 patents
 US_firms <- setDT(df)[country_firm == "US", ]
 US_firms <- US_firms[, count := .N, by = "organization"]
 US_firms <- US_firms[count >= 20, ]
 paste("Reduced sample to", length(unique(US_firms$organization)),
-      "U.S. based firms owning a total of", nrow(US_firms), "patents.")
+      "U.S.-based firms owning a total of", nrow(US_firms), "patents.")
 
 # calculate the most frequent IPC classes of U.S. based firms
 Top_IPC <- Top_IPC_fun(dat = US_firms)
@@ -184,24 +183,10 @@ US_firms <- US_firms[US_firms$organization != "", ]
 colnames(US_firms)[2:4] <- paste0(colnames(US_firms)[2:4], "_US")
 
 # clean their organization names from special characters and removing words.
-US_firms$organization_cleaned <- gsub("[[:punct:]]", "", US_firms$organization)
-SPECIAL_CHARS <- gsub(" ", replacement = "", US_firms$organization_cleaned)
-SPECIAL_CHARS <- stri_extract_all(str = SPECIAL_CHARS, regex = "[^a-z0-9]")
-SPECIAL_CHARS <- unique(unlist(SPECIAL_CHARS))
-SPECIAL_CHARS <- SPECIAL_CHARS[is.na(SPECIAL_CHARS) == FALSE]
-REPL_VEC <- iconv(SPECIAL_CHARS, to = "ASCII//TRANSLIT")
-del_idx <- which(REPL_VEC == "?")
-if(length(del_idx) > 0){
-  REPL_VEC <- REPL_VEC[- del_idx]
-  SPECIAL_CHARS <- SPECIAL_CHARS[- del_idx]
-}
-US_firms$organization_cleaned <- clear_chars(US_firms$organization_cleaned,
-                                             special_chars = SPECIAL_CHARS,
-                                             repl_vec = REPL_VEC)
-US_firms$organization_cleaned <- unlist(lapply(US_firms$organization_cleaned,
-                                      function(x)removeWords(name = x,
-                                                             removing_words = REMOVING_WORDS)))
-paste(nrow(US_firms), "US.based firms ready for parent search.")
+US_firms$organization_cleaned <- cleaning_fun(names = US_firms$organization,
+                                              removing_words = REMOVING_WORDS)
+
+paste(nrow(US_firms), "U.S.-based firms ready for parent search.")
 
 ##############################
 ####### Affiliate search #####
@@ -213,15 +198,14 @@ paste(nrow(US_firms), "US.based firms ready for parent search.")
 firm_dat <- firm_dat %>% rename(pot_parent = organization, pot_parent_country = country_firm,
                                 pot_parent_cleaned = organization_cleaned)
 
-matching_fun <- function(firm){
+matching_fun <- function(firm, n_letters, max_dist){
   
   firm_info <- firm_dat[firm_dat$pot_parent_cleaned == firm, ]
   
   # filter U.S. based firms conditional on first two letters (and comparable string length?)
   affiliates <- filter(US_firms,
-                       substr(organization_cleaned, 1, 2) == substr(firm, 1,2))
+                       substr(organization_cleaned, 1, n_letters) == substr(firm, 1, n_letters))
   affiliates <- merge(affiliates, firm_info, all.x = TRUE)
-  #affiliates <- filter(affiliates, nchar(organization_cleaned) - nchar(pot_parent) <= 10)
   if(nrow(affiliates) == 0){stop("No match in U.S.")}
 
   # calculate string distances
@@ -242,8 +226,17 @@ matching_fun <- function(firm){
   
   NAMES <- names(affiliates)
   
-  # filter to relatively good matches
-  affiliates <- filter(affiliates, name_diff_lv < 5)
+  # *** filter to relatively good matches 
+  # (I could make additional conditions here: e.g. if U.S. name string has two words, 
+  # then less restrictive but if it is only one word the restrictive)
+  # => however, this does only introduce noise for the classification problem...
+  # affiliates <- affiliates %>% 
+  #   mutate(filtering = ifelse(
+  #     grepl(" ", organization_cleaned) == TRUE & nchar(organization_cleaned) >= 12, 1, 0))
+  # affiliates <- rbind(affiliates %>% filter(filtering == 1 & name_diff_osa <= max_dist + 10 ),
+  #                     affiliates %>% filter(filtering == 0 & name_diff_osa <= max_dist))
+  # affiliates$filtering <- NULL
+  affiliates <- filter(affiliates, name_diff_osa <= max_dist)
         
   # if no combination satisfies the condition, return an empty data.frame
   if(nrow(affiliates) == 0){
@@ -255,30 +248,44 @@ matching_fun <- function(firm){
   return(affiliates)
 }
 
+# wenn ich manuell durch die funktion gehe, dann wird nichts zu NA
+
+
+#### parameter values
+N_LETTERS <- 2 # => first two letters between potentially matching firm names must be identical
+MAX_DIST <- 3 # => levenshtein distance cannot be greater than 3
+
+# output data if no match could be found for a given firm name:
 NAMES <- c("organization", "IPC1_US", "IPC2_US", "IPC3_US", "organization_cleaned",
-           "pot_parent", "pot_parent_country","IPC1", "IPC2", "IPC3", "name_diff_lv", 
-           "name_diff_osa", "name_diff_dl", "name_diff_cosine", "name_diff_jw", "name_diff_jac")
+           "pot_parent", "pot_parent_country","IPC1", "IPC2", "IPC3", "pot_parent_cleaned",
+           "name_diff_lv", "name_diff_osa", "name_diff_dl", "name_diff_cosine", 
+           "name_diff_jw", "name_diff_jac")
 EMPTY_DF <- data.frame(matrix(rep(NA, length(NAMES)), nrow = 1))
 names(EMPTY_DF) <- NAMES
 
+#### run the function:
 res_dat <- lapply(firm_dat$pot_parent_cleaned, function(x){
         
         # return an empty data.frame if there is no match at all
         res <- tryCatch(
-                matching_fun(firm = x),
+                matching_fun(firm = x, 
+                             n_letters = N_LETTERS, 
+                             max_dist = MAX_DIST),
                 error = function(e){
                   EMPTY_DF$pot_parent <- x
                   EMPTY_DF
                   })
 })
-
-res_dat <- bind_rows(res_dat)
 print("Matching of non-U.S. firms and their potential U.S. branches completed.")
+
+
+#### finalize the dataset
+res_dat <- bind_rows(res_dat)
 
 N_unmatched <- nrow(res_dat[is.na(res_dat$organization) == TRUE, ])
 paste("No matches found for", N_unmatched, "non-U.S. companies")
 
-# finalize dataset
+# indicate perfect matches:
 res_dat <- res_dat[is.na(res_dat$organization) == FALSE, ]
 res_dat <- mutate(res_dat, match = ifelse(name_diff_osa == 0, 1, NA))
 paste("Number of perfect matches:", res_dat %>% subset(match == 1) %>% nrow())
@@ -287,12 +294,15 @@ paste("Number of perfect matches:", res_dat %>% subset(match == 1) %>% nrow())
 ####### SAVE DATASET #####
 ##########################
 
-# FULL SAMPLE:
+# SAVE FULL SAMPLE:
 write.csv(x = res_dat, file = paste0(getwd(), "/Data/patent_data/pot_affiliates.csv"))
 
-# RANDOM SAMPLE FOR CREATING A TRAINING DATA
+# SAVE RANDOM SAMPLE FOR TRAINING CLASSIFICATION MODELS
 set.seed(06012021)
-train_dat <- res_dat[sample(nrow(res_dat), 5000), ]
+
+# exclude perfect matches as they do not need to be classified:
+train_dat <- filter(res_dat, name_diff_osa != 0)
+train_dat <- res_dat[sample(nrow(res_dat), 4000), ] # 3000 for training, 1000 for testing
 write.csv2(x = train_dat, file = paste0(getwd(), "/Data/patent_data/pot_affiliates_train.csv"))
 
 
