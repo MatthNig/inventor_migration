@@ -30,18 +30,13 @@ us_affiliates <- read.csv2(file = paste0(getwd(), "/Data/patent_data/US_affiliat
 us_affiliates <- filter(us_affiliates, keep == 1) %>% select(-keep)
 us_affiliates$organization <- gsub("\xa0", " ", us_affiliates$organization)
 
+### load fortune 500
+# only keep unique
+
 #### PATENT DATA
 df <- readRDS(paste0(datDir, "/pat_dat_all.rds"))
 us_applicants <-setDT(df)[country_firm == "US", ][, country_firm_adj := country_firm]
 us_applicants$idx <- rownames(us_applicants)
-
-#############################################################################
-####### Search for additional Fortune500 companies in U.S. applicants #######
-#############################################################################
-fortune500_companies <- read.table(file = paste0(getwd(), "/Data/patent_data/manual_firm_search.txt"),
-                                   header = FALSE)$V1
-fortune500_companies <- trimws(tolower(fortune500_companies))
-tmp <- us_applicants %>% distinct(organization)
 
 #############################################################################
 ####### Adjust country of origin for all U.S. based affiliates ##############
@@ -52,6 +47,3 @@ for(i in 1:nrow(us_affiliates)){
         affiliate <- us_affiliates$organization[i]
         us_applicants[organization == affiliate, ]$country_firm_adj <- us_affiliates[i, ]$country_firm_adj
         }
-
-test <- us_applicants %>% filter(grepl("bmw", organization) == TRUE) %>% distinct(organization)
-
