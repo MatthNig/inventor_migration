@@ -1,0 +1,54 @@
+based on:
+https://en.wikipedia.org/wiki/List_of_largest_manufacturing_companies_by_revenue
+https://fortune.com/global500/2020/search/
+
+Honda
+Huawei
+BMW
+Hyundai
+Enel
+Eni
+Airbus
+Renault
+Christian Dior
+Posco
+Nippon Steel
+Anheuser-Busch InBev
+LG Electronics
+JBS
+Lenovo
+Kia Motors
+Mitsui
+Saint-Gobain
+Pegatron
+Wilmar International
+Jardine Matheson
+Tata Motors
+Saudi Aramco
+BP
+Daimler
+Total
+Gazprom
+Lukoil
+Rosneft
+Deutsche Telekom
+Bosch
+Peugeot
+Petrobras
+Equinor
+Hanwha
+Louis Dreyfus
+Suzuki
+Mazda
+Subaru
+Xiaomi
+Michelin
+Heineken
+Adidas
+
++ all Chinese
+
+
+
+
+

@@ -292,8 +292,9 @@ train_dat <- filter(res_dat, name_diff_osa != 0)
 train_dat <- res_dat[sample(nrow(res_dat), 1000), ]
 write.csv2(x = train_dat, file = paste0(getwd(), "/Data/patent_data/pot_affiliates_train.csv"))
 print("Random sample of potential matches for manual checking saved as 'pot_affiliates_train.csv'.")
-# => There are only xxx additional matches i.e. 0.xx%. 
-# Because potentially many false positives, it is not meaningful to use classification methods on this dataset.
+# =>  There was not a single additional match found witihin the fist 200 observations of this sample.
+#     This means that missed matches are most likely much below 1%. Because potentially many false positives, 
+#     it is not meaningful to use classification methods on this dataset.
 
 # SAVE ALL MATCHES:
 res_dat <- res_dat[is.na(res_dat$match) == FALSE, ]
