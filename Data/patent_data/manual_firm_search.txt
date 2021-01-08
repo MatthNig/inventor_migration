@@ -1,7 +1,3 @@
-based on:
-https://en.wikipedia.org/wiki/List_of_largest_manufacturing_companies_by_revenue
-https://fortune.com/global500/2020/search/
-
 Honda
 Huawei
 BMW
@@ -45,10 +41,3 @@ Xiaomi
 Michelin
 Heineken
 Adidas
-
-+ all Chinese
-
-
-
-
-
