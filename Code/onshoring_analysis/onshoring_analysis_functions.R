@@ -14,6 +14,7 @@
 country_onshoring <- function(df,
                               onshoring_country = "US",
                               collaboration = FALSE,
+                              triadic_only = TRUE,
                               inventor_number = 1,
                               world_class_indicator = FALSE){
         
@@ -24,6 +25,12 @@ country_onshoring <- function(df,
                 tmp <- setDT(df)[country_firm == onshoring_country, p_key]
                 tmp <- unique(tmp)
                 tmp <- setDT(df)[!p_key %in% tmp, ]}else{tmp <- df}
+        
+        # Step 2: check if non-triadic patents should be exluded
+        if(triadic_only == TRUE){
+                tmp <- tmp[tri_pat_fam == 1, ]
+        }
+        
         # ---------------------
         
         ## as before....

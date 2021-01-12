@@ -44,10 +44,11 @@ source(paste0(getwd(), "/Code/onshoring_analysis/onshoring_analysis_functions.R"
 ##############################################################################
 
 #### on-/off-shoring of patents ------------------------------------------------
+df <- df %>% select(-country_firm) %>% rename(country_firm = country_firm_adj)
 
 # (1) identify all patents that have been offshored to the U.S. by foreign firms
 dat <- country_onshoring(df = df, onshoring_country = "US", collaboration = FALSE,
-                         inventor_number = 1, world_class_indicator = FALSE)
+                         triadic_only = FALSE, inventor_number = 1, world_class_indicator = FALSE)
 
 # (2) Define technological groups and assign patents to them:
 assign_TechGroup <- function(df){
@@ -227,7 +228,7 @@ weights <- weights %>% group_by(regio_tech) %>%
 plm_dat <- merge(plm_dat, weights, by = "regio_tech", all.x = TRUE)
 plm_dat <- pdata.frame(plm_dat, index = c("regio_tech", "TimePeriod"))
 
-# (2) estimate fixed effects model
+# (2) estimate fixed effects model (N = 1999 with 'pat_dat_all_final.rds')
 plm_model <- plm(data = plm_dat,
                  formula = log(1 + onshored_patents) ~ foreign_share +
                          as.numeric(TimePeriod):as.character(TechGroup_No) +
@@ -240,7 +241,7 @@ summary(plm_model)
 plm_model <- plm(data = plm_dat,
                  formula = log(1 + onshored_patents) ~ foreign_share +
                          as.numeric(TimePeriod):as.character(TechGroup_No) +
-                         as.numeric(TimePeriod):as.character(regio_inv), #weights = plm_dat$weight, # does not work because plm() uses weights as the full vector
+                         as.numeric(TimePeriod):as.character(regio_inv) -1, #weights = plm_dat$weight, # does not work because plm() uses weights as the full vector
                  model = "fd", effect = "individual")
 summary(plm_model)
 
@@ -249,8 +250,8 @@ summary(plm_model)
 
 # PRLIMINARY RESULTS:
 # seems to work when using the time-period sum!
-# 1pp increase in foreign share, raises onshoring by around 0.5-0.8%
-# Story: 20% increase of foreign inventors in the U.S. (1980-2010) fostered onshoring of patents by around 10-15% 
+# 1pp increase in foreign share, raises onshoring by around 0.5-0.7%
+# Story: 20pp increase of foreign inventors in the U.S. (1980-2010) fostered onshoring of patents by around 10-15% 
 # (total onshoring increase for the U.S. was ~ 200% i.e. 5-10% of total increase attributed to foreign origin inventors)
 # (this does not include spillover effects)
 
