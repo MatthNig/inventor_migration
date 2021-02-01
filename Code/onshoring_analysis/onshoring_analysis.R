@@ -26,18 +26,20 @@ if(substr(x = getwd(),
 
 #### PATENT DATA
 df <- readRDS(paste0(datDir, "/pat_dat_all.rds"))
+techfield_grouping <- read.csv("/scicore/home/weder/nigmat01/name_to_origin/Data/techfield_grouping.csv",
+                               header = TRUE, sep = ";")
 
 #### FUNCTIONS
 source(paste0(getwd(), "/Code/onshoring_analysis/onshoring_analysis_functions.R"))
 
 print("Data and helper functions loaded")
 
-#########################################################
-############## ONSHORING: COUNTRY COMPARISON ############
-#########################################################
+#####################################################################
+############## FIGURE 5: OFFSHORING TO SELECTED COUNTRIES ###########
+#####################################################################
 
 # choose countries
-ONSHORING_COUNTRIES <- c("US", "DE", "GB", "FR", "KR", "CN", "JP")
+ONSHORING_COUNTRIES <- c("US", "DE", "GB", "FR", "CN", "JP")
 
 # indicate minimum number of domestic inventors
 INVENTOR_NUMBER <- 1
@@ -48,7 +50,8 @@ WORLD_CLASS_INDICATOR  <- FALSE
 
 plot_dat <- lapply(ONSHORING_COUNTRIES, function(x){
         
-        # identify offshored triadic patents to country x (= inventor in x, but firm not in x, no collaborations)
+        # identify offshored triadic patents to country x 
+        # (= inventor in x, but firm not in x, no collaborations, triadics only)
         tmp <- country_onshoring(df = df,
                                  onshoring_country = x, triadic_only = TRUE,
                                  collaboration = FALSE, # indicate if collaborations with domestic firms should be included
@@ -64,25 +67,94 @@ plot_dat <- lapply(ONSHORING_COUNTRIES, function(x){
         }
         )
 
-## Plot the offshoring intensities
+## Plot the offshoring intensities:
 plot_dat <- bind_rows(plot_dat)
 plot_dat <- filter(plot_dat, p_year <= 2015 & p_year >= 1980)
-TITLE <- " R&D Offshoring by Foreign Firms to Selected Countries"
-SUBTITLE <- " Offshoring of triadic patents by foreign firms (in % of total triadic patents by foreign firms)"
-Y_AXIS <- "Share of foreign firms patent stock \n co-developed in selected countries"
+#TITLE <- " R&D Offshoring by Foreign Firms to Selected Countries"
+#SUBTITLE <- " Offshoring of triadic patents by foreign firms (in % of total triadic patents by foreign firms)"
+Y_AXIS <- "Share of foreign firms' patent stock \n co-developed in selected countries"
 
 ggplot(plot_dat, aes(x = p_year, y = share_onshored, color = country, shape = country))+
         geom_line()+geom_point()+
         scale_y_continuous(labels = scales::percent, limits = c(0, 0.08))+
-        labs(title = TITLE, subtitle = SUBTITLE, 
-             x = "Year", y = Y_AXIS, 
+        labs(x = "Year", y = Y_AXIS, 
              shape = "", color = "")+
         scale_color_viridis(option = "inferno", end = 0.8, discrete = TRUE)+
         guides(color = guide_legend(nrow = 1))+
         theme(panel.background = element_blank(),
               legend.position = "bottom", legend.direction = "horizontal",
               axis.line = element_line(),
-              axis.title = element_text(face="bold",size=10),)
+              axis.title = element_text(face="bold",size=10))
+
+
+###################################################################################
+############## FIGURE 5: OFFSHORING TO TECHFIELDS IN SELECTED COUNTRIES ###########
+###################################################################################
+ONSHORING_COUNTRIES <- c("US", "DE", "GB", "FR", "CN", "JP")
+TECHFIELDS <- c(4, 6, 8) # hot emerging fields
+TECHFIELDS <- c(TECHFIELDS, c(2, 26, 32)) # low traditional fields
+TECHFIELDS <- as.character(TECHFIELDS)
+
+# indicate minimum number of domestic inventors
+INVENTOR_NUMBER <- 1
+
+# indicate whether only onshoring of world class patents should be considered
+WORLD_CLASS_INDICATOR  <- FALSE 
+#WORLD_CLASS_INDICATOR <- "world_class_90"
+
+plot_dat <- lapply(ONSHORING_COUNTRIES, function(x){
+        
+        # subset to technologies of interest
+        tmp <- setDT(df)[tech_field %in% TECHFIELDS,]
+        
+        # identify offshored triadic patents to country x 
+        # (= inventor in x, but firm not in x, no collaborations, triadics only)
+        tmp <- country_onshoring(df = tmp,
+                                 onshoring_country = x, triadic_only = TRUE,
+                                 collaboration = FALSE, # indicate if collaborations with domestic firms should be included
+                                 inventor_number = INVENTOR_NUMBER,
+                                 world_class_indicator = WORLD_CLASS_INDICATOR)
+        
+        # calculate offshoring intensity to x among all patents by foreign firms per year
+        tmp <- techfield_onshoring_shares(df = tmp)
+        
+        # indicate the offshoring destination country and return the data
+        tmp <- tmp %>% mutate(country = x) %>% as.data.frame()
+        return(tmp)
+}
+)
+
+plot_dat <- bind_rows(plot_dat)
+plot_dat <- filter(plot_dat, p_year <= 2015 & p_year >= 1980)
+plot_dat <- merge(plot_dat, techfield_grouping[, c("tech_field", "tech_field_name")], 
+                 by = "tech_field", all.x = TRUE)
+
+# calculate 5-year moving average:
+ma <- function(x, n = 5){stats::filter(x, rep(1 / n, n), sides = 1)}
+plot_dat <- plot_dat %>%
+        group_by(country, tech_field) %>%
+        arrange(p_year) %>%
+        mutate(five_y_ma_share = ma(share_onshored)) %>%
+        filter(p_year > 1984)
+
+Y_AXIS <- "Share of foreign firms' patent stock \n co-developed in selected countries"
+ggplot(plot_dat, aes(x = p_year, y = five_y_ma_share, color = tech_field_name))+
+        facet_wrap(.~ country)+ 
+        geom_line()+
+        scale_y_continuous(labels = scales::percent, limits = c(0, 0.12))+
+        labs(x = "Year", y = Y_AXIS, color = "")+
+        scale_color_viridis(option = "inferno", end = 0.8, discrete = TRUE)+
+        guides(color = guide_legend(nrow = 2))+
+        theme(panel.background = element_blank(),
+              legend.position = "bottom", legend.direction = "horizontal",
+              axis.line = element_line(),
+              axis.title = element_text(face="bold",size=10))
+
+
+
+
+
+# --------------------------------------- BRAINSTORM ------------------------------------
 
 ####################################################
 ############## ONSHORING: THE U.S. CASE ############
@@ -90,6 +162,8 @@ ggplot(plot_dat, aes(x = p_year, y = share_onshored, color = country, shape = co
 
 #### Load affiliate adjusted patent data for the U.S.
 df <- readRDS(paste0(datDir, "/pat_dat_all_final.rds"))
+N_reassigned <- nrow(df[df$country_firm != df$country_firm_adj, ])
+paste(N_reassigned, "patents detected from non-US companies affialiates.") # N_reassigned = 
 df <- df %>% select(-country_firm) %>% rename(country_firm = country_firm_adj)
 
 #### Check for which tech_fields the onshoring into the U.S. is strongest -----------------

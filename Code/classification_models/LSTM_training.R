@@ -44,6 +44,10 @@ print("Function and function parameters loaded.")
 ################################
 
 df_train <- read.csv(file = paste0(getwd(), "/Data/training_data/df_train.csv"))
+#df_olympic <-
+names(df_olympic)[1] <- "full_name"
+df_train <- rbind(df_train, df_olympic)
+unique(df_train$origin)
 y_classes <- data.frame(
         levels = levels(as.factor(df_train$origin)),
         numbers = seq(length(unique(df_train$origin)))
@@ -67,7 +71,6 @@ x_dat <- encode_chars(names = df_train$full_name,
                       seq_max = SEQ_MAX,
                       char_dict = CHAR_DICT,
                       n_chars = N_CHARS)
-
 paste("names are one-hot-encoded with shape: ", 
       paste0("(", paste(dim(x_dat), collapse = ", "), ")")
 )
@@ -114,19 +117,19 @@ names(CLASS_WEIGHTS) <- y_classes$numbers
 
 ## training parameters--------------------------------------------------------
 EPOCHS <- 20
-BATCH_SIZE <- 256
+BATCH_SIZE <- 512#256
 
 ## fit the model
 hist <- model %>% fit(
         x = x_train, y = y_train, 
-        class_weights = CLASS_WEIGHTS,
+        # class_weights = CLASS_WEIGHTS,
         validation_data = list(x_val, y_val),
         callbacks = list(callback_early_stopping(monitor = "val_loss", 
                                                  patience = 3, 
                                                  restore_best_weights = TRUE)),
         epochs = EPOCHS, batch_size = BATCH_SIZE, verbose = 2)
 
-## IDEA
+## IDEA:
 # The goal is to have maximum accuracy for the Anglo-Saxons and relatively equal f1 for all others
 
 ## RESULTS  ----------------------------------
@@ -159,12 +162,17 @@ hist <- model %>% fit(
 #       REAMRKS: maybe adjust weights for anglosaxons, Hispanics have high precision now, which ist good.
 #                Turkey improved drastically. weighted F1 would be even higher because only SEA is lower than 0.78 on F1
 
+## 22.01.2021
+# (6)   SAME AS (5) BUT NO CLASS WEIGHTS
+#       TOTAL_ACCURACY: 82.7%, AVERAGE_F1: 80.8%, 
+#       ANGLOSAXON_ACC: 64.9%, ANGLOSAXON_F1: 78.7%, ANGLOSAXON_PRECISION: 78.9%, ANGLOSAXON_RECALL: 78.6%  
+#       REAMRKS: maybe adjust weights for anglosaxons, Hispanics have high precision now, which ist good.
+#                Turkey improved drastically. weighted F1 would be even higher because only SEA is lower than 0.78 on F1
 
 
 #########################################
 ############ evaluate the model #########
 #########################################
-
 # for precision, recall and f1 in multiclass problems:
 #https://towardsdatascience.com/multi-class-metrics-made-simple-part-ii-the-f1-score-ebe8b2c2ca1
 
@@ -174,7 +182,9 @@ tmp$pred <- as.numeric(model %>% predict_classes(x_val[, ,]))
 tmp$pred <- y_classes[tmp$pred + 1, "levels"]
 tmp$res <- tmp$origin == tmp$pred
 
+
 ## overall accuracy of the model on evaluation set: -----------------------------------
+res <- evaluate(model, x = x_val, y = y_val, verbose = 0)
 table(tmp$res) / nrow(tmp)
 
 # confusion matrix by origin -----------------------------------------------------------
@@ -213,7 +223,14 @@ origin_eval <- merge(origin_precision[, c("region", "origin_precision")],
 origin_eval$f1 <- 2 * (origin_eval$origin_precision * origin_eval$origin_recall) / 
         (origin_eval$origin_precision + origin_eval$origin_recall)
 origin_eval %>% arrange(f1)
-mean(origin_eval$f1)
+
+# weighted average in test data:
+weights <- df_train %>% group_by(origin) %>% 
+  summarize(N = n(),
+            weight = N/nrow(df_train)) %>% 
+  rename(region = origin)
+origin_eval <- merge(origin_eval, weights, by = "region")
+weighted.mean(x = origin_eval$f1, w = origin_eval$weight)
 
 # Accuracy by origin: ------------------------------------------
 acc_fun <- function(ctry){

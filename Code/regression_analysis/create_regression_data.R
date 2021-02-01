@@ -16,6 +16,8 @@ library("tidyverse")
 library("data.table")
 library("plm")
 library("viridis")
+library("gravity")
+
 
 # directories  -----------------------------------------------------------------
 datDir <- "/scicore/home/weder/nigmat01/Data"
@@ -30,11 +32,10 @@ if(substr(x = getwd(),
 #########################################################
 
 #### on-/off-shoring of patents
-df <- readRDS(paste0(datDir, "/pat_dat_all.rds"))
+df <- readRDS(paste0(datDir, "/pat_dat_all_final.rds"))
 
 #### inventor flows
-# inv_dat <- readRDS(paste0(getwd(), "/Data/patent_data/inventor_origin.rds")) # random subset of inventors
-inv_dat <- readRDS(paste0(mainDir, "/created data/inventor_origin.rds")) # full sample
+inv_dat <- readRDS(paste0(mainDir, "/created data/inventor_origin.rds"))
 
 #### functions
 source(paste0(getwd(), "/Code/onshoring_analysis/onshoring_analysis_functions.R"))
@@ -51,6 +52,7 @@ dat <- country_onshoring(df = df, onshoring_country = "US", collaboration = FALS
                          triadic_only = FALSE, inventor_number = 1, world_class_indicator = FALSE)
 
 # (2) Define technological groups and assign patents to them:
+# These groups are derived from Schmoch and Hall.
 assign_TechGroup <- function(df){
         
         df <- mutate(df, TechGroup = case_when(
@@ -69,7 +71,7 @@ assign_TechGroup <- function(df){
 
 dat <- assign_TechGroup(df = dat)
 
-# (3) Define "TimePeriod" and assign patents to them:
+# (3) Define 5-year "TimePeriod" and assign patents to them:
 assign_TimePeriod <- function(df){
         
         df <- mutate(df, TimePeriod = case_when(
@@ -83,6 +85,7 @@ assign_TimePeriod <- function(df){
         )
 }
 dat <- assign_TimePeriod(df = dat)
+# N = 13049201 patents used for analysis
 
 # (4) calculate the number of offshored patents to the U.S. by TechGoup, TimePeriod and Region:
 onshoring_TechState <- function(df){
@@ -103,27 +106,28 @@ print("Data on onshored patents prepared.")
 
 #### foreign origin inventor shares  ------------------------------------------------
 
-# (1) assign technological groups to inventors
+# (1) assign technological groups and TimePeriods to inventors
 inv_dat <- assign_TechGroup(df = inv_dat)
+inv_dat <- assign_TimePeriod(df = inv_dat)
 
 # (2) calculate foreign origin shares by Region, TechGroup and Year
 foreign_share_TechState <- function(df, country, min_inv){
         
         # calculate total number of inventors per region and TechGroup-field
         total_inventors <- filter(df, Ctry_code == country) %>%
-                group_by(Up_reg_label, TechGroup, p_year) %>%
+                group_by(Up_reg_label, TechGroup, TimePeriod) %>%
                 summarise(total_inventors = n())
         
         # sum up domestic origin probabilities per region and TechGroup-field
         tmp <- filter(df, Ctry_code == country) %>%
-                group_by(Up_reg_label, TechGroup, p_year) %>%
+                group_by(Up_reg_label, TechGroup, TimePeriod) %>%
                 summarise(share = sum(prob_AngloSaxon))
 
         # calculate share of foreign origin per region and tech-field
         tmp <- merge(tmp, total_inventors, 
-                     by = c("Up_reg_label", "TechGroup", "p_year"))
+                     by = c("Up_reg_label", "TechGroup", "TimePeriod"))
         tmp <- filter(tmp, total_inventors >= min_inv)
-        tmp$share = 1 - (tmp$share / tmp$total_inventors) # WHAT IS THIS FORMULA?
+        tmp$share = 1 - (tmp$share / tmp$total_inventors)
         tmp <- tmp %>% rename(foreign_share = share,
                               regio_inv = Up_reg_label) %>% 
                 select(-total_inventors)
@@ -133,11 +137,6 @@ foreign_share_TechState <- function(df, country, min_inv){
 
 tmp <- foreign_share_TechState(df = inv_dat, country = "US",
                                 min_inv = 10)
-
-# (3) Assign TimePeriods and calculate averages
-tmp <- assign_TimePeriod(df = tmp)
-tmp <- tmp %>% group_by(regio_inv, TechGroup, TimePeriod) %>% 
-        summarise(foreign_share = mean(foreign_share, na.rm = TRUE))
 
 print("Data on inventor origin shares prepared.")
 
@@ -202,6 +201,8 @@ ggplot(tmp, aes(x = offshoring_change, y = foreign_change))+
 ####### Regression analysis ########
 ####################################
 
+### FIXED EFFECTS ESTIMATOR -------------------------
+
 # (1) construct panel data format
 plm_dat <- pdata.frame(dat, index = c("regio_tech", "TimePeriod"))
 plm_dat$TimePeriod <- as.character(plm_dat$TimePeriod)
@@ -209,7 +210,7 @@ plm_dat$foreign_share <- plm_dat$foreign_share * 100
 
 # Optional 1: only keep states with a minimum number of TechGroups or vice versa
 keep_obs <- plm_dat %>% group_by(TimePeriod, regio_inv) %>%
-        summarise(count = n()) %>% filter(count >= 5)
+        summarise(count = n()) %>% filter(count >= 4)
 keep_obs <- unique(keep_obs$regio_inv)
 plm_dat <- filter(plm_dat, regio_inv %in% keep_obs)
 plm_dat <- pdata.frame(plm_dat, index = c("regio_tech", "TimePeriod"))
@@ -225,28 +226,81 @@ weights <- weights %>% group_by(regio_tech) %>%
         summarise(N_patents = n(),
                   weight = N_patents / nrow(weights)) %>%
         select(-N_patents)
+
 plm_dat <- merge(plm_dat, weights, by = "regio_tech", all.x = TRUE)
 plm_dat <- pdata.frame(plm_dat, index = c("regio_tech", "TimePeriod"))
 
-# (2) estimate fixed effects model (N = 1999 with 'pat_dat_all_final.rds')
+# for lag = 1 problems: https://stackoverflow.com/questions/41623583/error-0-non-na-cases-plm-package
+# tmp <- plm_dat %>% group_by(TechGroup, regio_inv) %>% summarize(count = n())
+# plm_dat <- merge(plm_dat, tmp, by = c("TechGroup", "regio_inv"), all.x = TRUE)
+# plm_dat <- plm_dat %>% filter(count > 2)
+# plm_dat <- pdata.frame(plm_dat, index = c("regio_tech", "TimePeriod"))
+# plm_dat <- plm_dat[complete.cases(plm_dat),]
+
+# estimate fixed effects model (N = 1999 with 'pat_dat_all_final.rds')
 plm_model <- plm(data = plm_dat,
                  formula = log(1 + onshored_patents) ~ foreign_share +
                          as.numeric(TimePeriod):as.character(TechGroup_No) +
-                         as.numeric(TimePeriod):as.character(regio_inv), weights = plm_dat$weight,
+                         as.numeric(TimePeriod):as.character(regio_inv), 
                  model = "within", effect = "twoways")
-summary(plm_model)
+summary(plm_model, vcov = vcovHC)
 
-# estimate first difference model
+# fixed effects model with weights and robust standard errors
+# https://cran.r-project.org/web/packages/clubSandwich/vignettes/panel-data-CRVE.html
+# => maybe demean manually and run the regression...
+plm_model <- lm(data = plm_dat,
+                 formula = log(1 + onshored_patents) ~ foreign_share +
+                        as.numeric(TimePeriod):as.character(TechGroup_No) +
+                        as.numeric(TimePeriod):as.character(regio_inv) +
+                        regio_tech + TimePeriod -1, 
+                weights = weight)
+summary(plm_model)
+lmtest::coeftest(plm_model,  vcov = vcovHC(plm_model, 
+                                           cluster = plm_dat$regio_tech, "HC1")) # with weights
+length(table(model.frame(plm_model)$foreign_share))
+round(cor(plm_model$fitted.values, plm_model$model[,1])^2, 3)
+
+
+### FIRST DIFFERENCE ESTIMATOR -------------------------
+
 # (-> to do: manually create and fit with OLS)
 plm_model <- plm(data = plm_dat,
                  formula = log(1 + onshored_patents) ~ foreign_share +
                          as.numeric(TimePeriod):as.character(TechGroup_No) +
-                         as.numeric(TimePeriod):as.character(regio_inv) -1, #weights = plm_dat$weight, # does not work because plm() uses weights as the full vector
+                         as.numeric(TimePeriod):as.character(regio_inv) -1, 
                  model = "fd", effect = "individual")
 summary(plm_model)
+lmtest::coeftest(plm_model, vcov = vcovHC)
+
+
+
+### PPML ---------------------------
+dat_ppml <- dat
+dat_ppml$foreign_share <- dat_ppml$foreign_share * 100
+dat_ppml$trend <- as.numeric(dat_ppml$TimePeriod)
+dat_ppml <- merge(dat_ppml, weights, by = "regio_tech", all.x = TRUE)# %>% 
+        # filter(is.na(weight) == FALSE)
+
+ppml_model <- ppml(dependent_variable = "onshored_patents", dist = "foreign_share",
+                  additional_regressors = c("TimePeriod", "regio_tech", "trend"),
+                  data = dat_ppml, vce_robust= TRUE)
+summary(ppml_model)
+
+ppml_model <- glm(onshored_patents ~ foreign_share + 
+                          # trend:regio_inv + trend:TechGroup_No + #trends
+                          TimePeriod + regio_tech -1, # fixed effects
+                  family="quasipoisson",
+                  data = dat_ppml, 
+                  weights = weight)
+summary(ppml_model)
+lmtest::coeftest(ppml_model, vcov=sandwich::vcovHC(ppml_model, "HC1"))[1:5,]
+length(table(model.frame(ppml_model)$foreign_share))
+round(cor(ppml_model$fitted.values, ppml_model$y)^2, 3)
+
 
 # ressources:
 # http://www.cazaar.com/ta/econ113/interpreting-beta
+# https://papers.ssrn.com/sol3/papers.cfm?abstract_id=3444996
 
 # PRLIMINARY RESULTS:
 # seems to work when using the time-period sum!
@@ -255,7 +309,19 @@ summary(plm_model)
 # (total onshoring increase for the U.S. was ~ 200% i.e. 5-10% of total increase attributed to foreign origin inventors)
 # (this does not include spillover effects)
 
+# with weighted least squares results are more pronounced:
+# 1pp increase in foreign share, raises onshoring by around 1-2%
+# Story: 20pp increase of foreign inventors in the U.S. (1980-2010) fostered onshoring of patents by around 20-40%
+# (total onshoring increase for the U.S. was ~ 200% i.e. 20-40% of total increase (~ between 1/10 and 1/5)
+# attributed to foreign origin inventors)
+# (this does not include spillover effects)
+
+
+
 # IDEAS:
 # (maybe add U.S. regions from U.S. Bureau instead of state-time trend.)
 # (make more and different tech groups that are still large enough)
 # create weight by 1980 patent counts 
+
+# https://stackoverflow.com/questions/44939997/ppml-package-gravity-with-time-fixed-effects
+# https://stackoverflow.com/questions/41623583/error-0-non-na-cases-plm-package
