@@ -36,11 +36,9 @@ inv_dat <- readRDS(paste0(mainDir, "/created data/inventor_origin.rds"))
 #### functions to identify offshored patents
 source(paste0(getwd(), "/Code/onshoring_analysis/onshoring_analysis_functions.R"))
 
-################################################################################
-##### Aggregate data at the level of U.S. states and technological groups ######
-################################################################################
-
-#### on-/off-shoring of patents ------------------------------------------------
+######################################################################
+##### Patents offshored to the USA by technology area and State ######
+######################################################################
 
 # (1) assign U.S. affiliates of foreign companies to their headquarter country:
 df <- df %>% select(-country_firm) %>% rename(country_firm = country_firm_adj)
@@ -77,13 +75,13 @@ dat <- assign_TechGroup(df = dat)
 assign_TimePeriod <- function(df){
         
         df <- mutate(df, TimePeriod = case_when(
-                p_year %in% c(1978:1982) ~ "1980",
-                p_year %in% c(1983:1987) ~ "1985",
-                p_year %in% c(1988:1992) ~ "1990",
-                p_year %in% c(1993:1997) ~ "1995",
-                p_year %in% c(1998:2002) ~ "2000",
-                p_year %in% c(2003:2007) ~ "2005",
-                p_year %in% c(2008:2012) ~ "2010")
+                p_year %in% c(1980:1984) ~ "1980",
+                p_year %in% c(1985:1989) ~ "1985",
+                p_year %in% c(1990:1994) ~ "1990",
+                p_year %in% c(1995:1999) ~ "1995",
+                p_year %in% c(2000:2004) ~ "2000",
+                p_year %in% c(2005:2009) ~ "2005",
+                p_year %in% c(2010:2015) ~ "2010")
         )
 }
 dat <- assign_TimePeriod(df = dat)
@@ -117,7 +115,9 @@ tmp <- NULL
 dat <- dat %>% filter(!is.na(regio_inv), !is.na(TimePeriod), !is.na(TechGroup))
 print("Data on onshored patents prepared.")
 
-#### foreign origin inventor shares  ------------------------------------------------
+######################################################################
+##### Ethnic origin shares of inventors by technology and State ######
+######################################################################
 
 # (1) assign technological groups and TimePeriods to inventors
 inv_dat <- assign_TechGroup(df = inv_dat)
@@ -159,39 +159,49 @@ foreign_share_TechState <- function(df, country,
         return(tmp)
 }
 
-get_foreign_shares <- function(df, type){
-        if(type == "non-Western"){
-                # Option A: calculate shares for non-Western ethnic origins
-                NON_WESTERN_ORIGIN <- c("China", "India", "EastEurope", "Balkans", "Slawic",
-                                        "Arabic", "Persian", "Turkey")
-                tmp <- foreign_share_TechState(df = df, country = "US", min_inv = 30,
-                                               origins = NON_WESTERN_ORIGIN)}else{
-                                                       # Option B: calculate shares for all non-domestic ethnic origin:
-                                                       tmp <- foreign_share_TechState(df = df, country = "US", 
-                                                                                      min_inv = 30,
-                                                                                      origins = "AngloSaxon")
-                                                       tmp$foreign_share <- 1 - tmp$foreign_share}
-        tmp$type <- type
-        return(tmp)
-        }
+# get aggregate non-western origin shares:
+NON_WESTERN_ORIGIN <- c("China", "India", "EastEurope", "Balkans", "Slawic",
+                        "Arabic", "Persian", "Turkey")
+origin_share_dat <- foreign_share_TechState(df = inv_dat, country = "US", min_inv = 30,
+                               origins = NON_WESTERN_ORIGIN)
+origin_share_dat <- origin_share_dat %>% rename(non_western_share = foreign_share)
 
-tmp <- get_foreign_shares(df = inv_dat, type = "non-Western")
-# DO BOTH HERE...:
-tmp <- tmp %>% rename(non_western_share = foreign_share) %>% select()
+# get non-domestic ethnic origin share
+tmp <- foreign_share_TechState(df = inv_dat, country = "US", 
+                               min_inv = 30,
+                               origins = "AngloSaxon")
+tmp$non_domestic_share <- 1 - tmp$foreign_share
+tmp <- tmp[, names(tmp) != "foreign_share"]
+origin_share_dat <- merge(origin_share_dat, tmp, 
+                          by = c("regio_inv","TechGroup","TimePeriod"),
+                          all = TRUE)
 
+# Add Chinese and Indian ethnic origin shares:
+tmp <- lapply(c("China", "India"), function(x){
+  tmp <- foreign_share_TechState(df = inv_dat, country = "US", min_inv = 30, origins = x)
+  names(tmp)[ncol(tmp)] <- paste0(x, "_share")
+  return(tmp)
+  })
+for (i in 1:length(tmp)){
+  origin_share_dat <- merge(origin_share_dat, tmp[[i]], 
+        by = c("regio_inv","TechGroup","TimePeriod"),
+        all = TRUE)
+  }
+tmp <- NULL
 print("Data on inventor origin shares prepared.")
 
-
-#### Create the dataset for regression analysis --------------------
+##############################################
+########### Combine and clean data ###########
+##############################################
 
 # (1) merge onshoring and inventor origin information
-dat <- merge(dat, tmp, 
+dat <- merge(dat, origin_share_dat,
              by = c("regio_inv", "TechGroup", "TimePeriod"), 
              all = TRUE)
-tmp <- NULL
+origin_share_dat <- NULL
 print("Merged the number of offshored patents and inventor origin information")
 
-# (2) clean the dataset
+# (2) clean the dataset and set NA onshoring observations to 0
 dat <- dat %>% filter(!is.na(regio_inv), !is.na(TimePeriod), !is.na(TechGroup))
 dat <- mutate(dat, onshored_patents = ifelse(is.na(onshored_patents), 0, onshored_patents))
 
@@ -203,7 +213,11 @@ TECH_GROUP_No <- dat %>% distinct(TechGroup) %>% mutate(TechGroup_No = paste0("0
 dat <- merge(dat, TECH_GROUP_No, by = "TechGroup")
 dat$regio_tech <- paste0(dat$reg_label, dat$TechGroup_No)
 
-#### create weights for technology-state pairs overall patenting shares:
+#################################################################
+########### Construct weights for regression analysis ###########
+#################################################################
+
+## (1) weights for technology-state pairs based on overall patenting shares:
 weights <- df %>% filter(ctry_inv == "US") %>% #, p_year %in% seq(1978, 1990)) %>%
         distinct(p_key, .keep_all = TRUE)
 weights <- merge(weights, REGIONS, by = "regio_inv")
@@ -212,10 +226,58 @@ weights <- merge(weights, TECH_GROUP_No, by = "TechGroup")
 weights$regio_tech <- paste0(weights$reg_label, weights$TechGroup_No)
 weights <- weights %>% group_by(regio_tech) %>% 
         summarise(N_patents = n(),
-                  weight = N_patents / nrow(weights)) %>%
+                  weight_overall_patents = N_patents / nrow(weights)) %>%
         select(-N_patents)
 dat <- merge(dat, weights, by = "regio_tech", all.x = TRUE)
+
+## (2) weights for state-level based on overall patenting shares:
+weights <- df %>% filter(ctry_inv == "US") %>%
+  distinct(p_key, .keep_all = TRUE)
+weights <- merge(weights, REGIONS, by = "regio_inv")
+weights <- weights %>% group_by(regio_inv) %>% 
+  summarise(N_patents = n(),
+            weight_state_overall_patents = N_patents / nrow(weights)) %>%
+  select(-N_patents)
+dat <- merge(dat, weights, by = "regio_inv", all.x = TRUE)
+
+## (3) weights for technology-state pairs based on initial sample period patenting shares:
+weights <- df %>% filter(ctry_inv == "US", p_year %in% seq(1980, 1984)) %>%
+  distinct(p_key, .keep_all = TRUE)
+weights <- merge(weights, REGIONS, by = "regio_inv")
+weights <- assign_TechGroup(weights)
+weights <- merge(weights, TECH_GROUP_No, by = "TechGroup")
+weights$regio_tech <- paste0(weights$reg_label, weights$TechGroup_No)
+weights <- weights %>% group_by(regio_tech) %>% 
+  summarise(N_patents = n(),
+            weight_initial_patents = N_patents / nrow(weights)) %>%
+  select(-N_patents)
+dat <- merge(dat, weights, by = "regio_tech", all.x = TRUE)
+
+## (4) weights for state-level based on initial patenting shares:
+weights <- df %>% filter(ctry_inv == "US", p_year %in% seq(1980, 1984)) %>%
+  distinct(p_key, .keep_all = TRUE)
+weights <- merge(weights, REGIONS, by = "regio_inv")
+weights <- weights %>% group_by(regio_inv) %>% 
+  summarise(N_patents = n(),
+            weight_state_initial_patents = N_patents / nrow(weights)) %>%
+  select(-N_patents)
+dat <- merge(dat, weights, by = "regio_inv", all.x = TRUE)
+
 print("Added weights to technology-state pairs based on inital sample period.")
+
+#################################################################
+###### Construct lag variables for regression analysis ##########
+#################################################################
+
+LAG_VARS <- names(dat)[grepl("share", names(dat))]
+tmp <- dat %>% group_by(regio_tech) %>% arrange(TimePeriod) %>%
+  mutate_at(c(LAG_VARS), ~dplyr::lag(., 1))
+idx_pos <- which(names(tmp) %in% LAG_VARS)
+names(tmp)[idx_pos] <- paste0("lag1_", LAG_VARS)
+tmp <- tmp[, c("regio_tech", "TimePeriod", paste0("lag1_", LAG_VARS))]
+dat <- merge(dat, tmp, by = c("regio_tech", "TimePeriod"))
+
+print("Added lagged explanatory variables.")
 
 ########################################################
 ####### Save the dataset for regression analysis #######
