@@ -31,47 +31,47 @@ print("Data on patent inventors loaded")
 ######## Functions ##########
 #############################
 
-# calculates weighted sum for all ethnic origins at the country level
-inv_comp_ctry <- function(df, country){
-        
-        annual_total <- filter(df, Ctry_code == country) %>%
-                group_by(p_year) %>% summarise(total = n())
-        
-        tmp <- filter(df, Ctry_code == country) %>%
-                group_by(p_year) %>% select(contains("prob")) %>%
-                summarise_all(.funs = sum)
-        
-        tmp <- merge(tmp, annual_total, by = "p_year")
-        tmp[, grepl("prob", names(tmp))] <- tmp[, grepl("prob", names(tmp))] / tmp$total
-        
-        tmp <- gather(tmp, key = "origin", value = "share", -p_year, -total)
-        tmp$origin <- gsub("prob_", "", tmp$origin)
-        tmp$country <- country
-        
-        return(tmp)
-}
+# # calculates weighted sum for all ethnic origins at the country level
+# inv_comp_ctry <- function(df, country){
+#         
+#         annual_total <- filter(df, Ctry_code == country) %>%
+#                 group_by(p_year) %>% summarise(total = n())
+#         
+#         tmp <- filter(df, Ctry_code == country) %>%
+#                 group_by(p_year) %>% select(contains("prob")) %>%
+#                 summarise_all(.funs = sum)
+#         
+#         tmp <- merge(tmp, annual_total, by = "p_year")
+#         tmp[, grepl("prob", names(tmp))] <- tmp[, grepl("prob", names(tmp))] / tmp$total
+#         
+#         tmp <- gather(tmp, key = "origin", value = "share", -p_year, -total)
+#         tmp$origin <- gsub("prob_", "", tmp$origin)
+#         tmp$country <- country
+#         
+#         return(tmp)
+# }
 
 ##############################################################
 ######## Figure 1: Dominant Domestic Ethnic Origin ###########
 ##############################################################
 
-dominant_domestic_comparison <- function(countries, domestic_origin){
-        
-        inv_origin_shares <- lapply(countries, function(x) inv_comp_ctry(inv_dat, x))
-        names(inv_origin_shares) <- countries
-        
-        country_diff <- data.frame()
-        
-        for(i in 1:length(inv_origin_shares)){
-                tmp <- filter(inv_origin_shares[[i]], origin %in% domestic_origin[[i]])
-                tmp <- tmp %>% mutate(dominant_share = share) %>%
-                        select(p_year, dominant_share, country) %>%
-                        filter(p_year <= 2015 & p_year >= 1980)
-                country_diff <- rbind(country_diff, tmp)
-        }
-        
-        return(country_diff)
-}
+# dominant_domestic_comparison <- function(countries, domestic_origin){
+#         
+#         inv_origin_shares <- lapply(countries, function(x) inv_comp_ctry(inv_dat, x))
+#         names(inv_origin_shares) <- countries
+#         
+#         country_diff <- data.frame()
+#         
+#         for(i in 1:length(inv_origin_shares)){
+#                 tmp <- filter(inv_origin_shares[[i]], origin %in% domestic_origin[[i]])
+#                 tmp <- tmp %>% mutate(dominant_share = share) %>%
+#                         select(p_year, dominant_share, country) %>%
+#                         filter(p_year <= 2015 & p_year >= 1980)
+#                 country_diff <- rbind(country_diff, tmp)
+#         }
+#         
+#         return(country_diff)
+# }
 
 COUNTRIES <- c("US", "GB", "FR", "DE", "JP", "IT")
 DOMESTIC_ORIGIN <- list("AngloSaxon", "AngloSaxon", "French", 
@@ -102,23 +102,23 @@ plot_df %>% filter(p_year %in% c(1980, 2015)) %>%
 ######## Figure 2: Cumulative Non-Western Origin Share in Western countries ###########
 #######################################################################################
 
-non_western_comparison <- function(countries, origins){
-        
-        inv_origin_shares <- lapply(countries, function(x) inv_comp_ctry(inv_dat, x))
-        names(inv_origin_shares) <- countries
-        
-        country_diff <- data.frame()
-        
-        for(i in 1:length(inv_origin_shares)){
-                tmp <- filter(inv_origin_shares[[i]], origin %in% origins)
-                tmp <- tmp %>% group_by(p_year) %>% summarize(share = sum(share)) %>%
-                        filter(p_year <= 2015 & p_year >= 1980) %>%
-                        mutate(country = names(inv_origin_shares)[i])
-                country_diff <- rbind(country_diff, tmp)
-        }
-        
-        return(country_diff)
-}
+# non_western_comparison <- function(countries, origins){
+# 
+#         inv_origin_shares <- lapply(countries, function(x) inv_comp_ctry(inv_dat, x))
+#         names(inv_origin_shares) <- countries
+# 
+#         country_diff <- data.frame()
+# 
+#         for(i in 1:length(inv_origin_shares)){
+#                 tmp <- filter(inv_origin_shares[[i]], origin %in% origins)
+#                 tmp <- tmp %>% group_by(p_year) %>% summarize(share = sum(share)) %>%
+#                         filter(p_year <= 2015 & p_year >= 1980) %>%
+#                         mutate(country = names(inv_origin_shares)[i])
+#                 country_diff <- rbind(country_diff, tmp)
+#         }
+# 
+#         return(country_diff)
+# }
 
 
 COUNTRIES <- c("US", "GB", "FR", "DE", "JP", "IT")
@@ -151,19 +151,19 @@ plot_df %>% filter(p_year %in% c(1980, 2015)) %>%
 #############################################################################
 
 #### Shares of foreign origins by country: -------------------------------------
-foreign_shares_fun <- function(COUNTRIES, ORIGIN){
-        
-        inv_origin_shares <- lapply(COUNTRIES, function(x) inv_comp_ctry(inv_dat, x))
-        for (i in length(inv_origin_shares)) {
-                inv_origin_shares[[i]]$country <- COUNTRIES[i]
-        }
-        inv_origin_shares <- bind_rows(inv_origin_shares)
-        
-        plot_data <- filter(inv_origin_shares, origin %in% ORIGIN & 
-                                    p_year <= 2015 & p_year >= 1980)
-        
-        return(plot_data)
-}
+# foreign_shares_fun <- function(COUNTRIES, ORIGIN){
+#         
+#         inv_origin_shares <- lapply(COUNTRIES, function(x) inv_comp_ctry(inv_dat, x))
+#         for (i in length(inv_origin_shares)) {
+#                 inv_origin_shares[[i]]$country <- COUNTRIES[i]
+#         }
+#         inv_origin_shares <- bind_rows(inv_origin_shares)
+#         
+#         plot_data <- filter(inv_origin_shares, origin %in% ORIGIN & 
+#                                     p_year <= 2015 & p_year >= 1980)
+#         
+#         return(plot_data)
+# }
 
 COUNTRIES <- c("US", "GB", "FR", "DE")#, "JP", "IT")
 NON_WESTERN_ORIGIN <- c("China", "India", "EastEurope", "Balkans", "Slawic",
@@ -194,41 +194,41 @@ plot_df %>% filter(p_year %in% c(1980, 2015)) %>%
 #########################################################################################
 
 ## foreign origin shares by technology field and country
-inv_comp_techfield <- function(df, country, grouping = FALSE){
-        
-        if(grouping == FALSE){
-        annual_total <- filter(df, Ctry_code == country) %>%
-                group_by(tech_field, p_year) %>% summarise(total = n())
-        
-        tmp <- filter(df, Ctry_code == country) %>%
-                group_by(tech_field, p_year) %>% select(contains("prob")) %>%
-                summarise_all(.funs = sum)
-        
-        tmp <- merge(tmp, annual_total, by = c("tech_field", "p_year"))
-        tmp[, grepl("prob", names(tmp))] <- tmp[, grepl("prob", names(tmp))] / tmp$total
-        
-        tmp <- gather(tmp, key = "origin", value = "share", -p_year, -total, -tech_field)
-        }else{
-                annual_total <- filter(df, Ctry_code == country) %>%
-                        group_by(tech_group_name, p_year) %>% summarise(total = n())
-                
-                tmp <- filter(df, Ctry_code == country) %>%
-                        group_by(tech_group_name, p_year) %>% select(contains("prob")) %>%
-                        summarise_all(.funs = sum)
-                
-                tmp <- merge(tmp, annual_total, by = c("tech_group_name", "p_year"))
-                tmp[, grepl("prob", names(tmp))] <- tmp[, grepl("prob", names(tmp))] / tmp$total
-                
-                tmp <- gather(tmp, key = "origin", value = "share", -p_year, -total, -tech_group_name)  
-        }
-        
-        tmp$origin <- gsub("prob_", "", tmp$origin)
-        tmp$country <- country
-        
-        return(tmp)
-}
+# inv_comp_techfield <- function(df, country, grouping = FALSE){
+#         
+#         if(grouping == FALSE){
+#         annual_total <- filter(df, Ctry_code == country) %>%
+#                 group_by(tech_field, p_year) %>% summarise(total = n())
+#         
+#         tmp <- filter(df, Ctry_code == country) %>%
+#                 group_by(tech_field, p_year) %>% select(contains("prob")) %>%
+#                 summarise_all(.funs = sum)
+#         
+#         tmp <- merge(tmp, annual_total, by = c("tech_field", "p_year"))
+#         tmp[, grepl("prob", names(tmp))] <- tmp[, grepl("prob", names(tmp))] / tmp$total
+#         
+#         tmp <- gather(tmp, key = "origin", value = "share", -p_year, -total, -tech_field)
+#         }else{
+#                 annual_total <- filter(df, Ctry_code == country) %>%
+#                         group_by(tech_group_name, p_year) %>% summarise(total = n())
+#                 
+#                 tmp <- filter(df, Ctry_code == country) %>%
+#                         group_by(tech_group_name, p_year) %>% select(contains("prob")) %>%
+#                         summarise_all(.funs = sum)
+#                 
+#                 tmp <- merge(tmp, annual_total, by = c("tech_group_name", "p_year"))
+#                 tmp[, grepl("prob", names(tmp))] <- tmp[, grepl("prob", names(tmp))] / tmp$total
+#                 
+#                 tmp <- gather(tmp, key = "origin", value = "share", -p_year, -total, -tech_group_name)  
+#         }
+#         
+#         tmp$origin <- gsub("prob_", "", tmp$origin)
+#         tmp$country <- country
+#         
+#         return(tmp)
+# }
 
-#ma <- function(x, n = 5){stats::filter(x, rep(1 / n, n), sides = 1)}
+# # ma <- function(x, n = 5){stats::filter(x, rep(1 / n, n), sides = 1)}
 
 non_western_techfield <- function(countries, origins, techfields, min_inventors = 30){
         
@@ -415,23 +415,23 @@ print(xtable(plot_df[, c(2,1,3,4,5)]),include.rownames = FALSE)
 ######## Figure A1: Dominant Ethnic Origin in European Countries ###########
 ############################################################################
 
-dominant_domestic_comparison <- function(countries, domestic_origin){
-        
-        inv_origin_shares <- lapply(countries, function(x) inv_comp_ctry(inv_dat, x))
-        names(inv_origin_shares) <- countries
-        
-        country_diff <- data.frame()
-        
-        for(i in 1:length(inv_origin_shares)){
-                tmp <- filter(inv_origin_shares[[i]], origin %in% domestic_origin[[i]])
-                tmp <- tmp %>% mutate(dominant_share = share) %>%
-                        select(p_year, dominant_share, country) %>%
-                        filter(p_year <= 2015 & p_year >= 1980)
-                country_diff <- rbind(country_diff, tmp)
-        }
-        
-        return(country_diff)
-}
+# dominant_domestic_comparison <- function(countries, domestic_origin){
+#         
+#         inv_origin_shares <- lapply(countries, function(x) inv_comp_ctry(inv_dat, x))
+#         names(inv_origin_shares) <- countries
+#         
+#         country_diff <- data.frame()
+#         
+#         for(i in 1:length(inv_origin_shares)){
+#                 tmp <- filter(inv_origin_shares[[i]], origin %in% domestic_origin[[i]])
+#                 tmp <- tmp %>% mutate(dominant_share = share) %>%
+#                         select(p_year, dominant_share, country) %>%
+#                         filter(p_year <= 2015 & p_year >= 1980)
+#                 country_diff <- rbind(country_diff, tmp)
+#         }
+#         
+#         return(country_diff)
+# }
 
 COUNTRIES <- c("CH", "NL", "SE", "DK", "AT", "ES", "BE")
 DOMESTIC_ORIGIN <- list(c("German", "Italian", "French"), 
@@ -465,23 +465,23 @@ plot_df %>% filter(p_year %in% c(1980, 2015)) %>%
 ######## Figure A2: Non-Western Ethnic Origin in European Countries ########
 ############################################################################
 
-non_western_comparison <- function(countries, origins){
-        
-        inv_origin_shares <- lapply(countries, function(x) inv_comp_ctry(inv_dat, x))
-        names(inv_origin_shares) <- countries
-        
-        country_diff <- data.frame()
-        
-        for(i in 1:length(inv_origin_shares)){
-                tmp <- filter(inv_origin_shares[[i]], origin %in% origins)
-                tmp <- tmp %>% group_by(p_year) %>% summarize(share = sum(share)) %>%
-                        filter(p_year <= 2015 & p_year >= 1980) %>%
-                        mutate(country = names(inv_origin_shares)[i])
-                country_diff <- rbind(country_diff, tmp)
-        }
-        
-        return(country_diff)
-}
+# non_western_comparison <- function(countries, origins){
+#         
+#         inv_origin_shares <- lapply(countries, function(x) inv_comp_ctry(inv_dat, x))
+#         names(inv_origin_shares) <- countries
+#         
+#         country_diff <- data.frame()
+#         
+#         for(i in 1:length(inv_origin_shares)){
+#                 tmp <- filter(inv_origin_shares[[i]], origin %in% origins)
+#                 tmp <- tmp %>% group_by(p_year) %>% summarize(share = sum(share)) %>%
+#                         filter(p_year <= 2015 & p_year >= 1980) %>%
+#                         mutate(country = names(inv_origin_shares)[i])
+#                 country_diff <- rbind(country_diff, tmp)
+#         }
+#         
+#         return(country_diff)
+# }
 
 
 COUNTRIES <- c("CH", "NL", "SE", "DK", "AT", "ES", "BE")

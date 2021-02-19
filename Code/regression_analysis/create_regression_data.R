@@ -4,7 +4,7 @@
 #               data is at the level of technological fields and #
 #               U.S. states per year.                            #
 # Authors:      Matthias Niggli/CIEB UniBasel                    #
-# Last revised: 11.02.2020                                       #
+# Last revised: 19.02.2020                                       #
 ##################################################################
 
 #######################################
@@ -51,14 +51,18 @@ dat <- country_onshoring(df = df, onshoring_country = "US", collaboration = FALS
 assign_TechGroup <- function(df){
         
         df <- mutate(df, TechGroup = case_when(
-                tech_field %in% c(1:2) ~ "Electrical & Audio-Visual Technologies",
+                tech_field %in% c(1) ~ "Electrical Machinery",
+                tech_field %in% c(2) ~ "Audiovisual Technologies",
                 tech_field %in% c(3:5, 7) ~ "Information & Communication Technology",
-                tech_field %in% c(6, 8) ~ "Computer Science & Semiconducturs",
-                tech_field %in% c(9:10, 12) ~ "Instruments",
-                tech_field %in% c(11, 13) ~ "Med-Tech",
+                tech_field %in% c(6) ~ "Computer Science",
+                tech_field %in% c(8) ~ "Semiconducturs",
+                tech_field %in% c(9:12) ~ "Instruments",
+                tech_field %in% c(13) ~ "Medical Technology",
                 tech_field %in% c(14:16) ~ "Pharmaceuticals & Biotechnology",
                 tech_field %in% c(18:23) ~ "Chemistry & Materials",
-                tech_field %in% c(24:32) ~ "Machinery, Transportation & Mechanical Engineering",
+                tech_field %in% c(25, 26, 28, 29, 31) ~ "Machines & Mechanical Engineering",
+                tech_field %in% c(24, 27, 30) ~ "Engines, Turbines, Thermal & Environmental Technologies",
+                tech_field %in% c(32) ~ "Transport",
                 tech_field %in% c(33:35) ~ "Consumer Goods & Civil Engineering"
                 )
         )
@@ -71,17 +75,22 @@ dat <- assign_TechGroup(df = dat)
 # and Hall (2001):
 # https://www.nber.org/system/files/working_papers/w8498/w8498.pdf
 
-# (4) Define 5-year periods and assign patents to them:
+# (4) Define 5- or 3-year periods and assign patents to them:
 assign_TimePeriod <- function(df){
         
         df <- mutate(df, TimePeriod = case_when(
-                p_year %in% c(1980:1984) ~ "1980",
-                p_year %in% c(1985:1989) ~ "1985",
-                p_year %in% c(1990:1994) ~ "1990",
-                p_year %in% c(1995:1999) ~ "1995",
-                p_year %in% c(2000:2004) ~ "2000",
-                p_year %in% c(2005:2009) ~ "2005",
-                p_year %in% c(2010:2015) ~ "2010")
+          p_year %in% c(1978:1981) ~ "1979",
+          p_year %in% c(1982:1984) ~ "1982",
+          p_year %in% c(1985:1987) ~ "1985",
+          p_year %in% c(1988:1990) ~ "1988",
+          p_year %in% c(1991:1993) ~ "1991",
+          p_year %in% c(1994:1996) ~ "1994",
+          p_year %in% c(1997:1999) ~ "1997",
+          p_year %in% c(2000:2002) ~ "2000",
+          p_year %in% c(2003:2005) ~ "2003",
+          p_year %in% c(2006:2008) ~ "2006",
+          p_year %in% c(2009:2011) ~ "2009",
+          p_year %in% c(2012:2015) ~ "2012")
         )
 }
 dat <- assign_TimePeriod(df = dat)
@@ -218,7 +227,7 @@ dat$regio_tech <- paste0(dat$reg_label, dat$TechGroup_No)
 #################################################################
 
 ## (1) weights for technology-state pairs based on overall patenting shares:
-weights <- df %>% filter(ctry_inv == "US") %>% #, p_year %in% seq(1978, 1990)) %>%
+weights <- df %>% filter(ctry_inv == "US") %>%
         distinct(p_key, .keep_all = TRUE)
 weights <- merge(weights, REGIONS, by = "regio_inv")
 weights <- assign_TechGroup(weights)
@@ -241,7 +250,7 @@ weights <- weights %>% group_by(regio_inv) %>%
 dat <- merge(dat, weights, by = "regio_inv", all.x = TRUE)
 
 ## (3) weights for technology-state pairs based on initial sample period patenting shares:
-weights <- df %>% filter(ctry_inv == "US", p_year %in% seq(1980, 1984)) %>%
+weights <- df %>% filter(ctry_inv == "US", p_year %in% seq(1978, 1984)) %>%
   distinct(p_key, .keep_all = TRUE)
 weights <- merge(weights, REGIONS, by = "regio_inv")
 weights <- assign_TechGroup(weights)
@@ -254,7 +263,7 @@ weights <- weights %>% group_by(regio_tech) %>%
 dat <- merge(dat, weights, by = "regio_tech", all.x = TRUE)
 
 ## (4) weights for state-level based on initial patenting shares:
-weights <- df %>% filter(ctry_inv == "US", p_year %in% seq(1980, 1984)) %>%
+weights <- df %>% filter(ctry_inv == "US", p_year %in% seq(1978, 1984)) %>%
   distinct(p_key, .keep_all = TRUE)
 weights <- merge(weights, REGIONS, by = "regio_inv")
 weights <- weights %>% group_by(regio_inv) %>% 
@@ -264,6 +273,101 @@ weights <- weights %>% group_by(regio_inv) %>%
 dat <- merge(dat, weights, by = "regio_inv", all.x = TRUE)
 
 print("Added weights to technology-state pairs based on inital sample period.")
+
+#################################################################
+###################### Construct instruments ####################
+#################################################################
+
+# Idea based on: Card (2001): --------------------------------------------------
+
+# (1) get initial state shares of foreign origin inventors in the USA (1978-1984)
+
+initial_state_shares_fun <- function(df, origins){
+  
+  # predicted number of foreign origin inventors in initial period at country-level
+  tmp <- df %>% filter(p_year <= 1984 & Ctry_code == "US")
+  names(tmp) <- gsub("prob_", "", names(tmp))
+  tmp <- tmp %>% select(contains(origins)) %>%
+    summarise_all(.funs = sum)
+  N_foreign_inv_overall <- rowSums(tmp)
+  
+  # predicted number of foreign origin inventors in initial period at state-level
+  tmp <- df %>% filter(p_year <= 1984 & Ctry_code == "US")
+  names(tmp) <- gsub("prob_", "", names(tmp))
+  tmp <- tmp %>% group_by(Up_reg_label) %>% select(contains(origins)) %>%
+    summarise_all(.funs = sum)
+  tmp$N_foreign_inv_state <- rowSums(tmp[, -1])
+  tmp <- tmp %>% select(Up_reg_label, N_foreign_inv_state) %>% 
+    mutate(initial_state_share = N_foreign_inv_state / N_foreign_inv_overall) %>%
+    select(-N_foreign_inv_state)
+  
+  return(tmp)
+}
+
+initial_state_shares <- initial_state_shares_fun(df = inv_dat,
+                                                 origins = NON_WESTERN_ORIGIN)
+
+
+# (2) get overall stock of foreign origin inventors for every TimePeriod
+foreign_inv_stock_fun <- function(df, origins){
+  
+  tmp <- df %>% filter(Ctry_code == "US")
+  names(tmp) <- gsub("prob_", "", names(tmp))
+  tmp <- tmp %>% group_by(TimePeriod) %>% select(contains(origins)) %>%
+    summarise_all(.funs = sum)
+  tmp$N_foreign_inv <- rowSums(tmp[, -1])
+  tmp <- tmp %>% select(TimePeriod, N_foreign_inv)
+  return(tmp)
+}
+
+foreign_inv_stock <- foreign_inv_stock_fun(df = inv_dat, origins = NON_WESTERN_ORIGIN)
+foreign_inv_stock <- filter(foreign_inv_stock, is.na(TimePeriod) == FALSE) %>%
+  rename(N_foreign_inv_overall = N_foreign_inv)
+
+# (3) get stock of foreign origin inventors for every TimePeriod and industry
+foreign_inv_stock_industry_fun <- function(df, origins){
+  
+  tmp <- df %>% filter(Ctry_code == "US")
+  names(tmp) <- gsub("prob_", "", names(tmp))
+  tmp <- tmp %>% group_by(TimePeriod, TechGroup) %>% select(contains(origins)) %>%
+    summarise_all(.funs = sum)
+  tmp$N_foreign_inv <- rowSums(tmp[, -c(1:2)])
+  tmp <- tmp %>% select(TimePeriod, TechGroup, N_foreign_inv)
+  return(tmp)
+}
+
+foreign_inv_stock_industry <- foreign_inv_stock_industry_fun(df = inv_dat, origins = NON_WESTERN_ORIGIN)
+foreign_inv_stock_industry <- filter(foreign_inv_stock_industry, 
+                                     is.na(TimePeriod) == FALSE)
+foreign_inv_stock_industry <- merge(foreign_inv_stock_industry, foreign_inv_stock, by = "TimePeriod", all = TRUE)
+foreign_inv_stock_industry <- mutate(foreign_inv_stock_industry, share_industry = N_foreign_inv / N_foreign_inv_overall)
+foreign_inv_stock_industry <- foreign_inv_stock_industry %>% na.omit() %>% select(TimePeriod, TechGroup, share_industry)
+
+# (3) get stock of inventors for every technology-state pair in every period
+inv_stock_regiotech_fun <- function(df){
+  tmp <- df %>% filter(Ctry_code == "US") %>% 
+    group_by(TechGroup, Up_reg_label, TimePeriod) %>%
+    summarise(N_inv_regiotech = n()) %>%
+    filter(is.na(TimePeriod) == FALSE)
+  return(tmp)
+}
+
+inv_stock_regiotech <- inv_stock_regiotech_fun(df = inv_dat)
+
+# combine indicators and calculate imputed foreign origin shares
+res <- merge(inv_stock_regiotech, initial_state_shares, by = "Up_reg_label")
+res <- merge(res, foreign_inv_stock, by = "TimePeriod")
+res <- merge(res, foreign_inv_stock_industry, by = c("TimePeriod", "TechGroup"))
+res <- res %>% mutate(pred_N_foreign_inv = initial_state_share * share_industry * N_foreign_inv_overall,
+                      non_western_share_imputed = pred_N_foreign_inv / N_inv_regiotech) %>%
+  rename(regio_inv = Up_reg_label) %>%
+  select(TimePeriod, TechGroup, regio_inv, N_inv_regiotech, pred_N_foreign_inv, non_western_share_imputed) %>%
+  filter(N_inv_regiotech >= 30)
+
+# merge to regression data:
+dat <- left_join(dat, res, by = c("regio_inv", "TechGroup","TimePeriod"))
+
+# some are rather larger... Fallzahlen müssen genügend hoch sein, damit man überhaupt sinnvoll imputen kann.
 
 #################################################################
 ###### Construct lag variables for regression analysis ##########
