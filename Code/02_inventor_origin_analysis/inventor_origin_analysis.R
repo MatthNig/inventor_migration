@@ -2,7 +2,7 @@
 # Description:    Script to evaluate migration flows of patent  #
 #                 inventors into the U.S. and EU countries      #
 # Authors:        Matthias Niggli/CIEB UniBasel                 #
-# Last revised:   30.03.2021                                    #
+# Last revised:   01.04.2021                                    #
 #################################################################
 
 #######################################
@@ -31,7 +31,43 @@ print("Data on patent inventors loaded")
 source("Code/02_inventor_origin_analysis/inventor_analysis_functions.R")
 
 ##############################################################
-######## Figure 1: Dominant Domestic Ethnic Origin ###########
+##### Figure 1: Global Distribution of Ethnic Origins ########
+##############################################################
+
+origin_dist <- function(df){
+        
+        df <- df %>% filter(p_year >= 1980 & p_year <= 2015)
+        
+        annual_total <-  df %>% group_by(p_year) %>% summarise(total = n())
+        
+        tmp <- df %>% 
+                group_by(p_year) %>% 
+                select(contains("prob")) %>%
+                summarise_all(.funs = sum)
+        
+        tmp <- merge(tmp, annual_total, by = "p_year")
+        tmp[, grepl("prob", names(tmp))] <- tmp[, grepl("prob", names(tmp))] / tmp$total
+        
+        tmp <- gather(tmp, key = "origin", value = "share", -p_year, -total)
+        tmp$origin <- gsub("prob_", "", tmp$origin)
+        return(tmp)
+}
+
+plot_df <- origin_dist(df = inv_dat)
+
+ggplot(plot_df, aes(x = share, y = p_year, fill = origin))+
+        geom_bar(stat = "identity", width = 1) +
+        scale_x_continuous(labels = scales::percent) +
+        scale_fill_viridis(option = "viridis", discrete = TRUE) +
+        labs(y = "Year", x = "Share Among Patent Inventors",
+             fill = "Ethnic Origin")+
+        theme(panel.background = element_blank(),
+              axis.line = element_line(),
+              axis.title = element_text(face="bold",size=10))
+
+
+##############################################################
+######## Figure 2: Dominant Domestic Ethnic Origin ###########
 ##############################################################
 
 COUNTRIES <- c("US", "GB", "FR", "DE", "JP", "IT")
@@ -46,7 +82,7 @@ ggplot(plot_df, aes(x = p_year, y = dominant_share, color = country, shape = cou
         scale_y_continuous(labels = scales::percent, limits = c(0.3, 1))+
         labs(y = "Share of Dominant Domestic Origin", x = "Year",
              shape = "", color = "")+
-        scale_color_viridis(option = "inferno", end = 0.8, discrete = TRUE)+
+        scale_color_viridis(option = "viridis", end = 0.8, discrete = TRUE)+
         guides(color = guide_legend(nrow = 1))+
         theme(panel.background = element_blank(),
               panel.grid.major.y = element_line(linetype = "dotted", color = "grey"),
@@ -60,7 +96,7 @@ plot_df %>% filter(p_year %in% c(1980, 2015)) %>%
         arrange(-change)
 
 #######################################################################################
-######## Figure 2: Cumulative Non-Western Origin Share in Western countries ###########
+######## Figure 3: Cumulative Non-Western Origin Share in Western countries ###########
 #######################################################################################
 
 COUNTRIES <- c("US", "GB", "FR", "DE", "JP", "IT")
@@ -75,7 +111,7 @@ ggplot(plot_df, aes(x = p_year, y = share, color = country, shape = country))+
         scale_y_continuous(labels = scales::percent, limits = c(0, 0.3))+
         labs(y = "Share of Non-Western Origins", x = "Year",
              shape = "", color = "")+
-        scale_color_viridis(option = "inferno", end = 0.8, discrete = TRUE)+
+        scale_color_viridis(option = "viridis", end = 0.8, discrete = TRUE)+
         guides(color = guide_legend(nrow = 1))+
         theme(panel.background = element_blank(),
               panel.grid.major.y = element_line(linetype = "dotted", color = "grey"),
@@ -89,7 +125,7 @@ plot_df %>% filter(p_year %in% c(1980, 2015)) %>%
         arrange(-change)
 
 #############################################################################
-######## Figure 3: Non-Western Origin Shares in Western countries ###########
+######## Figure 4: Non-Western Origin Shares in Western countries ###########
 #############################################################################
 
 COUNTRIES <- c("US", "GB", "FR", "DE")
@@ -103,7 +139,7 @@ ggplot(plot_df, aes(x = p_year, y = share, color = origin))+
         geom_line()+
         labs(x = "Year", y = "Shares of Non-Western Ethnic Origins", color = "", shape = "")+
         scale_y_continuous(labels = scales::percent, limits = c(0, 0.125))+
-        scale_color_viridis(option = "inferno", begin = 0, end = 0.8, discrete = TRUE)+
+        scale_color_viridis(option = "viridis", begin = 0, end = 0.8, discrete = TRUE)+
         theme(panel.background = element_blank(),
               panel.grid.major.y = element_line(linetype = "dotted", color = "grey"),
               legend.position = "bottom",
@@ -117,7 +153,7 @@ plot_df %>% filter(p_year %in% c(1980, 2015)) %>%
         arrange(-change)
 
 #########################################################################################
-######## Figure 4: Non-Western Origin Shares in Western countries by Tech-Field #########
+######## Figure 5: Non-Western Origin Shares in Western countries by Tech-Field #########
 #########################################################################################
 
 non_western_techfield <- function(countries, origins, techfields, 
@@ -194,12 +230,11 @@ plot_df <- merge(plot_df, techfield_grouping[, c("tech_field", "tech_field_name"
                  by = "tech_field", all.x = TRUE)
 
 ggplot(plot_df, aes(x = p_year, y = share, color = tech_field_name, shape = tech_field_name))+
-        # facet_wrap(.~tech_field_name)+
         geom_line()+ geom_point()+
         scale_color_hue("Technology Field")+
         scale_y_continuous(labels = scales::percent, limits = c(0, 0.6))+
         labs(y = "Shares of Non-Western Origins", x = "Year", color = "", shape = "")+
-        scale_color_viridis(option = "inferno", end = 0.8, discrete = TRUE)+
+        scale_color_viridis(option = "viridis", end = 0.8, discrete = TRUE)+
         guides(color = guide_legend(nrow = 2))+
         theme(panel.background = element_blank(),
               panel.grid.major.y = element_line(linetype = "dotted", color = "grey"),
@@ -208,7 +243,7 @@ ggplot(plot_df, aes(x = p_year, y = share, color = tech_field_name, shape = tech
               axis.title = element_text(face="bold",size=10))
 
 ######################################################################################
-######## Figure 8 (Appendix): Dominant Ethnic Origin in European Countries ###########
+######## Figure 9 (Appendix): Dominant Ethnic Origin in European Countries ###########
 ######################################################################################
 
 COUNTRIES <- c("CH", "NL", "SE", "DK", "AT", "ES", "BE")
@@ -226,7 +261,7 @@ ggplot(plot_df, aes(x = p_year, y = dominant_share, color = country, shape = cou
         scale_y_continuous(labels = scales::percent, limits = c(0, 1))+
         labs(y = "Share of Dominant Domestic Origins", x = "Year",
              shape = "", color = "")+
-        scale_color_viridis(option = "inferno", end = 0.8, discrete = TRUE)+
+        scale_color_viridis(option = "viridis", end = 0.8, discrete = TRUE)+
         guides(color = guide_legend(nrow = 1))+
         theme(panel.background = element_blank(),
               panel.grid.major.y = element_line(linetype = "dotted", color = "grey"),
@@ -240,7 +275,7 @@ plot_df %>% filter(p_year %in% c(1980, 2015)) %>%
         arrange(-change)
 
 ####################################################################################
-######## Figure 9 (Appendix): Non-Western Ethnic Origin in European Countries ######
+######## Figure 10 (Appendix): Non-Western Ethnic Origin in European Countries ######
 ####################################################################################
 
 COUNTRIES <- c("CH", "NL", "SE", "DK", "AT", "ES", "BE")
@@ -253,7 +288,7 @@ ggplot(plot_df, aes(x = p_year, y = share, color = country, shape = country))+
         scale_y_continuous(labels = scales::percent, limits = c(0, 0.3))+
         labs(y = "Share of Non-Western Origins", x = "Year",
              shape = "", color = "")+
-        scale_color_viridis(option = "inferno", end = 0.8, discrete = TRUE)+
+        scale_color_viridis(option = "viridis", end = 0.8, discrete = TRUE)+
         guides(color = guide_legend(nrow = 1))+
         theme(panel.background = element_blank(),
               panel.grid.major.y = element_line(linetype = "dotted", color = "grey"),
@@ -267,7 +302,7 @@ plot_df %>% filter(p_year %in% c(1980, 2015)) %>%
         arrange(-change)
 
 ################################################################################
-## Figure 10 (Appendix): Non-Western Ethnic Origin Shares Across Technologies ########
+## Figure 11 (Appendix): Non-Western Ethnic Origin Shares Across Technologies ########
 ################################################################################
 
 COUNTRIES <- c("GB", "FR", "DE", "IT", "JP", "US")
@@ -287,7 +322,7 @@ ggplot(plot_df, aes(x = p_year, y = share, color = tech_field_name))+
         scale_color_hue("Technology Field")+
         scale_y_continuous(labels = scales::percent, limits = c(0, 0.6))+
         labs(y = "Shares of Non-Western Origins", x = "Year", color = "", shape = "")+
-        scale_color_viridis(option = "inferno", end = 0.8, discrete = TRUE)+
+        scale_color_viridis(option = "viridis", end = 0.8, discrete = TRUE)+
         guides(color = guide_legend(nrow = 2))+
         theme(panel.background = element_blank(),
               panel.grid.major.y = element_line(linetype = "dotted", color = "grey"),
