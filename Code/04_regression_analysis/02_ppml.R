@@ -58,8 +58,8 @@ LAGS <- "0"
 
 FORMULA <- paste0("onshored_patents ~ l(log(", EXPL_VAR, "), ", LAGS, ")", # foreign origin
                  "+l(log(",CTRL_VAR,"), ", LAGS, ")|", # total inventors
-                  # "regio_inv[[trend]]", # state trends
-                  "TechGroup[[trend]] +", # technology trends
+                  "regio_inv[[trend]]", # state trends
+                  "+TechGroup[[trend]] +", # technology trends
                   "regio_tech 
                   #+ TimePeriod"
                  ) # state-technology and period fixed effects
@@ -127,15 +127,14 @@ dat_panel$imputed_N_inv_rest <- dat_panel$imputed_N_inv_regiotech - dat_panel[, 
 CTRL_VAR <- "imputed_N_inv_anglosaxon"
 # CTRL_VAR <- "N_inv_anglosaxon"
 
-LAGS <- "2"
+LAGS <- "0"
 
 FORMULA <- paste0("onshored_patents ~ l(log(", EXPL_VAR, "), ", LAGS, ")", # foreign origin
                   "+l(log(",CTRL_VAR,"), ", LAGS, ")", # total inventors
                   "|",
-                  # "regio_inv[[trend]] +", # state trends
+                  "regio_inv[[trend]] +", # state trends
                   "TechGroup[[trend]]", # technology trends
-                  # "+regio_tech",
-                  "+ TimePeriod"
+                  "+regio_tech"
                   ) # state-technology and period fixed effects
 FORMULA <- as.formula(FORMULA)
 FORMULA
