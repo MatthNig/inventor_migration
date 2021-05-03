@@ -40,29 +40,29 @@ print("Panel data loaded and ready for estimation.")
 
 #### (1) BASELINE SPECIFICATION ----------------------------------------------------- 
 # dat_panel <- dat_panel %>% filter(onshored_patents >= 5)
-# dat_panel <- panel(data = dat_panel, panel.id = c("regio_tech", "TimePeriod"))
 print("Choose explanatory variable from: ")
 c(names(dat)[grepl(c("share"), names(dat))], names(dat)[grepl(c("N_inv"), names(dat))])
 
-EXPL_VAR <- "N_inv_nonwestern"
-#EXPL_VAR <- "non_western_share"
-#EXPL_VAR <- "N_inv_ChinaIndia"
-#EXPL_VAR <- "ChinaIndia_share"
-
+# EXPL_VAR <- "log(N_inv_nonwestern)"
+EXPL_VAR <- "log(N_inv_ChinaIndia)"
 dat_panel$N_inv_rest <- dat_panel$N_inv_regiotech - dat_panel[, EXPL_VAR]
+
 #CTRL_VAR <- "N_inv_rest"
 #CTRL_VAR <- "N_inv_regiotech"
-CTRL_VAR <- "N_inv_anglosaxon"
+CTRL_VAR <- c("log(N_inv_anglosaxon)",
+              "log(N_patents_state)",
+              "log(N_patents_TechGroup)")
 
 LAGS <- "0"
+EXPL_VAR <- paste0("l(", EXPL_VAR, ", ", LAGS, ")")
+CTRL_VAR <- paste(paste0("l(", CTRL_VAR, ", ", LAGS, ")"), collapse = " + ")
 
-FORMULA <- paste0("onshored_patents ~ l(log(", EXPL_VAR, "), ", LAGS, ")", # foreign origin
-                 "+l(log(",CTRL_VAR,"), ", LAGS, ")|", # total inventors
-                  "regio_inv[[trend]]", # state trends
-                  "+TechGroup[[trend]] +", # technology trends
-                  "regio_tech 
-                  #+ TimePeriod"
-                 ) # state-technology and period fixed effects
+FORMULA <- paste0("onshored_patents ~", 
+                  EXPL_VAR, " + ", # foreign origin
+                  CTRL_VAR, # total inventors and patenting controls
+                  "|", 
+                  "regio_tech")
+                  # "regio_inv + TechGroup") # state-technology fixed effects
 FORMULA <- as.formula(FORMULA)
 FORMULA
 
@@ -116,26 +116,24 @@ ggplot(dat_panel, aes(x = non_western_share, y = non_western_share_imputed))+
 
 
 # choose formula
-EXPL_VAR <- "imputed_N_inv_nonwestern"
-#EXPL_VAR <- "non_western_share_imputed"
-#EXPL_VAR <- "imputed_N_inv_ChinaIndia"
-#EXPL_VAR <- "ChinaIndia_share_imputed"
+EXPL_VAR <- "log(imputed_N_inv_nonwestern)"
+EXPL_VAR <- "log(imputed_N_inv_ChinaIndia)"
 
-dat_panel$imputed_N_inv_rest <- dat_panel$imputed_N_inv_regiotech - dat_panel[, EXPL_VAR]
-#CTRL_VAR <- "imputed_N_inv_rest"
 #CTRL_VAR <- "N_inv_rest"
-CTRL_VAR <- "imputed_N_inv_anglosaxon"
-# CTRL_VAR <- "N_inv_anglosaxon"
+#CTRL_VAR <- "N_inv_regiotech"
+CTRL_VAR <- c("log(imputed_N_inv_anglosaxon)",
+              "log(N_patents_state)",
+              "log(N_patents_TechGroup)")
 
 LAGS <- "0"
+EXPL_VAR <- paste0("l(", EXPL_VAR, ", ", LAGS, ")")
+CTRL_VAR <- paste(paste0("l(", CTRL_VAR, ", ", LAGS, ")"), collapse = " + ")
 
-FORMULA <- paste0("onshored_patents ~ l(log(", EXPL_VAR, "), ", LAGS, ")", # foreign origin
-                  "+l(log(",CTRL_VAR,"), ", LAGS, ")", # total inventors
-                  "|",
-                  "regio_inv[[trend]] +", # state trends
-                  "TechGroup[[trend]]", # technology trends
-                  "+regio_tech"
-                  ) # state-technology and period fixed effects
+FORMULA <- paste0("onshored_patents ~", 
+                  EXPL_VAR, " + ", # foreign origin
+                  CTRL_VAR, # total inventors and patenting controls
+                  "|", 
+                  "regio_inv + TechGroup") # state-technology fixed effects
 FORMULA <- as.formula(FORMULA)
 FORMULA
 

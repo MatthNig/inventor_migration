@@ -228,6 +228,26 @@ dat <- merge(dat, TECH_GROUP_No, by = "TechGroup")
 dat$regio_tech <- paste0(dat$reg_label, dat$TechGroup_No)
 
 #################################################################
+########### Construct Controls for Patenting Trends ##############
+#################################################################
+
+# get unique patents with at least one U.S. inventor for every tech_group and TimePeriod
+tmp <- df %>% filter(ctry_inv == "US") %>%
+  distinct(p_key, .keep_all = TRUE)
+tmp <- assign_TechGroup(df = tmp)
+tmp <- assign_TimePeriod(df = tmp)
+
+# add overall patenting trends at state level
+controls <- tmp %>% group_by(TimePeriod, regio_inv) %>% summarise(N_patents_state = n()) %>% na.omit()
+dat <- left_join(dat, controls, by = c("TimePeriod", "regio_inv"))
+
+# overall patenting trends at technology field level
+controls <- tmp %>% group_by(TimePeriod, TechGroup) %>% summarise(N_patents_TechGroup = n()) %>% na.omit()
+dat <- left_join(dat, controls, by = c("TimePeriod", "TechGroup"))
+
+print("Added overall patenting trends as controls.")
+
+#################################################################
 ########### Construct weights for regression analysis ###########
 #################################################################
 
