@@ -25,8 +25,12 @@ if(substr(x = getwd(),
 ###################################
 
 dat <- read.csv(paste0(getwd(), "/Data/regression_data/regression_data.csv"))
-dat$TimePeriod <- as.character(dat$TimePeriod)
-dat_panel <- panel(data = dat, panel.id = c("regio_tech", "TimePeriod"))
+panel_dat <- dat %>% 
+        filter(is.na(N_inv_nonwestern) == FALSE &
+                       is.na(N_inv_anglosaxon) == FALSE &
+                       TimePeriod > 1984)
+panel_dat$TimePeriod <- as.character(panel_dat$TimePeriod)
+panel_dat <- panel(data = panel_dat, panel.id = c("regio_tech", "TimePeriod"))
 print("Panel data loaded and ready for estimation.")
 
 #################################
@@ -39,58 +43,62 @@ print("Panel data loaded and ready for estimation.")
 # https://papers.ssrn.com/sol3/papers.cfm?abstract_id=3444996
 
 #### (1) BASELINE SPECIFICATION ----------------------------------------------------- 
-# dat_panel <- dat_panel %>% filter(onshored_patents >= 5)
+# panel_dat <- panel_dat %>% filter(onshored_patents >= 5)
 print("Choose explanatory variable from: ")
-c(names(dat)[grepl(c("share"), names(dat))], names(dat)[grepl(c("N_inv"), names(dat))])
+c(names(panel_dat)[grepl(c("share"), names(panel_dat))], names(panel_dat)[grepl(c("N_inv"), names(panel_dat))])
 
-# EXPL_VAR <- "log(N_inv_nonwestern)"
-EXPL_VAR <- "log(N_inv_ChinaIndia)"
-dat_panel$N_inv_rest <- dat_panel$N_inv_regiotech - dat_panel[, EXPL_VAR]
+EXPL_VAR <- "N_inv_nonwestern"
+# EXPL_VAR <- "N_inv_ChinaIndia"
+panel_dat$N_inv_rest <- panel_dat$N_inv_regiotech - panel_dat[, EXPL_VAR]
+EXPL_VAR <- paste0("log(", EXPL_VAR, ")")
 
-#CTRL_VAR <- "N_inv_rest"
+CTRL_VAR <- "N_inv_rest"
 #CTRL_VAR <- "N_inv_regiotech"
-CTRL_VAR <- c("log(N_inv_anglosaxon)",
-              "log(N_patents_state)",
-              "log(N_patents_TechGroup)")
+CTRL_VAR <- c("log(N_inv_anglosaxon)"
+              # ,"log(N_patents_state)",
+              # "log(N_patents_TechGroup)"
+              )
 
 LAGS <- "0"
 EXPL_VAR <- paste0("l(", EXPL_VAR, ", ", LAGS, ")")
 CTRL_VAR <- paste(paste0("l(", CTRL_VAR, ", ", LAGS, ")"), collapse = " + ")
 
 FORMULA <- paste0("onshored_patents ~", 
-                  EXPL_VAR, " + ", # foreign origin
-                  CTRL_VAR, # total inventors and patenting controls
-                  "|", 
-                  "regio_tech")
-                  # "regio_inv + TechGroup") # state-technology fixed effects
+                  EXPL_VAR, # foreign origin
+                  " + ", CTRL_VAR, # total inventors and patenting controls
+                  "|",
+                  "regio_tech", # state-technology fixed effects
+                  # "+ regio_inv[[trend]]", # state trends
+                  "+ TechGroup[[trend]]", # technology trends
+                  "")
 FORMULA <- as.formula(FORMULA)
 FORMULA
 
-ppml_model <- feglm(data = dat_panel, fml = FORMULA, family = "quasipoisson")
+ppml_model <- feglm(data = panel_dat, fml = FORMULA, family = "quasipoisson")
 summary(ppml_model, cluster = c("regio_tech")) # se clustered on tech-state pairs
 
 #### (2) Weighted BY INITIAL PATENTNING ACTIVITY : ---------------------------------
 print("Choose weight variable from: ")
 c(names(dat)[grepl("weight", names(dat))])
 WEIGHT_VAR <- "weight_initial_patents"
-ppml_model <- feglm(data = dat_panel, fml = FORMULA, 
-                    weights = dat_panel[, WEIGHT_VAR], family = "quasipoisson")
+ppml_model <- feglm(data = panel_dat, fml = FORMULA, 
+                    weights = panel_dat[, WEIGHT_VAR], family = "quasipoisson")
 summary(ppml_model, cluster = c("regio_tech")) # clustered on tech-state pairs and time period
 
 #### (3) REDUCED FORM WITH INSTRUMENT: -----------------------------------------
 
 # drop pre 1984 observations because they were used to construct imputed inventor numbers:
-dat_panel <- dat %>% filter(as.numeric(TimePeriod) > 1984)
-dat_panel$trend <- NULL
-tmp <- data.frame(TimePeriod = sort(unique(dat_panel$TimePeriod)), 
-                  trend = seq(1, length(unique(dat_panel$TimePeriod))))
-dat_panel <- left_join(dat_panel, tmp, by = "TimePeriod")
-dat_panel$TimePeriod = as.character(dat_panel$TimePeriod)
-dat_panel <- panel(data = dat_panel, panel.id = c("regio_tech", "TimePeriod"))
+# panel_dat <- dat %>% filter(as.numeric(TimePeriod) > 1984)
+# panel_dat$trend <- NULL
+# tmp <- data.frame(TimePeriod = sort(unique(panel_dat$TimePeriod)), 
+#                   trend = seq(1, length(unique(panel_dat$TimePeriod))))
+# panel_dat <- left_join(panel_dat, tmp, by = "TimePeriod")
+# panel_dat$TimePeriod = as.character(panel_dat$TimePeriod)
+# panel_dat <- panel(data = panel_dat, panel.id = c("regio_tech", "TimePeriod"))
 
 # inspect correlation of imputed number of foreign origin inventors
-cor(dat_panel$N_inv_nonwestern, dat_panel$imputed_N_inv_nonwestern, use = "complete.obs")
-ggplot(dat_panel, aes(x = log(N_inv_nonwestern), y = log(imputed_N_inv_nonwestern)))+
+cor(panel_dat$N_inv_nonwestern, panel_dat$imputed_N_inv_nonwestern, use = "complete.obs")
+ggplot(panel_dat, aes(x = log(N_inv_nonwestern), y = log(imputed_N_inv_nonwestern)))+
         geom_point(alpha = 0.3) +
         geom_abline(intercept = 0, slope = 1, color = "blue") +
         labs(x = "Number of Non-Western Inventors (log-scale)", 
@@ -102,28 +110,31 @@ ggplot(dat_panel, aes(x = log(N_inv_nonwestern), y = log(imputed_N_inv_nonwester
               axis.title = element_text(face="bold",size=10))
 
 # inspect correlation of imputed shares
-cor(dat_panel$non_western_share, dat_panel$non_western_share_imputed, use = "complete.obs")
-ggplot(dat_panel, aes(x = non_western_share, y = non_western_share_imputed))+
-        geom_point(alpha = 0.3) +
-        geom_abline(intercept = 0, slope = 1, color = "blue") +
-        labs(x = "Share of Non-Western Inventors (log-scale)", 
-             y = "Imputed Share of Non-Western Inventors (log-scale)")+
-        theme(panel.background = element_blank(),
-              panel.grid.major.y = element_line(linetype = "dotted", color = "grey"),
-              legend.position = "bottom", legend.direction = "horizontal",
-              axis.line = element_line(),
-              axis.title = element_text(face="bold",size=10))
+# cor(panel_dat$non_western_share, panel_dat$non_western_share_imputed, use = "complete.obs")
+# ggplot(panel_dat, aes(x = non_western_share, y = non_western_share_imputed))+
+#         geom_point(alpha = 0.3) +
+#         geom_abline(intercept = 0, slope = 1, color = "blue") +
+#         labs(x = "Share of Non-Western Inventors (log-scale)", 
+#              y = "Imputed Share of Non-Western Inventors (log-scale)")+
+#         theme(panel.background = element_blank(),
+#               panel.grid.major.y = element_line(linetype = "dotted", color = "grey"),
+#               legend.position = "bottom", legend.direction = "horizontal",
+#               axis.line = element_line(),
+#               axis.title = element_text(face="bold",size=10))
 
 
 # choose formula
-EXPL_VAR <- "log(imputed_N_inv_nonwestern)"
-EXPL_VAR <- "log(imputed_N_inv_ChinaIndia)"
+EXPL_VAR <- "imputed_N_inv_nonwestern"
+# EXPL_VAR <- "imputed_N_inv_ChinaIndia"
+panel_dat$imputed_N_inv_rest <- panel_dat$N_inv_regiotech - panel_dat[, EXPL_VAR]
+EXPL_VAR <- paste0("log(", EXPL_VAR, ")")
 
-#CTRL_VAR <- "N_inv_rest"
+
+CTRL_VAR <- "imputed_N_inv_rest"
 #CTRL_VAR <- "N_inv_regiotech"
-CTRL_VAR <- c("log(imputed_N_inv_anglosaxon)",
-              "log(N_patents_state)",
-              "log(N_patents_TechGroup)")
+# CTRL_VAR <- c("log(imputed_N_inv_anglosaxon)",
+#               "log(N_patents_state)",
+#               "log(N_patents_TechGroup)")
 
 LAGS <- "0"
 EXPL_VAR <- paste0("l(", EXPL_VAR, ", ", LAGS, ")")
@@ -133,16 +144,19 @@ FORMULA <- paste0("onshored_patents ~",
                   EXPL_VAR, " + ", # foreign origin
                   CTRL_VAR, # total inventors and patenting controls
                   "|", 
-                  "regio_inv + TechGroup") # state-technology fixed effects
+                  "regio_tech", # state-technology fixed effects
+                  # "+ regio_inv[[trend]]", # state trends
+                  "+ TechGroup[[trend]]", # technology trends
+                  "")
 FORMULA <- as.formula(FORMULA)
 FORMULA
 
 # estimate the model without weights
-ppml_model <- feglm(data = dat_panel, fml = FORMULA, family = "quasipoisson")
+ppml_model <- feglm(data = panel_dat, fml = FORMULA, family = "quasipoisson")
 summary(ppml_model, cluster = c("regio_tech")) # se clustered on tech-state pairs and time periods
 
 # estimate the model with weights
-ppml_model <- feglm(data = dat_panel, fml = FORMULA, weights = dat_panel[, WEIGHT_VAR],
+ppml_model <- feglm(data = panel_dat, fml = FORMULA, weights = panel_dat[, WEIGHT_VAR],
                     family = "quasipoisson")
 summary(ppml_model, cluster = c("regio_tech")) # se clustered on tech-state pairs and time periods
 
@@ -173,8 +187,8 @@ panel_dat <- dat %>% select(regio_tech, TimePeriod, # identifiers
                             weight_initial_patents, # weights
                             regio_inv, TechGroup # grouping variables
                             )
-tmp <- data.frame(TimePeriod = sort(unique(dat_panel$TimePeriod)), 
-                  trend = seq(1, length(unique(dat_panel$TimePeriod))))
+tmp <- data.frame(TimePeriod = sort(unique(panel_dat$TimePeriod)), 
+                  trend = seq(1, length(unique(panel_dat$TimePeriod))))
 panel_dat <- left_join(panel_dat, tmp, by = "TimePeriod") %>% 
         mutate(TimePeriod = as.numeric(TimePeriod))
 
@@ -285,13 +299,13 @@ tmp[2 ,-1] / tmp[1, -1] * 100
 tmp <- dat %>% group_by(regio_tech) %>% 
         summarize(total_onshored = sum(onshored_patents)) %>%
         filter(total_onshored >= 90)
-dat_panel <- dat %>% filter(regio_tech %in% tmp$regio_tech)
-dat_panel$trend <- NULL
-tmp <- data.frame(TimePeriod = sort(unique(dat_panel$TimePeriod)), 
-                  trend = seq(1, length(unique(dat_panel$TimePeriod))))
-dat_panel <- left_join(dat_panel, tmp, by = "TimePeriod")
-dat_panel$TimePeriod = as.character(dat_panel$TimePeriod)
-dat_panel <- panel(data = dat_panel, panel.id = c("regio_tech", "TimePeriod"))
+panel_dat <- dat %>% filter(regio_tech %in% tmp$regio_tech)
+panel_dat$trend <- NULL
+tmp <- data.frame(TimePeriod = sort(unique(panel_dat$TimePeriod)), 
+                  trend = seq(1, length(unique(panel_dat$TimePeriod))))
+panel_dat <- left_join(panel_dat, tmp, by = "TimePeriod")
+panel_dat$TimePeriod = as.character(panel_dat$TimePeriod)
+panel_dat <- panel(data = panel_dat, panel.id = c("regio_tech", "TimePeriod"))
 
 
 
