@@ -4,7 +4,7 @@
 #               data is at the level of technological fields and #
 #               U.S. states per year.                            #
 # Authors:      Matthias Niggli/CIEB UniBasel                    #
-# Last revised: 31.03.2021                                       #
+# Last revised: 07.05.2021                                       #
 ##################################################################
 
 #######################################
@@ -40,12 +40,56 @@ source(paste0(getwd(), "/Code/03_onshoring_analysis/onshoring_analysis_functions
 ##### Patents offshored to the USA by technology area and State ######
 ######################################################################
 
-# (1) assign U.S. affiliates of foreign companies to their headquarter country:
-df <- df %>% select(-country_firm) %>% rename(country_firm = country_firm_adj)
+# adapt function to identify onshored patents to the USA including subsidiaries
+country_onshoring <- function(df,
+                              onshoring_country = "US",
+                              collaboration = FALSE,
+                              triadic_only = TRUE,
+                              inventor_number = 1,
+                              world_class_indicator = FALSE){
+  
+  # Step 1: check if collaborations with US firms should be excluded and
+  # if so drop all entries from patents where a US firms was involved
+  if(collaboration == FALSE){
+    tmp <- setDT(df)[country_firm_adj == onshoring_country, p_key]
+    tmp <- unique(tmp)
+    tmp <- setDT(df)[!p_key %in% tmp, ]}else{tmp <- df}
+  
+  # Step 2: check if non-triadic patents should be exluded
+  if(triadic_only == TRUE){
+    tmp <- tmp[tri_pat_fam == 1, ]
+  }
+  
+  # Step 3: Subset to entries from non-U.S. patents
+  tmp <- tmp %>% filter(country_firm_adj != onshoring_country)
+  
+  # Step 4: check if only world class patents should be considered and,
+  # if so, subset accordingly.
+  if(world_class_indicator != FALSE){
+    tmp <- tmp %>% filter_at(vars(starts_with(world_class_indicator)), any_vars(. == 1))
+  }
+  
+  # Step 3: Assign 'onshoring'-status = 1 to all entires from patents with at least 
+  # (N = inventor_number) inventors located in the USA.
+  onshoring_p_keys <- setDT(tmp)[ctry_inv == onshoring_country,
+                                 .(onshored = ifelse(.N >= inventor_number, 1, 0)), 
+                                 by = .(p_key)]
+  setkey(onshoring_p_keys, p_key)
+  tmp <- onshoring_p_keys[setDT(tmp, key = "p_key")]
+  tmp[is.na(tmp$onshored) == TRUE, "onshored"] <- 0
+  
+  return(tmp)
+}
 
 # (2) identify all patents that have been offshored to the U.S. by foreign firms:
 dat <- country_onshoring(df = df, onshoring_country = "US", collaboration = FALSE,
                          triadic_only = FALSE, inventor_number = 1, world_class_indicator = FALSE)
+# REMARKS: -----
+# Using "country_firm_adj" instead of "country_firm" does:
+# a) not exclude 65'431 _unique_ patents (p_key's) due to collaboration exclusion
+# b) this results in considering 219'346 more registered entries (rows) stated on non-US patents
+# c) these additional entires are stated on 56'106 newly detected _unique_ onshored patents 
+# d) this results in 180'393 additional registered entries (rows) classified as onshored
 
 # (3) Define technological groups and assign patents to them:
 assign_TechGroup <- function(df){
@@ -75,12 +119,7 @@ dat <- assign_TechGroup(df = dat)
 # and Hall (2001):
 # https://www.nber.org/system/files/working_papers/w8498/w8498.pdf
 
-# (4) Define 5- or 3-year periods and assign patents to them:
-
-# previously:
-# p_year %in% c(1978:1982) ~ "1982",
-# p_year %in% c(1983:1987) ~ "1987",
-
+# (4) Define 3-year periods and assign patents to them:
 assign_TimePeriod <- function(df){
         
         df <- mutate(df, TimePeriod = case_when(
@@ -98,9 +137,18 @@ assign_TimePeriod <- function(df){
         )
 }
 dat <- assign_TimePeriod(df = dat)
-paste(nrow(dat), "patents used for analysis") # N = 13'049'201
 
-# (5) calculate the number of offshored patents to the U.S. by TechGoup, Period and State:
+#### evaluate
+paste(nrow(dat), "patents used for analysis") 
+# N = 13'049'201 without adjustment, N = 13'268'547 with adj
+paste(nrow(dat[dat$p_year > 1984 & dat$p_year < 2016, ]), 
+      "entries of patents between 1985 and 2015 used for analysis") 
+# N = 11'690'421, N = 11'892'539 with adj
+paste(nrow(dat[dat$onshored == 1 & dat$ctry_inv == "US", ]),
+      "entries stated on onshored patents to the U.S") 
+# N = 495'855 without adjustment, N = 660'210 with subsidiary adjustment
+
+# (5) calculate the number of unique offshored patents to the U.S. by TechGoup, Period and State:
 onshoring_TechState <- function(df){
         
         onshored_pat <- setDT(df)[onshored == 1 & ctry_inv == "US",
@@ -119,14 +167,19 @@ tmp <- dat %>% group_by(regio_inv) %>%
         arrange(-onshored_patents)
 paste0(tmp[is.na(tmp$regio_inv), ]$onshored_patents, 
        " onshored patents (", round(tmp[is.na(tmp$regio_inv), ]$share,3)*100,
-       "%) had missing technology field or state information.") # N=98315 (40.3%)
+       "%) had missing technology field or state information.") 
+# N = 98315 (40.3%) without adj, N = 128'439 (41%) with adj
 paste(sum(tmp[is.na(tmp$regio_inv) == FALSE, ]$onshored_patents), 
-      "onshored patents assigned to technology-state pairs.") # N=145'790
+      "onshored patents assigned to technology-state pairs.") 
+# N = 145'790 withou ajd, N = 184'664 with adjustment
 tmp <- NULL
 
 # (7) Discard NA's
 dat <- dat %>% filter(!is.na(regio_inv), !is.na(TimePeriod), !is.na(TechGroup))
-print("Data on onshored patents prepared.")
+paste("Data on onshored patents prepared.", 
+      sum(dat$onshored_patents), 
+      "onshored patents used for analysis") 
+# N = 129'776 without adjustment, N = 165'532 with adjustment: Difference = 35'756
 
 ######################################################################
 ##### Ethnic origin shares of inventors by technology and State ######
