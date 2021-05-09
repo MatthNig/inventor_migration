@@ -2,9 +2,9 @@
 # Description:  Script to generate a dataset of onshored patents #
 #               and inventor flows for regression analysis. The  #
 #               data is at the level of technological fields and #
-#               U.S. states per year.                            #
+#               U.S. states for periods of 3 year intervals.     #
 # Authors:      Matthias Niggli/CIEB UniBasel                    #
-# Last revised: 07.05.2021                                       #
+# Last revised: 09.05.2021                                       #
 ##################################################################
 
 #######################################
@@ -171,7 +171,7 @@ paste0(tmp[is.na(tmp$regio_inv), ]$onshored_patents,
 # N = 98315 (40.3%) without adj, N = 128'439 (41%) with adj
 paste(sum(tmp[is.na(tmp$regio_inv) == FALSE, ]$onshored_patents), 
       "onshored patents assigned to technology-state pairs.") 
-# N = 145'790 withou ajd, N = 184'664 with adjustment
+# N = 145'790 without ajd, N = 184'664 with adjustment
 tmp <- NULL
 
 # (7) Discard NA's
@@ -666,8 +666,10 @@ dat <- dat %>% mutate(anglo_saxon_share = 1 - non_domestic_share,
 # convert shares to percentage numbers
 dat[, grepl("share", names(dat))] <-dat[, grepl("share", names(dat))] * 100
 
-# Save the complete dataset for regression analysis
-write.csv(dat, paste0(getwd(), "/Data/regression_data/regression_data.csv"), row.names = FALSE)
-print("Saved dataset as 'regression_data.csv")
+# Save the complete dataset for regression analysis:
+# write.csv(dat, paste0(getwd(), "/Data/regression_data/regression_data.csv"), row.names = FALSE)
+# write.csv(dat, paste0(getwd(), "/Data/regression_data/regression_data_subsidiaries.csv"),
+#           row.names = FALSE) # including subsidiaries
+# print("Saved dataset")
 
 

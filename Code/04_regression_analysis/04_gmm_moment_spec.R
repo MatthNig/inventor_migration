@@ -41,7 +41,15 @@ if(substr(x = getwd(),
 ####### Load & process data #######
 ###################################
 
-panel_dat <- read.csv(paste0(getwd(), "/Data/regression_data/regression_data.csv"))
+load_dat_fun <- function(type){
+        if(type == "all"){
+                panel_dat <- read.csv(paste0(getwd(), "/Data/regression_data/regression_data_subsidiaries.csv"))
+        }else{
+                panel_dat <- read.csv(paste0(getwd(), "/Data/regression_data/regression_data.csv"))
+        }
+}
+
+panel_dat <- load_dat_fun("all")
 print("Panel data loaded.")
 
 # only use observations with information on non-western inventors:
@@ -130,6 +138,7 @@ moment_fun <- function(theta, x){
         # define moment conditions for every instrument:
         m <- lapply(INSTRUMENTS, function(instrument){
                 
+                # define moment conditions for every regio_tech
                 m_i <- lapply(identifiers, function(id){
                         
                         tmp <- subset(x, regio_tech == id)
@@ -138,8 +147,8 @@ moment_fun <- function(theta, x){
                         CMF_t <- exp(as.matrix(tmp[, names(theta)]) %*% as.matrix(theta, ncol = 1))
                         CMF_t <- CMF_t[, 1]
 
-                        # transform the the conditional mean function
-                        # in order to eliminate the fixed effects
+                        # transform the the conditional mean
+                        # in order to eliminate the fixed effects (Cameron & Trivedi, 2005)
                         CMF_mean <- mean(CMF_t)
                         CMF_demeaned_i <- CMF_t / CMF_mean
                         
@@ -151,14 +160,14 @@ moment_fun <- function(theta, x){
                         return(m_i)
                 })
                 
-                # stack the moment conditions for all N regions 
-                # in a (NT x 1)-dimension vector
+                # stack the moment conditions for all N regio_tech's 
+                # in a (NT x 1)-vector
                 m <- unlist(m_i)
                 names(m) <- NULL
                 return(m)
         })
         
-        # combine the m moment conditions in a matrix
+        # combine the p moment conditions in a matrix
         moments <- as.matrix(m[[1]])
         if(length(m) > 1){
                 for(condition in 2:length(m)){

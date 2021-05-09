@@ -3,7 +3,7 @@
 #               relationship between the share of foreign        #
 #               origin inventors and offshoring to the USA       #
 # Authors:      Matthias Niggli/CIEB UniBasel                    #
-# Last revised: 04.05.2021                                       #
+# Last revised: 09.05.2021                                       #
 ##################################################################
 
 #######################################
@@ -24,14 +24,23 @@ if(substr(x = getwd(),
 ####### Load & process data #######
 ###################################
 
-panel_dat <- read.csv(paste0(getwd(), "/Data/regression_data/regression_data.csv"))
+load_dat_fun <- function(type){
+  if(type == "all"){
+    panel_dat <- read.csv(paste0(getwd(), "/Data/regression_data/regression_data_subsidiaries.csv"))
+  }else{
+    panel_dat <- read.csv(paste0(getwd(), "/Data/regression_data/regression_data.csv"))
+  }
+}
+
+panel_dat <- load_dat_fun("all")
+
 panel_dat <- panel_dat %>% 
         filter(is.na(N_inv_nonwestern) == FALSE &
                        TimePeriod > 1984)
 panel_dat$TimePeriod <- as.character(panel_dat$TimePeriod)
 
 # only use observations with at least T_min observations
-T_min <- 3
+T_min <- 10
 keep_regiotech <- panel_dat %>% 
         group_by(regio_tech) %>% 
         summarise(count = n()) %>% 
@@ -48,7 +57,7 @@ print("Choose explanatory variable from: ")
 c(names(panel_dat)[grepl(c("share"), names(panel_dat))], names(panel_dat)[grepl(c("N_inv"), names(panel_dat))])
 
 print("Choose weight variable from: ")
-c(names(dat)[grepl("weight", names(dat))])
+c(names(panel_dat)[grepl("weight", names(panel_dat))])
 WEIGHT_VAR <- "weight_initial_patents"
 
 #### (1) BASELINE SPECIFICATION ----------------------------------------------------- 
@@ -63,7 +72,7 @@ lag_fun <- function(lag_vars, df){
   mutate_at(c(LAG_VARS), ~dplyr::lag(., 1)) %>% arrange(as.numeric(idx))
   
   reg_dat <- df[, c("regio_tech", "TimePeriod", "onshored_patents", lag_vars)]
-  reg_dat[, LAG_VARS] <- tmp[, lag_vars]
+  reg_dat[, lag_vars] <- tmp[, lag_vars]
   reg_dat <- reg_dat[complete.cases(reg_dat), ]
   reg_dat <- panel(data = reg_dat, panel.id = c("regio_tech", "TimePeriod"))
   
@@ -285,154 +294,3 @@ summary(ppml_model, cluster = c("regio_tech")) # se clustered on tech-state pair
 
 # first stage
 summary(ppml_model, stage=1)
-
-
-
-
-
-
-
-
-
-
-
-#################################
-####### PGMM ESTIMATIONS ########
-#################################
-
-# Overview:
-# https://cran.r-project.org/web/views/Econometrics.html
-
-library("plm")
-library("sandwich")
-library("lmtest")
-
-panel_dat <- dat %>% select(regio_tech, TimePeriod, # identifiers
-                            onshored_patents, # outcome
-                            N_inv_nonwestern, imputed_N_inv_nonwestern, # explanatory variables
-                            N_inv_anglosaxon, imputed_N_inv_anglosaxon, # control variables
-                            weight_initial_patents, # weights
-                            regio_inv, TechGroup # grouping variables
-                            )
-tmp <- data.frame(TimePeriod = sort(unique(panel_dat$TimePeriod)), 
-                  trend = seq(1, length(unique(panel_dat$TimePeriod))))
-panel_dat <- left_join(panel_dat, tmp, by = "TimePeriod") %>% 
-        mutate(TimePeriod = as.numeric(TimePeriod))
-
-#### convert all character variables to numeric identifiers (required by the pgmm()-function):
-convert_to_num <- function(df, exp_var){
-        
-        # construct numeric identifiers
-        identifiers <- unique(panel_dat[, exp_var])
-        tmp <- data.frame(id_num = as.numeric(seq(length(identifiers))))
-        tmp[, exp_var] <- identifiers
-        
-        # merge to original df & substitute character identifier
-        df <- merge(df, tmp, by = exp_var)
-        df <- df %>% select(-all_of(exp_var))
-        names(df)[which(colnames(df) == "id_num")] <- exp_var
-        
-        # return updated data.frame
-        return(df)
-        }
-
-# apply for all character variables in the data.frame
-for(i in c("regio_tech", "regio_inv", "TechGroup")){
-        panel_dat <- convert_to_num(df = panel_dat, exp_var = i)
-}
-panel_dat$onshored_patents <- as.numeric(panel_dat$onshored_patents)
-#panel_dat <- panel_dat %>% na.omit()
-
-# check the number of observations per regio_tech. 
-# At least three are needed for first difference transformation
-N_old <- nrow(panel_dat)
-keep_idx <- panel_dat %>% 
-        group_by(regio_tech) %>% 
-        summarize(count = n()) %>% 
-        filter(count > 4)
-keep_idx <- keep_idx$regio_tech
-panel_dat <- panel_dat[panel_dat$regio_tech %in% keep_idx, ]
-paste("Dropped", N_old - nrow(panel_dat), "observations from the sample.")
-
-# order data.frame columns for pgmm() to recognize identifiers:
-id_col <- which(names(panel_dat) == "regio_tech")
-time_col <- which(names(panel_dat) == "TimePeriod")
-remain_cols <- which(!seq(ncol(panel_dat))%in% c(id_col, time_col))
-panel_dat <- panel_dat[, c(id_col, time_col, remain_cols)]
-paste(nrow(panel_dat), "observations in the sample. Ready for estimation")
-
-# model
-pgmm_model <- pgmm(formula = onshored_patents ~ lag(exp(log(N_inv_nonwestern)), 1)
-                   + as.character(TechGroup):trend
-                   + exp(log(N_inv_anglosaxon))
-                   |
-                        lag(exp(log(imputed_N_inv_nonwestern)), 1)
-                   + as.character(TechGroup):trend
-                   + exp(log(imputed_N_inv_anglosaxon))
-                   ,
-                  lost.ts = 3, # => THIS IS THE CRUCIAL PARAMETER TO MAKE IT WORK
-                  model = "twosteps", effect = "individual", 
-                  # A1 = panel_dat$weight_initial_patents, A2 = panel_dat$weight_initial_patents,
-                  data = panel_dat, transformation = "d")
-summary(pgmm_model, robust = TRUE)
-summary(pgmm_model, vcov = vcovHC)
-lmtest::coeftest(pgmm_model, vcov = sandwich::vcovHC(pgmm_model, cluster = "group"))
-# https://rdrr.io/rforge/plm/man/pgmm.html
-
-
-### Problems:
-
-# multicollinearity:
-# There are too many trends in this regression. Instead, use only individual fixed effects
-# with techology trends and controls for the state-level (GDP, unemp, ict etc. => check literature)
-
-# lags:
-# maybe log everything manually and only then use lag() or specify stats::lag()
-
-
-# PRLIMINARY RESULTS: ---------------------------------------------------------
-# (a) Regression with share:
-# 1pp increase in foreign share, raises onshoring by around 1.5%
-# 20pp increase of foreign inventors in the U.S. (1980-2015) fostered onshoring of patents by around 30%
-# Total onshoring increase for the U.S. was ~ 200% i.e. 1/6 of total increase attributed to foreign origin inventors
-
-# (b) Regression with log(N_inv):
-# 1% increase in non-western inventors, raises onshoring by around 0.2-0.5%
-# 700% increase of non-western inventors in the U.S. (1988-2015) fostered onshoring of patents by around 70-280%
-# Total onshoring increase for the U.S. was ~ 1000% 
-# i.e. 7-25% of total increase directly attributed to increase of foreign origin inventors
-tmp <- dat %>% filter(TimePeriod %in% c("1988", "2015")) %>% 
-        group_by(TimePeriod) %>% 
-        summarise(N_inv_nonwestern = sum(N_inv_nonwestern, na.rm = TRUE), 
-                  N_inv = sum(N_inv_regiotech, na.rm = TRUE))
-print("Growth of Inventors: ")
-tmp[2 ,-1] / tmp[1, -1] * 100
-tmp <- dat %>% filter(TimePeriod %in% c("1991", "2015")) %>% 
-        group_by(TimePeriod) %>% 
-        summarise(N_onshored = sum(onshored_patents, na.rm = TRUE))
-print("Growth of Onshored patents: ")
-tmp[2 ,-1] / tmp[1, -1] * 100
-
-
-# Problem: IV only implemented for OLS
-# https://stackoverflow.com/questions/65867315/error-in-the-fixest-package-in-r-when-running-feglm-with-instruments
-# ALternative:
-# https://cran.r-project.org/web/packages/glmmML/index.html
-# https://github.com/amrei-stammann/alpaca
-
-#### subset to regio-techs that matter...
-
-#### subset to regio-techs that matter...
-tmp <- dat %>% group_by(regio_tech) %>% 
-        summarize(total_onshored = sum(onshored_patents)) %>%
-        filter(total_onshored >= 90)
-panel_dat <- dat %>% filter(regio_tech %in% tmp$regio_tech)
-panel_dat$trend <- NULL
-tmp <- data.frame(TimePeriod = sort(unique(panel_dat$TimePeriod)), 
-                  trend = seq(1, length(unique(panel_dat$TimePeriod))))
-panel_dat <- left_join(panel_dat, tmp, by = "TimePeriod")
-panel_dat$TimePeriod = as.character(panel_dat$TimePeriod)
-panel_dat <- panel(data = panel_dat, panel.id = c("regio_tech", "TimePeriod"))
-
-
-
