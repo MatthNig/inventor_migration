@@ -1,3 +1,4 @@
+#### search for onshored patents to a given country
 country_onshoring <- function(df,
                               onshoring_country = "US",
                               collaboration = FALSE,
@@ -38,6 +39,7 @@ country_onshoring <- function(df,
         return(tmp)
 }
 
+#### assign techgroups based on Schmoch
 assign_TechGroup <- function(df){
         
         df <- mutate(df, TechGroup = case_when(
@@ -58,6 +60,7 @@ assign_TechGroup <- function(df){
         )
 }
 
+#### assign time Periods
 assign_TimePeriod <- function(df){
         
         df <- mutate(df, TimePeriod = case_when(
@@ -75,6 +78,7 @@ assign_TimePeriod <- function(df){
         )
 }
 
+#### Aggregate number of onshored patents at the regional and tech-field level
 onshoring_TechState <- function(df){
         
         onshored_pat <- setDT(df)[onshored == 1 & ctry_inv == "US",
@@ -84,6 +88,8 @@ onshoring_TechState <- function(df){
         return(onshored_pat)
 }
 
+
+#### process the raw data
 data_processing_fun <- function(dat){
         
         tmp <- assign_TechGroup(df = dat)
@@ -98,12 +104,12 @@ data_processing_fun <- function(dat){
         return(tmp)
 }
 
-
+#### combine with baseline regression data
 combine_dat_fun <- function(dat, merge_df, new_var){
         
         tmp <- dat %>% dplyr::select(regio_inv, TechGroup, TimePeriod, onshored_patents)
         idx <- which(names(tmp) == "onshored_patents")
-        names(tmp)[4] <- new_var
+        names(tmp)[idx] <- new_var
         
         # add to merging data.frame
         tmp <- merge(merge_df, tmp, 

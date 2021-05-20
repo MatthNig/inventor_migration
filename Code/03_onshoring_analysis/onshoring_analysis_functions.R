@@ -39,7 +39,7 @@ country_onshoring <- function(df,
         # Step 2: check if only world class patents should be considered and,
         # if so, subset accordingly.
         if(world_class_indicator != FALSE){
-                tmp <- tmp %>% filter_at(vars(starts_with(world_class_indicator)), any_vars(. == 1))
+                tmp <- tmp %>% filter_at(vars(starts_with("world_class_90")), any_vars(. == 1))
         }
         
         # Step 3: Assign 'onshoring'-status = 1 to all patents with at least 
