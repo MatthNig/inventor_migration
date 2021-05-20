@@ -3,7 +3,7 @@
 #               relationship between the share of foreign        #
 #               origin inventors and offshoring to the USA       #
 # Authors:      Matthias Niggli/CIEB UniBasel                    #
-# Last revised: 09.05.2021                                       #
+# Last revised: 11.05.2021                                       #
 ##################################################################
 
 #######################################
@@ -24,23 +24,30 @@ if(substr(x = getwd(),
 ####### Load & process data #######
 ###################################
 
-load_dat_fun <- function(type){
-  if(type == "all"){
-    panel_dat <- read.csv(paste0(getwd(), "/Data/regression_data/regression_data_subsidiaries.csv"))
-  }else{
-    panel_dat <- read.csv(paste0(getwd(), "/Data/regression_data/regression_data.csv"))
+load_dat_fun <- function(subsidiaries){
+  if(subsidiaries == "include"){
+    tmp <- read.csv(paste0(getwd(), "/Data/regression_data/regression_data_incl_subsidiaries.csv"))
+    }else{
+      if(subsidiaries == "exclude"){
+        tmp <- read.csv(paste0(getwd(), "/Data/regression_data/regression_data_excl_subsidiaries.csv"))
+        }else{
+      tmp <- read.csv(paste0(getwd(), "/Data/regression_data/regression_data_only_subsidiaries.csv"))
+        }
+    }
+  return(tmp)
   }
-}
 
-panel_dat <- load_dat_fun("all")
+#panel_dat <- load_dat_fun(subsidiaries = "include")
+#panel_dat <- read.csv(paste0(getwd(), "/Data/regression_data/regression_data_baseline.csv"))
 
+panel_dat <- read.csv(paste0(getwd(), "/Data/regression_data/regression_data_robustness_checks.csv"))
 panel_dat <- panel_dat %>% 
         filter(is.na(N_inv_nonwestern) == FALSE &
                        TimePeriod > 1984)
 panel_dat$TimePeriod <- as.character(panel_dat$TimePeriod)
 
 # only use observations with at least T_min observations
-T_min <- 10
+T_min <- 2
 keep_regiotech <- panel_dat %>% 
         group_by(regio_tech) %>% 
         summarise(count = n()) %>% 
@@ -58,20 +65,22 @@ c(names(panel_dat)[grepl(c("share"), names(panel_dat))], names(panel_dat)[grepl(
 
 print("Choose weight variable from: ")
 c(names(panel_dat)[grepl("weight", names(panel_dat))])
-WEIGHT_VAR <- "weight_initial_patents"
 
 #### (1) BASELINE SPECIFICATION ----------------------------------------------------- 
+DEP_VAR <- "onshored_patents_worldclass"
+
+WEIGHT_VAR <- "weight_initial_patents"
 EXPL_VAR <- "N_inv_nonwestern"
 panel_dat$N_inv_rest <- panel_dat$N_inv_regiotech - panel_dat[, EXPL_VAR]
 CTRL_VAR <- c("N_inv_rest", "N_patents_TechGroup")
 LAG_VARS <- unique(c(EXPL_VAR, CTRL_VAR))
 
-lag_fun <- function(lag_vars, df){
+lag_fun <- function(lag_vars, dep_var, df){
   tmp <- df %>% mutate(idx = rownames(df))
   tmp <- tmp %>% group_by(regio_tech) %>% arrange(TimePeriod) %>%
-  mutate_at(c(LAG_VARS), ~dplyr::lag(., 1)) %>% arrange(as.numeric(idx))
+  mutate_at(c(LAG_VARS), ~dplyr::lag(., 0)) %>% arrange(as.numeric(idx))
   
-  reg_dat <- df[, c("regio_tech", "TimePeriod", "onshored_patents", lag_vars)]
+  reg_dat <- df[, c("regio_tech", "TimePeriod", dep_var, lag_vars)]
   reg_dat[, lag_vars] <- tmp[, lag_vars]
   reg_dat <- reg_dat[complete.cases(reg_dat), ]
   reg_dat <- panel(data = reg_dat, panel.id = c("regio_tech", "TimePeriod"))
@@ -79,7 +88,7 @@ lag_fun <- function(lag_vars, df){
   return(reg_dat)
 }
 
-reg_dat <- lag_fun(lag_vars = LAG_VARS, df = panel_dat)
+reg_dat <- lag_fun(lag_vars = LAG_VARS, df = panel_dat, dep_var = DEP_VAR)
 reg_dat <- left_join(reg_dat, panel_dat[!duplicated(panel_dat$regio_tech), c("regio_tech", WEIGHT_VAR)], 
                      by = "regio_tech") # add weights
 reg_dat <- panel(data = reg_dat, panel.id = c("regio_tech", "TimePeriod"))
@@ -90,7 +99,7 @@ LAGS <- "0"
 EXPL_VAR <- paste0("l(", EXPL_VAR, ", ", LAGS, ")")
 CTRL_VAR <- paste(paste0("l(", CTRL_VAR, ", ", LAGS, ")"), collapse = " + ")
 
-FORMULA <- paste0("onshored_patents ~", 
+FORMULA <- paste0(DEP_VAR, "~", 
                   EXPL_VAR, # foreign origin
                   " + ", CTRL_VAR, # total inventors and patenting controls
                   "|",
@@ -104,8 +113,6 @@ FORMULA
 ppml_model <- feglm(data = reg_dat, fml = FORMULA, family = "quasipoisson")
 print("PPML model without weights")
 summary(ppml_model, cluster = c("regio_tech")) # se clustered on tech-state pairs
-r2(x = ppml_model, "pr2")
-logLik(object = ppml_model)
 
 #### (2) Weighted BY INITIAL PATENTNING ACTIVITY : ---------------------------------
 ppml_model <- feglm(data = reg_dat, fml = FORMULA, 
@@ -141,13 +148,12 @@ ggplot(panel_dat, aes(x = non_western_share, y = non_western_share_imputed))+
               axis.line = element_line(),
               axis.title = element_text(face="bold",size=10))
 
-
 # choose formula
 EXPL_VAR <- "imputed_N_inv_nonwestern"
 CTRL_VAR <- c("N_inv_rest", "N_patents_TechGroup")
 LAG_VARS <- unique(c(EXPL_VAR, CTRL_VAR))
 
-reg_dat <- lag_fun(lag_vars = LAG_VARS, df = panel_dat)
+reg_dat <- lag_fun(lag_vars = LAG_VARS, dep_var = DEP_VAR, df = panel_dat)
 reg_dat <- left_join(reg_dat, panel_dat[!duplicated(panel_dat$regio_tech), c("regio_tech", WEIGHT_VAR)], 
                  by = "regio_tech") # add weights
 reg_dat <- panel(data = reg_dat, panel.id = c("regio_tech", "TimePeriod"))
@@ -158,7 +164,7 @@ LAGS <- "0"
 EXPL_VAR <- paste0("l(", EXPL_VAR, ", ", LAGS, ")")
 CTRL_VAR <- paste(paste0("l(", CTRL_VAR, ", ", LAGS, ")"), collapse = " + ")
 
-FORMULA <- paste0("onshored_patents ~", 
+FORMULA <- paste0(DEP_VAR, "~", 
                   EXPL_VAR, " + ", # foreign origin
                   CTRL_VAR, # total inventors and patenting controls
                   "|", 
@@ -179,15 +185,6 @@ ppml_model <- feglm(data = reg_dat, fml = FORMULA, weights = reg_dat[, WEIGHT_VA
                     family = "quasipoisson")
 print("PPML model with imputed number of inventors with weights:")
 summary(ppml_model, cluster = c("regio_tech")) # se clustered on tech-state pairs and time periods
-
-# (1) klappt nicht mit reduced form: weshalb nicht? diejenigen regio_techs mit sehr grossen imputed shares sind jene
-# traditionellen technologien, die nicht sonderlich viele patente anziehen. das zieht dann den schnitt extrem runter
-
-# (2) für imputed share am entscheidendsten ist die Grösse des States. NY, Pennsylvania etc. haben teils extrem hohe
-# imputed shares! Da einfach deshalb, weil sie in initial period sehr hohe Anteil hatten (~15-20%). Wenn dann in späteren
-# Perioden relativ viele foreign origin inventors kommen, dann ist der imputed share enorm hoch d.h. höher als
-# tatsächliche Anzahl inventors. Das Gegenteil ist der Fall bei kleinen States.
-
 
 #################################
 ####### OLS ESTIMATION ##########
@@ -248,7 +245,7 @@ ols_transform <- function(transformation = "drop"){
         if(transformation == "drop"){
                 panel_dat_ols <- panel_dat[panel_dat$onshored_patents != 0, ]}else{
                   panel_dat_ols <- panel_dat      
-                  panel_dat_ols$onshored_patents <- panel_dat_ols$onshored_patents + 1
+                  panel_dat_ols$onshored_patents <- panel_dat_ols$onshored_patents + 0.1
                 }
         return(panel_dat_ols)
 }

@@ -1,11 +1,11 @@
-##################################################################
-# Description:  Script to generate a dataset of onshored patents #
-#               and inventor flows for regression analysis. The  #
-#               data is at the level of technological fields and #
-#               U.S. states for periods of 3 year intervals.     #
-# Authors:      Matthias Niggli/CIEB UniBasel                    #
-# Last revised: 09.05.2021                                       #
-##################################################################
+#####################################################################
+# Description:  Script to generate the baseline dataset of onshored #
+#               patents and inventor flows for regression analysis. #
+#               Data is at the level of technological fields and    #
+#               U.S. states for periods of 3 year intervals.        #
+# Authors:      Matthias Niggli/CIEB UniBasel                       #
+# Last revised: 20.05.2021                                          #
+#####################################################################
 
 #######################################
 ## Load packages and set directories ##
@@ -40,44 +40,50 @@ source(paste0(getwd(), "/Code/03_onshoring_analysis/onshoring_analysis_functions
 ##### Patents offshored to the USA by technology area and State ######
 ######################################################################
 
-# adapt function to identify onshored patents to the USA including subsidiaries
+# OLD VERSION: EXCLUDE SUBSIDIARIES
+# df <- df %>% select(-country_firm) %>% rename(country_firm = country_firm_adj)
+# dat <- country_onshoring(df = df, onshoring_country = "US", collaboration = FALSE,
+#                          triadic_only = FALSE, inventor_number = 1, world_class_indicator = FALSE)
+
+# NEW VERSION: INCLUDE SUBSIDIARIES:
+# (1) adapt function to identify onshored patents to the USA including subsidiaries
 country_onshoring <- function(df,
                               onshoring_country = "US",
                               collaboration = FALSE,
                               triadic_only = TRUE,
                               inventor_number = 1,
                               world_class_indicator = FALSE){
-  
+
   # Step 1: check if collaborations with US firms should be excluded and
   # if so drop all entries from patents where a US firms was involved
   if(collaboration == FALSE){
     tmp <- setDT(df)[country_firm_adj == onshoring_country, p_key]
     tmp <- unique(tmp)
     tmp <- setDT(df)[!p_key %in% tmp, ]}else{tmp <- df}
-  
+
   # Step 2: check if non-triadic patents should be exluded
   if(triadic_only == TRUE){
     tmp <- tmp[tri_pat_fam == 1, ]
   }
-  
+
   # Step 3: Subset to entries from non-U.S. patents
   tmp <- tmp %>% filter(country_firm_adj != onshoring_country)
-  
+
   # Step 4: check if only world class patents should be considered and,
   # if so, subset accordingly.
   if(world_class_indicator != FALSE){
     tmp <- tmp %>% filter_at(vars(starts_with(world_class_indicator)), any_vars(. == 1))
   }
-  
-  # Step 3: Assign 'onshoring'-status = 1 to all entires from patents with at least 
+
+  # Step 3: Assign 'onshoring'-status = 1 to all entires from patents with at least
   # (N = inventor_number) inventors located in the USA.
   onshoring_p_keys <- setDT(tmp)[ctry_inv == onshoring_country,
-                                 .(onshored = ifelse(.N >= inventor_number, 1, 0)), 
+                                 .(onshored = ifelse(.N >= inventor_number, 1, 0)),
                                  by = .(p_key)]
   setkey(onshoring_p_keys, p_key)
   tmp <- onshoring_p_keys[setDT(tmp, key = "p_key")]
   tmp[is.na(tmp$onshored) == TRUE, "onshored"] <- 0
-  
+
   return(tmp)
 }
 
@@ -139,7 +145,9 @@ assign_TimePeriod <- function(df){
 dat <- assign_TimePeriod(df = dat)
 
 #### evaluate
-paste(nrow(dat), "patents used for analysis") 
+paste(length(unique(dat$p_key)), "unique patents used for analysis") 
+# N = xxx without adjustment, N = 4'562'567 with adj
+paste(nrow(dat), "patents entries used for analysis") 
 # N = 13'049'201 without adjustment, N = 13'268'547 with adj
 paste(nrow(dat[dat$p_year > 1984 & dat$p_year < 2016, ]), 
       "entries of patents between 1985 and 2015 used for analysis") 
@@ -189,7 +197,7 @@ paste("Data on onshored patents prepared.",
 inv_dat <- assign_TechGroup(df = inv_dat)
 inv_dat <- assign_TimePeriod(df = inv_dat)
 
-# (2) calculate origin shares by Region, TechGroup and Year
+# (2) calculate the share of non-western origin inventors by Region, TechGroup and Year
 foreign_share_TechState <- function(df, country,
                                     origins, min_inv){
         
@@ -653,7 +661,7 @@ tmp <- data.frame(TimePeriod = sort(unique(dat$TimePeriod)),
 dat <- left_join(dat, tmp, by = "TimePeriod")
 dat$TimePeriod = as.character(dat$TimePeriod)
 
-# calculate further metrics:
+# calculate the number of non-western ethnic origin inventors and further shares:
 dat <- dat %>% mutate(anglo_saxon_share = 1 - non_domestic_share,
                       N_inv_nonwestern = non_western_share * N_inv_regiotech,
                       N_inv_non_domestic = non_domestic_share * N_inv_regiotech,
@@ -667,8 +675,7 @@ dat <- dat %>% mutate(anglo_saxon_share = 1 - non_domestic_share,
 dat[, grepl("share", names(dat))] <-dat[, grepl("share", names(dat))] * 100
 
 # Save the complete dataset for regression analysis:
-# write.csv(dat, paste0(getwd(), "/Data/regression_data/regression_data.csv"), row.names = FALSE)
-# write.csv(dat, paste0(getwd(), "/Data/regression_data/regression_data_subsidiaries.csv"),
+# write.csv(dat, paste0(getwd(), "/Data/regression_data/regression_data_baseline.csv"),
 #           row.names = FALSE) # including subsidiaries
 # print("Saved dataset")
 
