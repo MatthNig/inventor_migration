@@ -3,7 +3,7 @@
 #               relationship between the number of foreign       #
 #               origin inventors and offshoring to the USA       #
 # Authors:      Matthias Niggli/CIEB UniBasel                    #
-# Last revised: 20.05.2021                                       #
+# Last revised: 24.06.2021                                       #
 ##################################################################
 
 #######################################
@@ -44,13 +44,13 @@ print("Panel data loaded.")
 
 # only use observations with information on non-western inventors:
 min_period <- 1984
-#min_period <- 1995
+#min_period <- 2000
 panel_dat <- panel_dat %>% 
         filter(is.na(N_inv_nonwestern) == FALSE &
                        TimePeriod > min_period)
 
 # only use observations with at least T_min observations
-T_min <- 2
+T_min <- 3
 keep_regiotech <- panel_dat %>% 
         group_by(regio_tech) %>% 
         summarise(count = n()) %>% 
@@ -60,9 +60,25 @@ panel_dat <- panel_dat[panel_dat$regio_tech %in% keep_regiotech, ]
 paste("Panel dataset with", nrow(panel_dat), "observations loaded")
 keep_regiotech <- NULL
 
+# if excluding some techfields:
+# unique(panel_dat$TechGroup)
+# excl_tech <- c("Information & Communication Technology", "Electrical Machinery",
+#                "Audiovisual Technologies", "Computer Science", "Medical Technology")
+# panel_dat <- filter(panel_dat, !TechGroup %in% excl_tech)
+
+
 ################################################
 ####### Define the variables of interest #######
 ################################################
+
+print("Choose dependent variable from: ")
+c(names(panel_dat)[grepl(c("shor"), names(panel_dat))])
+
+print("Choose explanatory variable from: ")
+c(names(panel_dat)[grepl(c("share"), names(panel_dat))], names(panel_dat)[grepl(c("N_inv"), names(panel_dat))])
+
+print("Choose weight variable from: ")
+c(names(panel_dat)[grepl("weight", names(panel_dat))])
 
 # define the dependent variable
 dep_var <- "onshored_patents"
@@ -75,7 +91,7 @@ explan_vars <- c("N_inv_nonwestern",
                  "N_patents_TechGroup")
 
 # define all exogenous instruments:
-instruments <- grep("N_inv", explan_vars, value = TRUE) # imputed inventors for endogenous variables_
+instruments <- grep("N_inv", explan_vars, value = TRUE) # imputed inventors for endogenous variables
 instruments <- paste0("imputed_", instruments)
 instruments <- c(instruments, grep("N_pat", explan_vars, value = TRUE)) # remaining exogenous variables:
 
@@ -84,29 +100,29 @@ panel_dat <- panel_dat[, c("regio_tech", "TimePeriod", "TechGroup",
                            dep_var, 
                            unique(c(explan_vars, instruments)))]
 
-# create dummy variables for Tech-Groups for creating TechGroup-time-trends
-N_obs <- nrow(panel_dat)
-clusters <- panel_dat$regio_tech
-dmy <- dummyVars(" ~ .", data = panel_dat %>% dplyr::select(-regio_tech))
-panel_dat <- data.frame(predict(dmy, newdata = panel_dat %>% dplyr::select(-regio_tech)))
-panel_dat <- panel_dat %>% dplyr::select(-TechGroupTransport)
-dmy <- NULL
-
-# test and add clusters:
-if(sum(names(panel_dat) == "regio_tech") != 0){warnings("Dummies not correctly specified")}
-if(nrow(panel_dat) != N_obs){warnings("Dummies not correctly specified")}
-panel_dat$regio_tech <- clusters
-dummies <- grep("TechGroup", names(panel_dat), value = TRUE)
-dummies <- dummies[dummies != "N_patents_TechGroup"]
-
-# construct TechGroup time trends
-#panel_dat[, dummies] <- panel_dat[, dummies] * panel_dat$TimePeriod
-trend <- data.frame(TimePeriod = sort(unique(panel_dat$TimePeriod)),
-                    trend = seq(length(unique(panel_dat$TimePeriod)))
-                    )
-panel_dat <- left_join(panel_dat, trend, by = "TimePeriod")
-trend <- NULL
-panel_dat[, dummies] <- panel_dat[, dummies] * panel_dat$trend
+# # create dummy variables for Tech-Groups for creating TechGroup-time-trends
+# N_obs <- nrow(panel_dat)
+# clusters <- panel_dat$regio_tech
+# dmy <- dummyVars(" ~ .", data = panel_dat %>% dplyr::select(-regio_tech))
+# panel_dat <- data.frame(predict(dmy, newdata = panel_dat %>% dplyr::select(-regio_tech)))
+# panel_dat <- panel_dat %>% dplyr::select(-TechGroupTransport)
+# dmy <- NULL
+# 
+# # test and add clusters:
+# if(sum(names(panel_dat) == "regio_tech") != 0){warnings("Dummies not correctly specified")}
+# if(nrow(panel_dat) != N_obs){warnings("Dummies not correctly specified")}
+# panel_dat$regio_tech <- clusters
+# dummies <- grep("TechGroup", names(panel_dat), value = TRUE)
+# dummies <- dummies[dummies != "N_patents_TechGroup"]
+# 
+# # construct TechGroup time trends
+# #panel_dat[, dummies] <- panel_dat[, dummies] * panel_dat$TimePeriod
+# trend <- data.frame(TimePeriod = sort(unique(panel_dat$TimePeriod)),
+#                     trend = seq(length(unique(panel_dat$TimePeriod)))
+#                     )
+# panel_dat <- left_join(panel_dat, trend, by = "TimePeriod")
+# trend <- NULL
+# panel_dat[, dummies] <- panel_dat[, dummies] * panel_dat$trend
 
 ###################################################
 ####### Specify the moment conditions model #######
@@ -206,7 +222,6 @@ param_spec <- function(explvars, trends = TRUE, theta_start = 0.2){
 }
 
 PARAMS <- param_spec(trends = FALSE, theta_start = 0.1, explvars = c(ENDOG_VARS, EXOG_VARS))
-#PARAMS <- param_spec(trends = TRUE, theta_start = 0.1, explvars = c(ENDOG_VARS, EXOG_VARS))
 THETA <- PARAMS[["theta"]]
 EXPLAN_VARS <- PARAMS[["explan_vars"]]
 INSTRUMENTS <- PARAMS[["instruments"]]
@@ -223,13 +238,12 @@ if((length(THETA) == length(EXPLAN_VARS) & length(THETA) == length(INSTRUMENTS))
 }else{print("Variables and parameters successfully specified")}
 
 # lag all explanatory variables and instruments
-# IDEA: TRY TO LAG ONLY THE INVENTOR VARS BUT NOT THE PATENTING TREND
-LAG <- 0
+LAG <- 1
 tmp <- panel_dat %>% mutate(idx = rownames(panel_dat))
 tmp <- tmp %>% group_by(regio_tech) %>% arrange(TimePeriod) %>%
-        dplyr::select(-onshored_patents) %>% mutate_all(~dplyr::lag(., LAG)) %>% 
+        dplyr::select(-dep_var) %>% mutate_all(~dplyr::lag(., LAG)) %>% 
         arrange(as.numeric(idx))
-panel_dat <- panel_dat[, c("regio_tech", "onshored_patents", unique(c(EXPLAN_VARS, INSTRUMENTS)))]
+panel_dat <- panel_dat[, c("regio_tech", dep_var, unique(c(EXPLAN_VARS, INSTRUMENTS)))]
 panel_dat[, -2] <- tmp[, names(panel_dat)[-2]]
 tmp <- NULL
 
@@ -250,7 +264,6 @@ gmm_model
 res2 <- gmmFit(model = gmm_model, type = "twostep")
 print("Moment model estimated using package 'momentFit':")
 summary(res2, sandwich = TRUE, df.adj = TRUE)
-
 
 
 #### REMARKS:
