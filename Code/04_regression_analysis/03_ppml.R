@@ -24,26 +24,14 @@ if(substr(x = getwd(),
 ####### Load & process data #######
 ###################################
 
-load_dat_fun <- function(subsidiaries){
-  if(subsidiaries == "include"){
-    tmp <- read.csv(paste0(getwd(), "/Data/regression_data/regression_data_incl_subsidiaries.csv"))
-    }else{
-      if(subsidiaries == "exclude"){
-        tmp <- read.csv(paste0(getwd(), "/Data/regression_data/regression_data_excl_subsidiaries.csv"))
-        }else{
-      tmp <- read.csv(paste0(getwd(), "/Data/regression_data/regression_data_only_subsidiaries.csv"))
-        }
-    }
-  return(tmp)
-  }
-
-#panel_dat <- load_dat_fun(subsidiaries = "include")
 #panel_dat <- read.csv(paste0(getwd(), "/Data/regression_data/regression_data_baseline.csv"))
-
 panel_dat <- read.csv(paste0(getwd(), "/Data/regression_data/regression_data_robustness_checks.csv"))
+
+min_period <- 1984
+#min_period <- 1995
 panel_dat <- panel_dat %>% 
         filter(is.na(N_inv_nonwestern) == FALSE &
-                       TimePeriod > 1984)
+                       TimePeriod > min_period)
 panel_dat$TimePeriod <- as.character(panel_dat$TimePeriod)
 
 # only use observations with at least T_min observations
@@ -60,6 +48,9 @@ paste("Panel dataset with", nrow(panel_dat), "observations ready for regression 
 ####### PPML ESTIMATIONS ########
 #################################
 
+print("Choose dependent variable from: ")
+c(names(panel_dat)[grepl(c("onshored"), names(panel_dat))])
+
 print("Choose explanatory variable from: ")
 c(names(panel_dat)[grepl(c("share"), names(panel_dat))], names(panel_dat)[grepl(c("N_inv"), names(panel_dat))])
 
@@ -67,7 +58,7 @@ print("Choose weight variable from: ")
 c(names(panel_dat)[grepl("weight", names(panel_dat))])
 
 #### (1) BASELINE SPECIFICATION ----------------------------------------------------- 
-DEP_VAR <- "onshored_patents_worldclass"
+DEP_VAR <- "onshored_patents"
 
 WEIGHT_VAR <- "weight_initial_patents"
 EXPL_VAR <- "N_inv_nonwestern"

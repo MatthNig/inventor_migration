@@ -29,9 +29,14 @@ if(substr(x = getwd(),
 
 #### on-/off-shoring of patents
 df <- readRDS(paste0(datDir, "/pat_dat_all_final.rds"))
+N <- length(unique(setDT(df)[p_year >= 1980 & p_year <= 2015, p_key]))
+paste("Investigating", N, "unique patents between 1980 and 2015.") # N = 7'748'175
 
 #### inventor flows
 inv_dat <- readRDS(paste0(mainDir, "/created data/inventor_origin.rds"))
+length(unique(setDT(inv_dat)[p_year >= 1980 & p_year <= 2015, name]))
+paste("Investigating", N, "unique inventors between 1980 and 2015.") # N = 3'106'084
+
 
 #### functions to identify attracted patents from foreign countries
 source(paste0(getwd(), "/Code/03_onshoring_analysis/onshoring_analysis_functions.R"))

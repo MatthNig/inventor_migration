@@ -3,7 +3,7 @@
 #               relationship between the number of foreign       #
 #               origin inventors and offshoring to the USA       #
 # Authors:      Matthias Niggli/CIEB UniBasel                    #
-# Last revised: 11.05.2021                                       #
+# Last revised: 20.05.2021                                       #
 ##################################################################
 
 #######################################
@@ -11,10 +11,7 @@
 #######################################
 
 # packages----------------------------------------
-pkgs <- c("tidyverse",
-          "caret",
-          "gmm",
-          "momentfit")
+pkgs <- c("tidyverse", "caret", "momentfit")
 
 # install packages if necessary
 inst_pkgs <- which(pkgs %in% rownames(installed.packages()) == FALSE)
@@ -41,25 +38,16 @@ if(substr(x = getwd(),
 ####### Load & process data #######
 ###################################
 
-load_dat_fun <- function(subsidiaries){
-        if(subsidiaries == "include"){
-                tmp <- read.csv(paste0(getwd(), "/Data/regression_data/regression_data_incl_subsidiaries.csv"))
-        }else{
-                if(subsidiaries == "exclude"){
-                        tmp <- read.csv(paste0(getwd(), "/Data/regression_data/regression_data_excl_subsidiaries.csv"))
-                }else{
-                        tmp <- read.csv(paste0(getwd(), "/Data/regression_data/regression_data_only_subsidiaries.csv"))
-                }
-        }
-        return(tmp)
-}
-panel_dat <- load_dat_fun(subsidiaries = "include")
+#panel_dat <- read.csv(paste0(getwd(), "/Data/regression_data/regression_data_baseline.csv"))
+panel_dat <- read.csv(paste0(getwd(), "/Data/regression_data/regression_data_robustness_checks.csv"))
 print("Panel data loaded.")
 
 # only use observations with information on non-western inventors:
+min_period <- 1984
+#min_period <- 1995
 panel_dat <- panel_dat %>% 
         filter(is.na(N_inv_nonwestern) == FALSE &
-                       TimePeriod > 1984)
+                       TimePeriod > min_period)
 
 # only use observations with at least T_min observations
 T_min <- 2
@@ -252,23 +240,20 @@ paste("Regression dataset with", nrow(panel_dat), "observations ready for analys
 ####### Estimate with GMM #######
 #################################
 
-# estimate using package "gmm"
-# res <- gmm(g = moment_fun, x = panel_dat, 
-#           t0 = THETA, type = "twoStep")
-#print("Moment model estimated using package 'gmm':")
-#print(summary(res))
-
 # estimate using package "momentfit"
 gmm_model <- momentModel(g = moment_fun, x = panel_dat,
                          theta0 = THETA,
                          vcov = "CL",
-                         vcovOptions = list(cluster=~regio_tech), 
+                         vcovOptions = list(cluster= ~regio_tech), 
                          data = panel_dat)
 gmm_model
 res2 <- gmmFit(model = gmm_model, type = "twostep")
 print("Moment model estimated using package 'momentFit':")
 summary(res2, sandwich = TRUE, df.adj = TRUE)
 
+
+
+#### REMARKS:
 # excluding subsidiaries:--------------
 # with lag = 1 und T_min = 5: N = 2'807, beta = 0.24062, p = 0.14227 (=> non-significant)
 # with lag = 1 und T_min = 3: N = 2'918, beta = -0.166744, p = 0.3857 (=> non-significant)

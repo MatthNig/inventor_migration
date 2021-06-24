@@ -19,6 +19,7 @@ if(substr(x = getwd(),
           nchar(getwd())-17, nchar(getwd())) == "inventor_migration"){
         print("Working directory corresponds to repository directory")}else{
                 print("Make sure your working directory is the repository directory.")}
+# setwd("/scicore/home/weder/nigmat01/inventor_migration")
 
 #########################################################
 ####### Load data and functions for data analysis #######
@@ -31,8 +32,8 @@ df <- readRDS(paste0(datDir, "/pat_dat_all_final.rds"))
 inv_dat <- readRDS(paste0(mainDir, "/created data/inventor_origin.rds"))
 
 #### helper functions to identify attracted patents from foreign countries
-source(paste0(getwd(), "/Code/03_onshoring_analysis/onshoring_analysis_functions.R"))
-source(paste0(getwd(), "/Code/04_regression_analysis/01b_robustness_check_helper_functions.R"))
+#source(paste0(getwd(), "/Code/03_onshoring_analysis/onshoring_analysis_functions.R"))
+source(paste0(getwd(), "/Code/04_regression_analysis/robustness_check_helper_functions.R"))
 
 #### baseline regression data
 reg_dat <- read.csv(paste0(getwd(), "/Data/regression_data/regression_data_baseline.csv"))
@@ -133,13 +134,12 @@ robustness_dat <- combine_dat_fun(dat = dat,
                                   merge_df = robustness_dat, 
                                   new_var = NEW_VAR)
 
-
-
 ################################################
 ### SAVE THE DATASET FOR ROBUSTNESS CHECKLS ####
 ################################################
 
-write.csv(dat, paste0(getwd(), "/Data/regression_data/regression_data_robustness_checks.csv"),
+write.csv(robustness_dat, 
+          paste0(getwd(), "/Data/regression_data/regression_data_robustness_checks.csv"),
           row.names = FALSE)
 print("Saved dataset")
 
