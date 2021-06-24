@@ -3,7 +3,7 @@
 #               relationship between the share of foreign        #
 #               origin inventors and offshoring to the USA       #
 # Authors:      Matthias Niggli/CIEB UniBasel                    #
-# Last revised: 11.05.2021                                       #
+# Last revised: 24.06.2021                                       #
 ##################################################################
 
 #######################################
@@ -27,11 +27,11 @@ if(substr(x = getwd(),
 #panel_dat <- read.csv(paste0(getwd(), "/Data/regression_data/regression_data_baseline.csv"))
 panel_dat <- read.csv(paste0(getwd(), "/Data/regression_data/regression_data_robustness_checks.csv"))
 
-min_period <- 1984
-#min_period <- 1995
+MIN_PERIOD <- 1984
+#MIN_PERIOD <- 1995
 panel_dat <- panel_dat %>% 
         filter(is.na(N_inv_nonwestern) == FALSE &
-                       TimePeriod > min_period)
+                       TimePeriod > MIN_PERIOD)
 panel_dat$TimePeriod <- as.character(panel_dat$TimePeriod)
 
 # only use observations with at least T_min observations
@@ -44,12 +44,18 @@ keep_regiotech <- keep_regiotech$regio_tech
 panel_dat <- panel_dat[panel_dat$regio_tech %in% keep_regiotech, ]
 paste("Panel dataset with", nrow(panel_dat), "observations ready for regression analysis.")
 
+# if excluding some techfields:
+unique(panel_dat$TechGroup)
+excl_tech <- c("Information & Communication Technology", "Electrical Machinery",
+               "Audiovisual Technologies", "Computer Science", "Medical Technology")
+panel_dat <- filter(panel_dat, !TechGroup %in% excl_tech)
+
 #################################
 ####### PPML ESTIMATIONS ########
 #################################
 
 print("Choose dependent variable from: ")
-c(names(panel_dat)[grepl(c("onshored"), names(panel_dat))])
+c(names(panel_dat)[grepl(c("shor"), names(panel_dat))])
 
 print("Choose explanatory variable from: ")
 c(names(panel_dat)[grepl(c("share"), names(panel_dat))], names(panel_dat)[grepl(c("N_inv"), names(panel_dat))])
@@ -177,108 +183,3 @@ ppml_model <- feglm(data = reg_dat, fml = FORMULA, weights = reg_dat[, WEIGHT_VA
 print("PPML model with imputed number of inventors with weights:")
 summary(ppml_model, cluster = c("regio_tech")) # se clustered on tech-state pairs and time periods
 
-#################################
-####### OLS ESTIMATION ##########
-#################################
-
-# drop onshored patents with zero values or add small constant
-ols_transform <- function(transformation = "drop"){
-        if(transformation == "drop"){
-                panel_dat_ols <- panel_dat[panel_dat$onshored_patents != 0, ]}else{
-                  panel_dat_ols <- panel_dat      
-                  panel_dat_ols$onshored_patents <- panel_dat_ols$onshored_patents + 0.1
-                }
-        return(panel_dat_ols)
-}
-
-panel_dat_ols <- ols_transform(transformation = "constant")
-
-EXPL_VAR <- "N_inv_nonwestern"
-panel_dat_ols$N_inv_rest <- panel_dat_ols$N_inv_regiotech - panel_dat_ols[, EXPL_VAR]
-CTRL_VAR <- c("N_inv_rest", "N_patents_TechGroup")
-LAG_VARS <- unique(c(EXPL_VAR, CTRL_VAR))
-
-reg_dat <- lag_fun(lag_vars = LAG_VARS, df = panel_dat)
-reg_dat <- left_join(reg_dat, panel_dat[!duplicated(panel_dat$regio_tech), c("regio_tech", WEIGHT_VAR)], 
-                     by = "regio_tech") # add weights
-reg_dat <- panel(data = reg_dat, panel.id = c("regio_tech", "TimePeriod"))
-EXPL_VAR <- paste0("log(", EXPL_VAR, ")")
-CTRL_VAR <- paste0("log(", CTRL_VAR, ")")
-
-LAGS <- "0"
-EXPL_VAR <- paste0("l(", EXPL_VAR, ", ", LAGS, ")")
-CTRL_VAR <- paste(paste0("l(", CTRL_VAR, ", ", LAGS, ")"), collapse = " + ")
-
-FORMULA <- paste0("log(onshored_patents) ~", 
-                  EXPL_VAR, # foreign origin
-                  " + ", CTRL_VAR, # total inventors and patenting controls
-                  "|",
-                  "regio_tech", # state-technology fixed effects
-                  # "+ regio_inv[[trend]]", # state trends
-                  # "+ TechGroup[[trend]]", # technology trends
-                  "")
-FORMULA <- as.formula(FORMULA)
-FORMULA
-
-ppml_model <- feols(data = reg_dat, fml = FORMULA)
-print("OLS model without weights")
-summary(ppml_model, cluster = c("regio_tech")) # se clustered on tech-state pairs
-ppml_model <- feols(data = reg_dat, fml = FORMULA, weights = reg_dat[, WEIGHT_VAR])
-print("OLS model with weights:")
-summary(ppml_model, cluster = c("regio_tech")) # se clustered on tech-state pairs and time periods
-
-#################################
-####### TSLS ESTIMATION #########
-#################################
-
-# drop onshored patents with zero values or add small constant
-ols_transform <- function(transformation = "drop"){
-        if(transformation == "drop"){
-                panel_dat_ols <- panel_dat[panel_dat$onshored_patents != 0, ]}else{
-                  panel_dat_ols <- panel_dat      
-                  panel_dat_ols$onshored_patents <- panel_dat_ols$onshored_patents + 0.1
-                }
-        return(panel_dat_ols)
-}
-
-panel_dat_ols <- ols_transform(transformation = "constant")
-
-ENDO_VARS <- "N_inv_nonwestern"
-panel_dat_ols$N_inv_rest <- panel_dat_ols$N_inv_regiotech - panel_dat_ols[, ENDO_VARS]
-EXOG_VAR <- c("N_inv_rest", "N_patents_TechGroup")
-INSTRUMENTS <- "imputed_N_inv_nonwestern"
-
-LAG_VARS <- unique(c(ENDO_VARS, EXOG_VAR, INSTRUMENTS))
-reg_dat <- lag_fun(lag_vars = LAG_VARS, df = panel_dat_ols)
-reg_dat <- left_join(reg_dat, panel_dat[!duplicated(panel_dat$regio_tech), c("regio_tech", WEIGHT_VAR)], 
-                     by = "regio_tech") # add weights
-reg_dat <- panel(data = reg_dat, panel.id = c("regio_tech", "TimePeriod"))
-ENDO_VARS <- paste0("log(", ENDO_VARS, ")")
-EXOG_VAR <- paste0("log(", EXOG_VAR, ")")
-INSTRUMENTS <- paste0("log(", INSTRUMENTS, ")")
-
-LAGS <- "0"
-ENDO_VARS <- paste0("l(", ENDO_VARS, ", ", LAGS, ")", collapse = " + ")
-EXOG_VAR <- paste(paste0("l(", EXOG_VAR, ", ", LAGS, ")"), collapse = " + ")
-INSTRUMENTS <- paste0("l(", INSTRUMENTS, ", ", LAGS, ")", collapse = " + ")
-
-FORMULA <- paste0("log(onshored_patents) ~", 
-                  EXOG_VAR, # exogenous variables
-                  "|",
-                  "regio_tech", # state-technology fixed effects
-                  # "+ TechGroup[[trend]]", # technology trends
-                  "|",
-                  ENDO_VARS, "~", INSTRUMENTS,
-                  "")
-FORMULA <- as.formula(FORMULA)
-FORMULA
-
-ppml_model <- feols(data = reg_dat, fml = FORMULA)
-print("TSLS model without weights")
-summary(ppml_model, cluster = c("regio_tech")) # se clustered on tech-state pairs
-ppml_model <- feols(data = reg_dat, fml = FORMULA, weights = reg_dat[, WEIGHT_VAR])
-print("TSLS model with weights:")
-summary(ppml_model, cluster = c("regio_tech")) # se clustered on tech-state pairs and time periods
-
-# first stage
-summary(ppml_model, stage=1)
