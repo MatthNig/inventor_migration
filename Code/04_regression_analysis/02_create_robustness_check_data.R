@@ -1,7 +1,7 @@
 ##################################################################
 # Description:  Script to generate data for robustness checks.   #
 # Authors:      Matthias Niggli/CIEB UniBasel                    #
-# Last revised: 20.05.2021                                       #
+# Last revised: 25.06.2021                                       #
 ##################################################################
 
 #######################################
@@ -15,11 +15,11 @@ library("data.table")
 # directories  -----------------------------------------------------------------
 datDir <- "/scicore/home/weder/nigmat01/Data"
 mainDir <- "/scicore/home/weder/GROUP/Innovation/01_patent_data"
+setwd("/scicore/home/weder/nigmat01/inventor_migration")
 if(substr(x = getwd(), 
           nchar(getwd())-17, nchar(getwd())) == "inventor_migration"){
         print("Working directory corresponds to repository directory")}else{
                 print("Make sure your working directory is the repository directory.")}
-#setwd("/scicore/home/weder/nigmat01/inventor_migration")
 
 #########################################################
 ####### Load data and functions for data analysis #######
@@ -153,8 +153,26 @@ tmp <- NULL
 excl_techfields <- NULL
 base_year <- NULL
 
+###########################################################################
+### (F) Exclude regions with largest inflows of non-western inventors #####
+###########################################################################
+
+# identify US tech_fields with largest relative inflows between 1985 and 2015:
+tmp <- inv_dat %>% filter(Ctry_code == "US" & p_year %in% c(1985, 2015)) %>%
+        group_by(Up_reg_label, p_year) %>% summarize(count = n())
+base_year <- tmp %>% filter(p_year == 1985) %>% rename(base_count = count) %>% select(-p_year)
+tmp <- merge(tmp %>% filter(p_year == 2015), base_year, by = "Up_reg_label")
+tmp <- tmp %>% mutate(inflow = count / base_count) %>% arrange(-inflow)
+print("Exluding the following states:")
+(excl_states <- tmp[tmp$inflow > 10 & tmp$base_count >= 30, "Up_reg_label"])
+# "New Hampshire"  "Kentucky"       "Delaware"       "Washington"     "South Carolina" "Vermont"
+tmp <- NULL
+excl_techfields <- NULL
+base_year <- NULL
+
+
 #########################################################################
-### (F) Calculate inventor numbers based on highest prediction only #####
+### (G) Calculate inventor numbers based on highest prediction only #####
 #########################################################################
 
 # (1) assign technological groups and TimePeriods to inventors
@@ -293,7 +311,7 @@ inv_stock_regiotech <- NULL
 
 
 #########################################################################
-### (G) Calculate the number of offshoring firms instead of patents #####
+### (H) Calculate the number of offshoring firms instead of patents #####
 #########################################################################
 
 # (1) identify offshored patents to the USA
@@ -316,6 +334,9 @@ dat <- dat %>% group_by(regio_inv, TechGroup, TimePeriod) %>%
 robustness_dat <- merge(robustness_dat, dat, 
                         by = c("regio_inv", "TechGroup","TimePeriod"),
                         all.x = TRUE)
+
+# (4) add zero value offshoring firms
+robustness_dat <- robustness_dat %>% mutate(N_offshoring_firms = ifelse(is.na(N_offshoring_firms), 0, N_offshoring_firms))
 
 ################################################
 ### SAVE THE DATASET FOR ROBUSTNESS CHECKLS ####

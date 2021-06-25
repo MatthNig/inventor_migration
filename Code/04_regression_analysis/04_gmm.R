@@ -42,15 +42,15 @@ if(substr(x = getwd(),
 panel_dat <- read.csv(paste0(getwd(), "/Data/regression_data/regression_data_robustness_checks.csv"))
 print("Panel data loaded.")
 
-# only use observations with information on non-western inventors:
-min_period <- 1984
-#min_period <- 2000
+MIN_PERIOD <- 1984
+# MIN_PERIOD <- 2000
 panel_dat <- panel_dat %>% 
         filter(is.na(N_inv_nonwestern) == FALSE &
-                       TimePeriod > min_period)
+                       TimePeriod > MIN_PERIOD)
+panel_dat$TimePeriod <- as.character(panel_dat$TimePeriod)
 
 # only use observations with at least T_min observations
-T_min <- 3
+T_min <- 2
 keep_regiotech <- panel_dat %>% 
         group_by(regio_tech) %>% 
         summarise(count = n()) %>% 
@@ -66,6 +66,9 @@ keep_regiotech <- NULL
 #                "Audiovisual Technologies", "Computer Science", "Medical Technology")
 # panel_dat <- filter(panel_dat, !TechGroup %in% excl_tech)
 
+# if excluding some states:
+# excl_state <- c("New Hampshire", "Kentucky", "Delaware", "Washington", "South Carolina", "Vermont")
+# panel_dat <- filter(panel_dat, !regio_inv %in% excl_state)
 
 ################################################
 ####### Define the variables of interest #######
@@ -81,7 +84,7 @@ print("Choose weight variable from: ")
 c(names(panel_dat)[grepl("weight", names(panel_dat))])
 
 # define the dependent variable
-dep_var <- "onshored_patents"
+dep_var <- "onshored_patents_worldclass"
 
 # define all explanatory variables:
 explan_vars <- c("N_inv_nonwestern",
@@ -156,8 +159,8 @@ moment_fun <- function(theta, x){
                         CMF_demeaned_i <- CMF_t / CMF_mean
                         
                         # calculate and return the T moment conditions for region i
-                        y_it <- tmp$onshored_patents
-                        y_mean <- mean(tmp$onshored_patents)
+                        y_it <- tmp[, dep_var]
+                        y_mean <- mean(tmp[, dep_var])
                         z_it <- tmp[, instrument]
                         m_i <- z_it * (y_it - (CMF_demeaned_i * y_mean))
                         return(m_i)
@@ -238,7 +241,7 @@ if((length(THETA) == length(EXPLAN_VARS) & length(THETA) == length(INSTRUMENTS))
 }else{print("Variables and parameters successfully specified")}
 
 # lag all explanatory variables and instruments
-LAG <- 1
+LAG <- 0
 tmp <- panel_dat %>% mutate(idx = rownames(panel_dat))
 tmp <- tmp %>% group_by(regio_tech) %>% arrange(TimePeriod) %>%
         dplyr::select(-dep_var) %>% mutate_all(~dplyr::lag(., LAG)) %>% 
@@ -287,8 +290,8 @@ summary(res2, sandwich = TRUE, df.adj = TRUE)
 # ***with lag = 0 und T_min = 2: N = 3343 , beta = 0.74436, p = 7.197e-05 *** (=> significant)***
 
 # ****=> use lag = 0 and T_min = 2 (easy to argue) as baseline including subsidiaries****
-# => robustness with lag = 1, T_min = 3, would be smaller but positive and close to significance
-# => robustness with excluding subsidiaries and lag = 0 would be larger and significant
+# => robustness with lag = 1, T_min = 3, would be smaller but positive and close to significance 
+# => robustness with excluding subsidiaries and lag = 0 would be larger and significant(with THETA = 0.1.. CAN BE UNSTABLE...)
 
 # rootogramm:
 # https://arxiv.org/pdf/1605.01311.pdf

@@ -28,7 +28,7 @@ if(substr(x = getwd(),
 panel_dat <- read.csv(paste0(getwd(), "/Data/regression_data/regression_data_robustness_checks.csv"))
 
 MIN_PERIOD <- 1984
-#MIN_PERIOD <- 1995
+# MIN_PERIOD <- 2000
 panel_dat <- panel_dat %>% 
         filter(is.na(N_inv_nonwestern) == FALSE &
                        TimePeriod > MIN_PERIOD)
@@ -45,10 +45,15 @@ panel_dat <- panel_dat[panel_dat$regio_tech %in% keep_regiotech, ]
 paste("Panel dataset with", nrow(panel_dat), "observations ready for regression analysis.")
 
 # if excluding some techfields:
-unique(panel_dat$TechGroup)
-excl_tech <- c("Information & Communication Technology", "Electrical Machinery",
-               "Audiovisual Technologies", "Computer Science", "Medical Technology")
-panel_dat <- filter(panel_dat, !TechGroup %in% excl_tech)
+# unique(panel_dat$TechGroup)
+# excl_tech <- c("Information & Communication Technology", "Electrical Machinery",
+#                "Audiovisual Technologies", "Computer Science", "Medical Technology")
+# panel_dat <- filter(panel_dat, !TechGroup %in% excl_tech)
+
+# if excluding some states:
+# excl_state <- c("New Hampshire", "Kentucky", "Delaware", "Washington", "South Carolina", "Vermont")
+# panel_dat <- filter(panel_dat, !regio_inv %in% excl_state)
+
 
 #################################
 ####### PPML ESTIMATIONS ########
@@ -64,7 +69,7 @@ print("Choose weight variable from: ")
 c(names(panel_dat)[grepl("weight", names(panel_dat))])
 
 #### (1) BASELINE SPECIFICATION ----------------------------------------------------- 
-DEP_VAR <- "onshored_patents"
+DEP_VAR <- "onshored_patents_worldclass"
 
 WEIGHT_VAR <- "weight_initial_patents"
 EXPL_VAR <- "N_inv_nonwestern"
