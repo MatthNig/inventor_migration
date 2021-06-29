@@ -51,7 +51,7 @@ assign_TechGroup <- function(df){
                 tech_field %in% c(9:12) ~ "Instruments",
                 tech_field %in% c(13) ~ "Medical Technology",
                 tech_field %in% c(14:16) ~ "Pharmaceuticals & Biotechnology",
-                tech_field %in% c(18:23) ~ "Chemistry & Materials",
+                tech_field %in% c(17:23) ~ "Chemistry & Materials",
                 tech_field %in% c(25, 26, 28, 29, 31) ~ "Machines & Mechanical Engineering",
                 tech_field %in% c(24, 27, 30) ~ "Engines, Turbines, Thermal & Environmental Technologies",
                 tech_field %in% c(32) ~ "Transport",
@@ -88,6 +88,41 @@ onshoring_TechState <- function(df){
         return(onshored_pat)
 }
 
+#### prevalence of non-western ethnic origins per region-tech-field
+foreign_share_TechState <- function(df, country,
+                                    origins, min_inv){
+        
+        # calculate total number of inventors per region and TechGroup-field
+        total_inventors <- filter(df, Ctry_code == country) %>%
+                group_by(Up_reg_label, TechGroup, TimePeriod) %>%
+                summarise(total_inventors = n())
+        
+        # drop all origins that are not of interest:
+        DROP_ORIGINS <- names(df)[grepl("prob_", names(df))]
+        DROP_ORIGINS <- DROP_ORIGINS[!DROP_ORIGINS %in% paste0("prob_", origins)]
+        df <- as.data.frame(df)[, !names(df) %in% DROP_ORIGINS]
+        
+        # sum up origin probabilities per region and TechGroup-field
+        tmp <- filter(df, Ctry_code == country) %>%
+                group_by(Up_reg_label, TechGroup, TimePeriod) %>%
+                select(contains("prob")) %>%
+                summarise_all(.funs = sum)
+        
+        # calculate share of foreign origin per region and tech-field
+        tmp <- merge(tmp, total_inventors,
+                     by = c("Up_reg_label", "TechGroup", "TimePeriod"))
+        tmp <- filter(tmp, total_inventors >= min_inv)
+        tmp[, grepl("prob", names(tmp))] <- tmp[, grepl("prob", names(tmp))] / tmp$total
+        tmp <- gather(tmp, key = "origin", value = "share", -TimePeriod, -Up_reg_label,
+                      -TechGroup, -total_inventors)
+        tmp$origin <- gsub("prob_", "", tmp$origin)
+        tmp <- tmp %>% group_by(Up_reg_label, TechGroup, TimePeriod) %>%
+                summarize(foreign_share = sum(share)) %>%
+                rename(regio_inv = Up_reg_label)
+        tmp <- tmp %>% filter(!is.na(regio_inv), !is.na(TimePeriod), !is.na(TechGroup))
+        
+        return(tmp)
+}
 
 #### process the raw data
 data_processing_fun <- function(dat){

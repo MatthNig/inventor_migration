@@ -4,7 +4,7 @@
 #               Data is at the level of technological fields and    #
 #               U.S. states for periods of 3 year intervals.        #
 # Authors:      Matthias Niggli/CIEB UniBasel                       #
-# Last revised: 20.05.2021                                          #
+# Last revised: 29.06.2021                                          #
 #####################################################################
 
 #######################################
@@ -18,6 +18,7 @@ library("data.table")
 # directories  -----------------------------------------------------------------
 datDir <- "/scicore/home/weder/nigmat01/Data"
 mainDir <- "/scicore/home/weder/GROUP/Innovation/01_patent_data"
+setwd("/scicore/home/weder/nigmat01/inventor_migration")
 if(substr(x = getwd(), 
           nchar(getwd())-17, nchar(getwd())) == "inventor_migration"){
         print("Working directory corresponds to repository directory")}else{
@@ -34,7 +35,7 @@ paste("Investigating", N, "unique patents between 1980 and 2015.") # N = 7'748'1
 
 #### inventor flows
 inv_dat <- readRDS(paste0(mainDir, "/created data/inventor_origin.rds"))
-length(unique(setDT(inv_dat)[p_year >= 1980 & p_year <= 2015, name]))
+N <- length(unique(setDT(inv_dat)[p_year >= 1980 & p_year <= 2015, name]))
 paste("Investigating", N, "unique inventors between 1980 and 2015.") # N = 3'106'084
 
 
@@ -114,7 +115,7 @@ assign_TechGroup <- function(df){
                 tech_field %in% c(9:12) ~ "Instruments",
                 tech_field %in% c(13) ~ "Medical Technology",
                 tech_field %in% c(14:16) ~ "Pharmaceuticals & Biotechnology",
-                tech_field %in% c(18:23) ~ "Chemistry & Materials",
+                tech_field %in% c(17:23) ~ "Chemistry & Materials",
                 tech_field %in% c(25, 26, 28, 29, 31) ~ "Machines & Mechanical Engineering",
                 tech_field %in% c(24, 27, 30) ~ "Engines, Turbines, Thermal & Environmental Technologies",
                 tech_field %in% c(32) ~ "Transport",
@@ -151,12 +152,12 @@ dat <- assign_TimePeriod(df = dat)
 
 #### evaluate
 paste(length(unique(dat$p_key)), "unique patents used for analysis") 
-# N = xxx without adjustment, N = 4'562'567 with adj
+# N = 4'497'136 without adjustment, N = 4'562'567 with adj
 paste(nrow(dat), "patents entries used for analysis") 
 # N = 13'049'201 without adjustment, N = 13'268'547 with adj
 paste(nrow(dat[dat$p_year > 1984 & dat$p_year < 2016, ]), 
       "entries of patents between 1985 and 2015 used for analysis") 
-# N = 11'690'421, N = 11'892'539 with adj
+# N = 11'677'155, N = 11'879'008 with adj
 paste(nrow(dat[dat$onshored == 1 & dat$ctry_inv == "US", ]),
       "entries stated on onshored patents to the U.S") 
 # N = 495'855 without adjustment, N = 660'210 with subsidiary adjustment
@@ -191,8 +192,8 @@ tmp <- NULL
 dat <- dat %>% filter(!is.na(regio_inv), !is.na(TimePeriod), !is.na(TechGroup))
 paste("Data on onshored patents prepared.", 
       sum(dat$onshored_patents), 
-      "onshored patents used for analysis") 
-# N = 129'776 without adjustment, N = 165'532 with adjustment: Difference = 35'756
+      "onshored patents entries used for analysis") 
+# N = 135'294 without adjustment, N = 172'639 with adjustment: Difference = 37'345
 
 ######################################################################
 ##### Ethnic origin shares of inventors by technology and State ######
@@ -205,17 +206,17 @@ inv_dat <- assign_TimePeriod(df = inv_dat)
 # (2) calculate the share of non-western origin inventors by Region, TechGroup and Year
 foreign_share_TechState <- function(df, country,
                                     origins, min_inv){
-        
+
         # calculate total number of inventors per region and TechGroup-field
         total_inventors <- filter(df, Ctry_code == country) %>%
                 group_by(Up_reg_label, TechGroup, TimePeriod) %>%
                 summarise(total_inventors = n())
-        
+
         # drop all origins that are not of interest:
         DROP_ORIGINS <- names(df)[grepl("prob_", names(df))]
         DROP_ORIGINS <- DROP_ORIGINS[!DROP_ORIGINS %in% paste0("prob_", origins)]
-        df <- df[, !names(df) %in% DROP_ORIGINS]
-        
+        df <- as.data.frame(df)[, !names(df) %in% DROP_ORIGINS]
+
         # sum up origin probabilities per region and TechGroup-field
         tmp <- filter(df, Ctry_code == country) %>%
                 group_by(Up_reg_label, TechGroup, TimePeriod) %>%
@@ -223,7 +224,7 @@ foreign_share_TechState <- function(df, country,
                 summarise_all(.funs = sum)
 
         # calculate share of foreign origin per region and tech-field
-        tmp <- merge(tmp, total_inventors, 
+        tmp <- merge(tmp, total_inventors,
                      by = c("Up_reg_label", "TechGroup", "TimePeriod"))
         tmp <- filter(tmp, total_inventors >= min_inv)
         tmp[, grepl("prob", names(tmp))] <- tmp[, grepl("prob", names(tmp))] / tmp$total
@@ -234,12 +235,12 @@ foreign_share_TechState <- function(df, country,
                 summarize(foreign_share = sum(share)) %>%
                 rename(regio_inv = Up_reg_label)
         tmp <- tmp %>% filter(!is.na(regio_inv), !is.na(TimePeriod), !is.na(TechGroup))
-        
+
         return(tmp)
 }
 
 # get aggregate non-western origin shares:
-NON_WESTERN_ORIGIN <- c("China", "India", "Slavic-Russian", 
+NON_WESTERN_ORIGIN <- c("China", "India", "Slavic-Russian",
                         "Arabic", "Persian", "Turkey",
                         "SouthEastAsia")
 origin_share_dat <- foreign_share_TechState(df = inv_dat, country = "US", min_inv = 30,
@@ -247,12 +248,12 @@ origin_share_dat <- foreign_share_TechState(df = inv_dat, country = "US", min_in
 origin_share_dat <- origin_share_dat %>% rename(non_western_share = foreign_share)
 
 # get non-domestic ethnic origin share
-tmp <- foreign_share_TechState(df = inv_dat, country = "US", 
+tmp <- foreign_share_TechState(df = inv_dat, country = "US",
                                min_inv = 30,
                                origins = "AngloSaxon")
 tmp$non_domestic_share <- 1 - tmp$foreign_share
 tmp <- tmp[, names(tmp) != "foreign_share"]
-origin_share_dat <- merge(origin_share_dat, tmp, 
+origin_share_dat <- merge(origin_share_dat, tmp,
                           by = c("regio_inv","TechGroup","TimePeriod"),
                           all = TRUE)
 
@@ -263,7 +264,7 @@ tmp <- lapply(c("China", "India"), function(x){
   return(tmp)
   })
 for (i in 1:length(tmp)){
-  origin_share_dat <- merge(origin_share_dat, tmp[[i]], 
+  origin_share_dat <- merge(origin_share_dat, tmp[[i]],
         by = c("regio_inv","TechGroup","TimePeriod"),
         all = TRUE)
   }
@@ -276,7 +277,7 @@ print("Data on inventor origin shares prepared.")
 
 # (1) merge onshoring and inventor origin information
 dat <- merge(dat, origin_share_dat,
-             by = c("regio_inv", "TechGroup", "TimePeriod"), 
+             by = c("regio_inv", "TechGroup", "TimePeriod"),
              all = TRUE)
 origin_share_dat <- NULL
 print("Merged the number of offshored patents and inventor origin information")
@@ -324,7 +325,7 @@ weights <- merge(weights, REGIONS, by = "regio_inv")
 weights <- assign_TechGroup(weights)
 weights <- merge(weights, TECH_GROUP_No, by = "TechGroup")
 weights$regio_tech <- paste0(weights$reg_label, weights$TechGroup_No)
-weights <- weights %>% group_by(regio_tech) %>% 
+weights <- weights %>% group_by(regio_tech) %>%
   summarise(N_patents = n(),
             weight_initial_patents = N_patents / nrow(weights)) %>%
   select(-N_patents)
@@ -453,42 +454,42 @@ inv_stock_regiotech <- inv_stock_regiotech_fun(df = inv_dat)
 # (5) Calculate the imputed stock of inventors
 # for every technology-state pair in every TimePeriod based on initial distribution
 impute_inv_stock_regiotech_fun <- function(df){
-  
+
   # initial inventor distribution across states
   initial_inv_total <- df %>% filter(Ctry_code == "US" & p_year < 1985) %>% nrow()
-  initial_inv_state <- df %>% 
+  initial_inv_state <- df %>%
     filter(Ctry_code == "US" & p_year < 1985) %>%
-    group_by(Up_reg_label) %>% 
+    group_by(Up_reg_label) %>%
     summarise(initial_inventors = n()) %>% mutate(initial_share_state = initial_inventors / initial_inv_total)
-  
+
   # annual distribution of inventors across TechGroups:
-  period_inv_total <- df %>% filter(Ctry_code == "US") %>% 
+  period_inv_total <- df %>% filter(Ctry_code == "US") %>%
     group_by(TimePeriod) %>% summarise(N_inv_total = n())
-  period_inv_techgroup <- df %>% filter(Ctry_code == "US") %>% 
+  period_inv_techgroup <- df %>% filter(Ctry_code == "US") %>%
     group_by(TimePeriod, TechGroup) %>%
     summarise(N_inv_TechGroup = n()) %>%
     filter(is.na(TimePeriod) == FALSE)
   period_inv_techgroup <- left_join(period_inv_techgroup, period_inv_total, by = "TimePeriod")
-  period_inv_techgroup <- period_inv_techgroup %>% 
+  period_inv_techgroup <- period_inv_techgroup %>%
     mutate(annual_share_TechGroup = N_inv_TechGroup / N_inv_total) %>%
     select(TimePeriod, TechGroup, annual_share_TechGroup, N_inv_total)
-  
+
   # impute inventor stocks for regio-tech pairs:
-  res <- inv_stock_regiotech[, c("TechGroup", "Up_reg_label", "TimePeriod")] 
-  res <- left_join(res, 
-                   initial_inv_state[, c("Up_reg_label", "initial_share_state")], 
+  res <- inv_stock_regiotech[, c("TechGroup", "Up_reg_label", "TimePeriod")]
+  res <- left_join(res,
+                   initial_inv_state[, c("Up_reg_label", "initial_share_state")],
                    by = "Up_reg_label")
   res <- left_join(res, period_inv_techgroup, by = c("TechGroup", "TimePeriod"))
   res <- res %>% mutate(imputed_N_inv_regiotech = N_inv_total * annual_share_TechGroup * initial_share_state)
   res <- res %>% select(Up_reg_label, TechGroup, TimePeriod, imputed_N_inv_regiotech)
-  
+
   return(res)
   }
 
 imputed_inv_stock_regiotech <- impute_inv_stock_regiotech_fun(df = inv_dat)
 
 # combine indicators and calculate imputed foreign origin shares
-res <- merge(inv_stock_regiotech, imputed_inv_stock_regiotech, 
+res <- merge(inv_stock_regiotech, imputed_inv_stock_regiotech,
              by = c("TechGroup", "Up_reg_label","TimePeriod"), all = TRUE)
 res <- merge(res, initial_state_shares, by = "Up_reg_label")
 res <- merge(res, foreign_inv_stock, by = c("TimePeriod", "origin"))
@@ -539,7 +540,7 @@ print("Created instrument based on spatial distribution")
 ########################################################
 
 # create time trend variable
-tmp <- data.frame(TimePeriod = sort(unique(dat$TimePeriod)), 
+tmp <- data.frame(TimePeriod = sort(unique(dat$TimePeriod)),
                   trend = seq(1, length(unique(dat$TimePeriod))))
 dat <- left_join(dat, tmp, by = "TimePeriod")
 dat$TimePeriod = as.character(dat$TimePeriod)
@@ -555,11 +556,12 @@ dat <- dat %>% mutate(anglo_saxon_share = 1 - non_domestic_share,
   rename(imputed_N_inv_nonwestern = imputed_N_foreign_inv)
 
 # convert shares to percentage numbers
-dat[, grepl("share", names(dat))] <-dat[, grepl("share", names(dat))] * 100
+dat <- as.data.frame(dat)
+dat[, grepl("share", names(dat))] <- dat[, grepl("share", names(dat))] * 100
 
 # Save the complete dataset for regression analysis:
 # write.csv(dat, paste0(getwd(), "/Data/regression_data/regression_data_baseline.csv"),
 #           row.names = FALSE) # including subsidiaries
-# print("Saved dataset")
+#  print("Saved dataset")
 
 

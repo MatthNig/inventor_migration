@@ -3,7 +3,7 @@
 #               relationship between the share of foreign        #
 #               origin inventors and offshoring to the USA       #
 # Authors:      Matthias Niggli/CIEB UniBasel                    #
-# Last revised: 24.06.2021                                       #
+# Last revised: 29.06.2021                                       #
 ##################################################################
 
 #######################################
@@ -25,6 +25,7 @@ if(substr(x = getwd(),
 ###################################
 
 #panel_dat <- read.csv(paste0(getwd(), "/Data/regression_data/regression_data_baseline.csv"))
+# panel_dat <- read.csv(paste0(getwd(), "/Data/regression_data/time_period_robustness.csv"))
 panel_dat <- read.csv(paste0(getwd(), "/Data/regression_data/regression_data_robustness_checks.csv"))
 
 MIN_PERIOD <- 1984
@@ -45,7 +46,6 @@ panel_dat <- panel_dat[panel_dat$regio_tech %in% keep_regiotech, ]
 paste("Panel dataset with", nrow(panel_dat), "observations ready for regression analysis.")
 
 # if excluding some techfields:
-# unique(panel_dat$TechGroup)
 # excl_tech <- c("Information & Communication Technology", "Electrical Machinery",
 #                "Audiovisual Technologies", "Computer Science", "Medical Technology")
 # panel_dat <- filter(panel_dat, !TechGroup %in% excl_tech)
@@ -69,7 +69,7 @@ print("Choose weight variable from: ")
 c(names(panel_dat)[grepl("weight", names(panel_dat))])
 
 #### (1) BASELINE SPECIFICATION ----------------------------------------------------- 
-DEP_VAR <- "onshored_patents_worldclass"
+DEP_VAR <- "onshored_patents"
 
 WEIGHT_VAR <- "weight_initial_patents"
 EXPL_VAR <- "N_inv_nonwestern"
@@ -115,12 +115,16 @@ FORMULA
 ppml_model <- feglm(data = reg_dat, fml = FORMULA, family = "quasipoisson")
 print("PPML model without weights")
 summary(ppml_model, cluster = c("regio_tech")) # se clustered on tech-state pairs
+paste("Number of state-tech-field-pairs in the sample:", length(unique(reg_dat$regio_tech)))
 
 #### (2) Weighted BY INITIAL PATENTNING ACTIVITY : ---------------------------------
 ppml_model <- feglm(data = reg_dat, fml = FORMULA, 
                     weights = reg_dat[, WEIGHT_VAR], family = "quasipoisson")
 print("PPML model with weights")
 summary(ppml_model, cluster = c("regio_tech")) # clustered on tech-state pairs and time period
+paste("Number of observations in the sample:", nrow(reg_dat[is.na(reg_dat$weight_initial_patents) == FALSE, ]))
+paste("Number of state-tech-field-pairs in the sample:", length(unique(reg_dat[is.na(reg_dat$weight_initial_patents) == FALSE, ]$regio_tech)))
+
 
 #### (3) REDUCED FORM WITH INSTRUMENT: -----------------------------------------
 
@@ -181,10 +185,14 @@ FORMULA
 ppml_model <- feglm(data = reg_dat, fml = FORMULA, family = "quasipoisson")
 print("PPML model with imputed number of inventors without weights:")
 summary(ppml_model, cluster = c("regio_tech")) # se clustered on tech-state pairs and time periods
+paste("Number of state-tech-field-pairs in the sample:", length(unique(reg_dat$regio_tech)))
 
 # estimate the model with weights
 ppml_model <- feglm(data = reg_dat, fml = FORMULA, weights = reg_dat[, WEIGHT_VAR],
                     family = "quasipoisson")
 print("PPML model with imputed number of inventors with weights:")
 summary(ppml_model, cluster = c("regio_tech")) # se clustered on tech-state pairs and time periods
+paste("Number of observations in the sample:", nrow(reg_dat[is.na(reg_dat$weight_initial_patents) == FALSE, ]))
+paste("Number of state-tech-field-pairs in the sample:", length(unique(reg_dat[is.na(reg_dat$weight_initial_patents) == FALSE, ]$regio_tech)))
+
 

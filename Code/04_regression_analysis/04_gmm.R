@@ -39,6 +39,7 @@ if(substr(x = getwd(),
 ###################################
 
 #panel_dat <- read.csv(paste0(getwd(), "/Data/regression_data/regression_data_baseline.csv"))
+# panel_dat <- read.csv(paste0(getwd(), "/Data/regression_data/time_period_robustness.csv"))
 panel_dat <- read.csv(paste0(getwd(), "/Data/regression_data/regression_data_robustness_checks.csv"))
 print("Panel data loaded.")
 
@@ -61,7 +62,6 @@ paste("Panel dataset with", nrow(panel_dat), "observations loaded")
 keep_regiotech <- NULL
 
 # if excluding some techfields:
-# unique(panel_dat$TechGroup)
 # excl_tech <- c("Information & Communication Technology", "Electrical Machinery",
 #                "Audiovisual Technologies", "Computer Science", "Medical Technology")
 # panel_dat <- filter(panel_dat, !TechGroup %in% excl_tech)
@@ -84,13 +84,11 @@ print("Choose weight variable from: ")
 c(names(panel_dat)[grepl("weight", names(panel_dat))])
 
 # define the dependent variable
-dep_var <- "onshored_patents_worldclass"
+dep_var <- "onshored_patents"
 
 # define all explanatory variables:
 explan_vars <- c("N_inv_nonwestern",
                  "N_inv_regiotech",
-                 "N_inv_anglosaxon", 
-                 "N_patents_state", 
                  "N_patents_TechGroup")
 
 # define all exogenous instruments:
@@ -102,30 +100,6 @@ instruments <- c(instruments, grep("N_pat", explan_vars, value = TRUE)) # remain
 panel_dat <- panel_dat[, c("regio_tech", "TimePeriod", "TechGroup", 
                            dep_var, 
                            unique(c(explan_vars, instruments)))]
-
-# # create dummy variables for Tech-Groups for creating TechGroup-time-trends
-# N_obs <- nrow(panel_dat)
-# clusters <- panel_dat$regio_tech
-# dmy <- dummyVars(" ~ .", data = panel_dat %>% dplyr::select(-regio_tech))
-# panel_dat <- data.frame(predict(dmy, newdata = panel_dat %>% dplyr::select(-regio_tech)))
-# panel_dat <- panel_dat %>% dplyr::select(-TechGroupTransport)
-# dmy <- NULL
-# 
-# # test and add clusters:
-# if(sum(names(panel_dat) == "regio_tech") != 0){warnings("Dummies not correctly specified")}
-# if(nrow(panel_dat) != N_obs){warnings("Dummies not correctly specified")}
-# panel_dat$regio_tech <- clusters
-# dummies <- grep("TechGroup", names(panel_dat), value = TRUE)
-# dummies <- dummies[dummies != "N_patents_TechGroup"]
-# 
-# # construct TechGroup time trends
-# #panel_dat[, dummies] <- panel_dat[, dummies] * panel_dat$TimePeriod
-# trend <- data.frame(TimePeriod = sort(unique(panel_dat$TimePeriod)),
-#                     trend = seq(length(unique(panel_dat$TimePeriod)))
-#                     )
-# panel_dat <- left_join(panel_dat, trend, by = "TimePeriod")
-# trend <- NULL
-# panel_dat[, dummies] <- panel_dat[, dummies] * panel_dat$trend
 
 ###################################################
 ####### Specify the moment conditions model #######
@@ -243,11 +217,14 @@ if((length(THETA) == length(EXPLAN_VARS) & length(THETA) == length(INSTRUMENTS))
 # lag all explanatory variables and instruments
 LAG <- 0
 tmp <- panel_dat %>% mutate(idx = rownames(panel_dat))
+# LAG_VARS <- c(ENDOG_VARS, grep(ENDOG_VARS, INSTRUMENTS, value = TRUE)) # if only laggig main variable
 tmp <- tmp %>% group_by(regio_tech) %>% arrange(TimePeriod) %>%
-        dplyr::select(-dep_var) %>% mutate_all(~dplyr::lag(., LAG)) %>% 
+        dplyr::select(-dep_var) %>% mutate_all(~dplyr::lag(., LAG)) %>%
+        # dplyr::select(idx, LAG_VARS) %>% mutate_all(~dplyr::lag(., LAG)) %>% # if only lagging main variable
         arrange(as.numeric(idx))
 panel_dat <- panel_dat[, c("regio_tech", dep_var, unique(c(EXPLAN_VARS, INSTRUMENTS)))]
 panel_dat[, -2] <- tmp[, names(panel_dat)[-2]]
+# panel_dat[, LAG_VARS] <- tmp[, LAG_VARS] # if only lagging main variable
 tmp <- NULL
 
 panel_dat <- panel_dat[complete.cases(panel_dat), ]

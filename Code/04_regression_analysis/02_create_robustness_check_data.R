@@ -48,7 +48,7 @@ dat <- df %>% dplyr::select(-country_firm_adj) %>%
 dat <- country_onshoring(df = dat, onshoring_country = "US", collaboration = FALSE,
                          triadic_only = FALSE, inventor_number = 1, world_class_indicator = FALSE)
 dat <- data_processing_fun(dat = dat)
-# => "Data on onshored patents prepared. 129'776 onshored patents used for analysis"
+# => "Data on onshored patents prepared. 135'294 onshored patents used for analysis"
 
 #### Add the new variable to the robustness check data:
 NEW_VAR <- "onshored_patents_exclsubsidiaries"
@@ -66,7 +66,7 @@ paste("Discard", nrow(dat[dat$country_firm_adj %in% TAX_HAVENS, ]),
       "entries from patents assigned by companies in tax havens") # 954'511
 dat <- dat %>% filter(!country_firm_adj %in% TAX_HAVENS)
 dat <- data_processing_fun(dat = dat)
-# => "Data on onshored patents prepared. 130'427 onshored patents used for analysis"
+# => "Data on onshored patents prepared. 135'244 onshored patents used for analysis"
 
 #### Add the new variable to the robustness check data:
 NEW_VAR <- "onshored_patents_notaxhavens"
@@ -84,7 +84,7 @@ dat <- country_onshoring(df = df, onshoring_country = "US", collaboration = FALS
                          triadic_only = FALSE, inventor_number = MIN_INV, 
                          world_class_indicator = FALSE)
 dat <- data_processing_fun(dat = dat)
-# => "Data on onshored patents prepared. 114'749 onshored patents used for analysis"
+# => "Data on onshored patents prepared. 119'951 onshored patents used for analysis"
 
 #### add the new variable to the baseline data:
 NEW_VAR <- "onshored_patents_twoinv"
@@ -99,7 +99,7 @@ robustness_dat <- combine_dat_fun(dat = dat,
 dat <- country_onshoring(df = df, onshoring_country = "US", collaboration = FALSE,
                          triadic_only = FALSE, inventor_number = 1, world_class_indicator = TRUE)
 dat <- data_processing_fun(dat = dat)
-# => "Data on onshored patents prepared. 28'650  onshored patents used for analysis"
+# => "Data on onshored patents prepared. 29'560  onshored patents used for analysis"
 
 #### add the new variable to the baseline data:
 NEW_VAR <- "onshored_patents_worldclass"
@@ -108,7 +108,7 @@ robustness_dat <- combine_dat_fun(dat = dat,
                                   new_var = NEW_VAR)
 
 ###############################################
-### (D) Exclude largest sending countries #####
+### (E) Exclude largest sending countries #####
 ###############################################
 
 #### Collect data: discard tax havens
@@ -122,10 +122,10 @@ sending_countries <- subset(dat, onshored == 1)
 sending_countries <- sending_countries[1:2, ]$country_firm_adj
 
 paste("Discard", nrow(dat[dat$country_firm_adj %in% sending_countries, ]), 
-      "entries from patents assigned by companies in tax havens") # 6'949'469
+      "entries from patents assigned by companies in Germany or Japan") # 6'949'469
 dat <- dat %>% filter(!country_firm_adj %in% sending_countries)
 dat <- data_processing_fun(dat = dat)
-# => "Data on onshored patents prepared. 116'624  onshored patents used for analysis"
+# => "Data on onshored patents prepared. 120'786  onshored patents used for analysis"
 
 #### Add the new variable to the robustness check data:
 NEW_VAR <- "onshored_patents_excldejp"
@@ -134,7 +134,7 @@ robustness_dat <- combine_dat_fun(dat = dat,
                                   new_var = NEW_VAR)
 
 ###############################################################################
-### (E) Exclude tech-fields with largest inflows of non-western inventors #####
+### (F) Exclude tech-fields with largest inflows of non-western inventors #####
 ###############################################################################
 
 # identify US tech_fields with largest relative inflows between 1985 and 2015:
@@ -146,15 +146,17 @@ tmp <- merge(tmp %>% filter(p_year == 2015), base_year, by = "TechGroup")
 tmp <- tmp %>% mutate(inflow = count / base_count) %>% arrange(-inflow)
 print("Exluding the following tech_fields:")
 (excl_techfields <- tmp[tmp$inflow > 5, "TechGroup"])
-# [1] "Information & Communication Technology" "Electrical Machinery"                  
-# [3] "Audiovisual Technologies"               "Computer Science"                      
-# [5] "Medical Technology"
+# [1] "Information & Communication Technology"
+# [2] "Electrical Machinery"                  
+# [3] "Audiovisual Technologies"              
+# [4] "Computer Science"                      
+# [5] "Medical Technology"                    
 tmp <- NULL
 excl_techfields <- NULL
 base_year <- NULL
 
 ###########################################################################
-### (F) Exclude regions with largest inflows of non-western inventors #####
+### (G) Exclude regions with largest inflows of non-western inventors #####
 ###########################################################################
 
 # identify US tech_fields with largest relative inflows between 1985 and 2015:
@@ -172,7 +174,7 @@ base_year <- NULL
 
 
 #########################################################################
-### (G) Calculate inventor numbers based on highest prediction only #####
+### (H) Calculate inventor numbers based on highest prediction only #####
 #########################################################################
 
 # (1) assign technological groups and TimePeriods to inventors
@@ -311,7 +313,7 @@ inv_stock_regiotech <- NULL
 
 
 #########################################################################
-### (H) Calculate the number of offshoring firms instead of patents #####
+### (I) Calculate the number of offshoring firms instead of patents #####
 #########################################################################
 
 # (1) identify offshored patents to the USA
@@ -326,7 +328,7 @@ dat <- assign_TimePeriod(df = dat)
 dat <- dat %>% filter(onshored == 1 & ctry_inv == "US") %>% 
         distinct(organization, regio_inv, TechGroup, TimePeriod)
 N_firms_overall <- dat %>% distinct(organization) %>% nrow() # N = 14'151
-paste("Considering", N_firms_overall, "non-American firms with offshored patents to the USA")
+paste("Considering", N_firms_overall, "non-American firms with offshored patents to the USA") # 14'151
 dat <- dat %>% group_by(regio_inv, TechGroup, TimePeriod) %>% 
         summarize(N_offshoring_firms = n()) %>% na.omit()
 
@@ -346,6 +348,8 @@ write.csv(robustness_dat,
           paste0(getwd(), "/Data/regression_data/regression_data_robustness_checks.csv"),
           row.names = FALSE)
 print("Saved dataset")
+
+
 
 
 
