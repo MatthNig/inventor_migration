@@ -61,14 +61,32 @@ panel_dat <- panel_dat[panel_dat$regio_tech %in% keep_regiotech, ]
 paste("Panel dataset with", nrow(panel_dat), "observations loaded")
 keep_regiotech <- NULL
 
-# if excluding some techfields:
+#### if excluding some techfields:
 # excl_tech <- c("Information & Communication Technology", "Electrical Machinery",
 #                "Audiovisual Technologies", "Computer Science", "Medical Technology")
 # panel_dat <- filter(panel_dat, !TechGroup %in% excl_tech)
 
-# if excluding some states:
+#### if excluding some states:
 # excl_state <- c("New Hampshire", "Kentucky", "Delaware", "Washington", "South Carolina", "Vermont")
 # panel_dat <- filter(panel_dat, !regio_inv %in% excl_state)
+
+#### emerging technology fields only
+tmp <- panel_dat %>% group_by(TimePeriod) %>% 
+        mutate(total_pat = sum(N_patents_TechGroup)) %>%
+        group_by(TimePeriod, TechGroup) %>%
+        summarise(total_pat = mean(total_pat), share = sum(N_patents_TechGroup) / total_pat)
+test_fun <- function(dat){
+        dat %>% group_by(TimePeriod) %>% summarise(share = sum(share))
+        paste("All shares sum up to unity:", length(unique(dat$TimePeriod)) == sum(dat$share))
+}
+test_fun(tmp)
+tmp <- tmp %>% filter(TimePeriod %in% c(1988, 2015)) %>% 
+        group_by(TechGroup) %>% 
+        summarise(diff = diff(share)) %>%
+        arrange(-diff)
+emerging_techfields <- tmp$TechGroup[1:5]
+panel_dat <- filter(panel_dat, TechGroup %in% emerging_techfields)
+
 
 ################################################
 ####### Define the variables of interest #######

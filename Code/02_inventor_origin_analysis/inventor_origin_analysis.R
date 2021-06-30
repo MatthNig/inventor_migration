@@ -2,7 +2,7 @@
 # Description:    Script to evaluate migration flows of patent  #
 #                 inventors into the U.S. and EU countries      #
 # Authors:        Matthias Niggli/CIEB UniBasel                 #
-# Last revised:   01.04.2021                                    #
+# Last revised:   30.06.2021                                    #
 #################################################################
 
 #######################################
@@ -55,16 +55,16 @@ origin_dist <- function(df){
 
 plot_df <- origin_dist(df = inv_dat)
 
-ggplot(plot_df, aes(x = share, y = p_year, fill = origin))+
+ggplot(plot_df, aes(x = p_year, y = share, fill = origin))+
         geom_bar(stat = "identity", width = 1) +
-        scale_x_continuous(labels = scales::percent) +
+        scale_y_continuous(labels = scales::percent) +
         scale_fill_viridis(option = "viridis", discrete = TRUE) +
-        labs(y = "Year", x = "Share Among Patent Inventors",
+        labs(x = "Year", y = "Share Among Patent Inventors",
              fill = "Ethnic Origin")+
         theme(panel.background = element_blank(),
               axis.line = element_line(),
               axis.title = element_text(face="bold",size=10))
-
+ggsave("/scicore/home/weder/nigmat01/origin_distribution.png")
 
 ##############################################################
 ######## Figure 2: Dominant Domestic Ethnic Origin ###########
